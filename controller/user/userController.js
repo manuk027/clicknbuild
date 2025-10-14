@@ -1,4 +1,5 @@
 import User from "../../models/userSchema.js";
+import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";

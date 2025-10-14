@@ -1,386 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClickBuild</title>
+  <title>CB Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-<%-include("../../views/partials/user/header")%>
-<!-- Hero Section -->
-<div class="w-full h-48 md:h-72 lg:h-96 bg-cover bg-center" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1587829191301-71ba64f2b122?w=1200&h=400&fit=crop');">
-  <div class="w-full h-full flex items-center justify-center">
-    <div class="text-center px-4">
-      <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">YOUR SPECS, OUR BUILD</h1>
-      <p class="text-sm md:text-base lg:text-lg text-gray-100">BUILD IT. OWN IT. FLAUNT IT.</p>
-    </div>
-  </div>
-</div>
 
-<!-- Flash Sales Section -->
-<section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-white border-b border-gray-200">
-  <div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6 md:mb-8">
-      <h2 class="text-2xl md:text-3xl font-bold">Flash Sales</h2>
-      <div class="flex gap-2">
-        <button onclick="scrollFlashSales(-1)" class="p-2 hover:bg-gray-200 rounded-full transition">
-          <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
+<body class="bg-gray-50">
+  <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
+
+    <!-- ============================================
+             SIDEBAR SECTION - Mobile Responsive
+             ============================================ -->
+    <aside id="sidebar"
+      class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
+      <!-- Logo -->
+      <div class="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white flex items-center justify-center">
+        <div class="flex items-center gap-2">
+          <div
+            class="w-14 sm:w-20 h-14 sm:h-20 bg-black rounded flex items-center justify-center text-white font-bold text-xs sm:text-lg overflow-hidden">
+            <img src="/public/images/logo.png" alt="Logo" class="w-full h-full object-contain object-center">
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Navigation Menu -->
+      <nav class="p-2 sm:p-4 space-y-1 sm:space-y-2">
+        <!-- Dashboard Link -->
+        <a href="#dashboard"
+          class="nav-link flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors active bg-gray-100">
+          <i class="fas fa-chart-line w-5"></i>
+          <span class="text-sm sm:text-base">Dashboard</span>
+        </a>
+
+        <!-- Products Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-box w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Products</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
         </button>
-        <button onclick="scrollFlashSales(1)" class="p-2 hover:bg-gray-200 rounded-full transition">
-          <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
+
+        <!-- Order List Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-list w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Order List</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+
+        <!-- Customer Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-user w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Customer</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+
+        <!-- Sales Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-receipt w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Sales</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+
+        <!-- Category Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-th w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Category</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+
+        <!-- Coupons Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-ticket-alt w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Coupons</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+
+        <!-- Banner Link -->
+        <button
+          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <i class="fas fa-image w-5 flex-shrink-0"></i>
+            <span class="text-sm sm:text-base truncate">Banner</span>
+          </div>
+          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+        </button>
+      </nav>
+
+      <!-- Footer Section -->
+      <div class="p-2 sm:p-4 border-t border-gray-200 space-y-2 sticky bottom-0 bg-white">
+        <button
+          class="w-full px-3 sm:px-4 py-2 border-2 border-black rounded-lg text-black font-medium text-sm sm:text-base hover:bg-black hover:text-white transition-colors">
+          Account
+        </button>
+        <button
+          class="w-full px-3 sm:px-4 py-2 bg-black text-white rounded-lg font-medium text-sm sm:text-base hover:bg-gray-800 transition-colors">
+          Logout
         </button>
       </div>
-    </div>
-    
-    <div id="flashSalesContainer" class="overflow-x-auto scrollbar-hide">
-      <div class="flex gap-4 md:gap-6 pb-4">
-        <!-- Product 1 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1592286927505-1def25115558?w=200&h=200&fit=crop" alt="Antec Case" class="w-full h-full object-cover">
+    </aside>
+
+    <!-- ============================================
+             MAIN CONTENT SECTION - Responsive Layout
+             ============================================ -->
+    <div class="flex flex-col flex-1 w-full overflow-hidden">
+
+      <!-- ============================================
+                 HEADER SECTION - Mobile Responsive
+                 ============================================ -->
+      <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="flex items-center justify-between px-3 sm:px-6 md:px-8 py-3 sm:py-4">
+          <!-- Mobile Menu Toggle -->
+          <button id="menuToggle"
+            class="lg:hidden flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors">
+            <i class="fas fa-bars text-gray-700 text-lg"></i>
+          </button>
+
+          <!-- Header Title (Responsive) -->
+          <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Dashboard</h1>
+
+          <!-- Header Right Section -->
+          <div class="flex items-center gap-2 sm:gap-4">
+            <button
+              class="hidden sm:flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors text-gray-600">
+              <i class="fas fa-search text-lg"></i>
+            </button>
+            <button
+              class="flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 relative">
+              <i class="fas fa-bell text-lg"></i>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop" alt="Admin"
+                class="w-6 sm:w-8 h-6 sm:h-8 rounded-full">
+              <div class="hidden sm:block">
+                <p class="text-xs sm:text-sm font-medium text-gray-700">Admin</p>
+              </div>
+              <i class="fas fa-chevron-down text-xs sm:text-sm text-gray-600 hidden sm:block"></i>
+            </div>
           </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹11,500</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+        </div>
+      </header>
+
+      <!-- ============================================
+                 PAGE CONTENT SECTION - Responsive Grid
+                 ============================================ -->
+      <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
+
+        <!-- Stats Cards Row - Responsive Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
+
+          <!-- Total Customers Card -->
+          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Customers</p>
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">5,423</h3>
+                <p class="text-green-600 text-xs font-medium mt-2">↑ 16% this month</p>
+              </div>
+              <div
+                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-users text-green-600 text-base sm:text-lg"></i>
+              </div>
+            </div>
           </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+
+          <!-- Total Orders Card -->
+          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Orders</p>
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">1,893</h3>
+                <p class="text-gray-500 text-xs font-medium mt-2">Orders placed</p>
+              </div>
+              <div
+                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-truck text-green-600 text-base sm:text-lg"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Sales Card -->
+          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Sales</p>
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">₹65,805</h3>
+                <p class="text-gray-500 text-xs font-medium mt-2">Revenue</p>
+              </div>
+              <div
+                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-dollar-sign text-green-600 text-base sm:text-lg"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Pending Card -->
+          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Pending</p>
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">189</h3>
+                <p class="text-gray-500 text-xs font-medium mt-2">Pending orders</p>
+              </div>
+              <div
+                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-hourglass-half text-green-600 text-base sm:text-lg"></i>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Product 2 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1587829191301-71ba64f2b122?w=200&h=200&fit=crop" alt="Antec AX22" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec AX22</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹2,100</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹5,999</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
+        <!-- Sales Details Section Header -->
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Sales Details</h2>
 
-        <!-- Product 3 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1622663889623-06e7d906b358?w=200&h=200&fit=crop" alt="Lianli Odyssey" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Lianli Odyssey X</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹23,724</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹71,050</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
+        <!-- Sales Details Grid - Responsive Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
-        <!-- Product 4 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1587614382346-4ec2e10529d0?w=200&h=200&fit=crop" alt="Ant Esports" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Ant Esports CYPHER G7</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹12,799</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹85,499</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
+          <!-- Sales Progress Card -->
+          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-800">Sales Progress</h3>
+              <button class="text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+            </div>
+            <p class="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">This Quarter</p>
 
-        <!-- Product 5 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1516849677804-a9ce2165b776?w=200&h=200&fit=crop" alt="Extra Product" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Premium Gaming Case</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹8,999</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹18,999</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
-      </div>
-    </div>
+            <!-- Circular Progress -->
+            <div class="flex justify-center mb-4 sm:mb-6">
+              <div class="relative w-24 sm:w-32 h-24 sm:h-32">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="8"
+                    stroke-dasharray="235.619" stroke-dashoffset="57.14" stroke-linecap="round" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-lg sm:text-2xl font-bold text-gray-800">75.55%</span>
+                  <span class="text-xs sm:text-sm text-green-600 font-medium">+10%</span>
+                </div>
+              </div>
+            </div>
 
-    <div class="text-center mt-6 md:mt-8">
-      <button class="bg-black text-white px-6 md:px-8 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View All Products</button>
-    </div>
-  </div>
-</section>
+            <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">You succeed earn ₹28963 today, its higher than
+              yesterday</p>
 
-<!-- Popular Brands Section -->
-<section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Popular Brands</h2>
-    
-    <div class="flex items-center justify-between gap-2 md:gap-4">
-      <button onclick="scrollBrands(-1)" class="p-2 hover:bg-gray-200 rounded-full transition flex-shrink-0">
-        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </button>
-      
-      <div id="brandsContainer" class="flex-1 overflow-x-auto scrollbar-hide">
-        <div class="flex gap-6 md:gap-8 pb-2">
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/ASUS_Logo.svg/200px-ASUS_Logo.svg.png" alt="ASUS" class="h-8 md:h-10 object-contain">
+            <!-- Progress Stats -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
+              <div class="text-center">
+                <p class="text-xs text-gray-500 mb-1">Target</p>
+                <p class="text-sm sm:text-lg font-bold text-gray-800">₹30k <span class="text-red-500 text-xs">↓</span>
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-xs text-gray-500 mb-1">Revenue</p>
+                <p class="text-sm sm:text-lg font-bold text-gray-800">₹16k <span class="text-green-500 text-xs">↑</span>
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-xs text-gray-500 mb-1">Today</p>
+                <p class="text-sm sm:text-lg font-bold text-gray-800">₹28k <span class="text-green-500 text-xs">↑</span>
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MSI_logo.svg/200px-MSI_logo.svg.png" alt="MSI" class="h-8 md:h-10 object-contain">
-          </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Razer_Inc._logo.svg/200px-Razer_Inc._logo.svg.png" alt="RAZER" class="h-8 md:h-10 object-contain">
-          </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Lian_Li_Logo.svg/200px-Lian_Li_Logo.svg.png" alt="LIAN LI" class="h-8 md:h-10 object-contain">
-          </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Corsair_Gaming_Logo.svg/200px-Corsair_Gaming_Logo.svg.png" alt="CORSAIR" class="h-8 md:h-10 object-contain">
-          </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Cooler_Master_logo.svg/200px-Cooler_Master_logo.svg.png" alt="COOLER MASTER" class="h-8 md:h-10 object-contain">
-          </div>
-          <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/NVIDIA_logo.svg/200px-NVIDIA_logo.svg.png" alt="NVIDIA" class="h-8 md:h-10 object-contain">
-          </div>
-        </div>
-      </div>
-      
-      <button onclick="scrollBrands(1)" class="p-2 hover:bg-gray-200 rounded-full transition flex-shrink-0">
-        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-      </button>
-    </div>
-  </div>
-</section>
 
-<!-- Limited Edition Section -->
-<section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Limited Edition</h2>
-    
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <!-- Limited Product 1 -->
-      <div>
-        <div class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
-          <img src="https://images.unsplash.com/photo-1587614382346-4ec2e10529d0?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          <span class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
-        </div>
-        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG Hatsune Miku</h3>
-        <div class="flex gap-2 mb-1 text-xs md:text-sm">
-          <span class="font-bold">₹85,472</span>
-          <span class="text-gray-500 line-through">₹2,06K</span>
-        </div>
-        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
-      </div>
+          <!-- Activity Chart Card -->
+          <div class="lg:col-span-2 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity</h3>
+              <select
+                class="text-xs sm:text-sm text-gray-600 bg-transparent border border-gray-300 rounded px-2 sm:px-3 py-1 hover:border-gray-400 w-full sm:w-auto">
+                <option>Month</option>
+                <option>Week</option>
+                <option>Year</option>
+              </select>
+            </div>
 
-      <!-- Limited Product 2 -->
-      <div>
-        <div class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
-          <img src="https://images.unsplash.com/photo-1622663889623-06e7d906b358?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          <span class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
-        </div>
-        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG DOOM Edition</h3>
-        <div class="flex gap-2 mb-1 text-xs md:text-sm">
-          <span class="font-bold">₹1,77,431</span>
-          <span class="text-gray-500 line-through">₹2,38K</span>
-        </div>
-        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
-      </div>
-
-      <!-- Limited Product 3 -->
-      <div>
-        <div class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
-          <img src="https://images.unsplash.com/photo-1516849677804-a9ce2165b776?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          <span class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
-        </div>
-        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG Ghasoda Core</h3>
-        <div class="flex gap-2 mb-1 text-xs md:text-sm">
-          <span class="font-bold">₹2,30,662</span>
-          <span class="text-gray-500 line-through">₹2,43K</span>
-        </div>
-        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
-      </div>
-
-      <!-- Limited Product 4 -->
-      <div>
-        <div class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
-          <img src="https://images.unsplash.com/photo-1587829191301-71ba64f2b122?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          <span class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
-        </div>
-        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG EVA-02 Edition</h3>
-        <div class="flex gap-2 mb-1 text-xs md:text-sm">
-          <span class="font-bold">₹1,34,200</span>
-          <span class="text-gray-500 line-through">₹1,60K</span>
-        </div>
-        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Best Seller Section -->
-<section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
-  <div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6 md:mb-8">
-      <h2 class="text-2xl md:text-3xl font-bold">Best Seller</h2>
-      <button class="bg-black text-white px-4 md:px-6 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View All</button>
-    </div>
-    
-    <div id="bestSellerContainer" class="overflow-x-auto scrollbar-hide">
-      <div class="flex gap-4 md:gap-6 pb-4">
-        <!-- Best Seller Product 1 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1593642632505-06dc76b1c458?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
+            <!-- Responsive Bar Chart -->
+            <div class="overflow-x-auto">
+              <div class="flex items-end justify-between min-w-max sm:min-w-full h-48 sm:h-64 gap-1 sm:gap-2">
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 20%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JAN</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 30%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">FEB</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 25%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAR</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 50%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">APR</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 60%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAY</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 45%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUN</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 55%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUL</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 15%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">AUG</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 65%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">SEP</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 75%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">OCT</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 85%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">NOV</p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                  <div class="w-full bg-blue-500 rounded-t" style="height: 95%"></div>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">DEC</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG Liquid Cooler</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
         </div>
-
-        <!-- Best Seller Product 2 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1592286927505-1def25115558?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG Air Cooler</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
-
-        <!-- Best Seller Product 3 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1587614382346-4ec2e10529d0?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG AIO Cooler</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
-
-        <!-- Best Seller Product 4 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1622663889623-06e7d906b358?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG RGB Cooler</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
-
-        <!-- Best Seller Product 5 -->
-        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-          <div class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1516849677804-a9ce2165b776?w=200&h=200&fit=crop" alt="Product" class="w-full h-full object-cover">
-          </div>
-          <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Gaming PC Case</h3>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-            <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-          </div>
-          <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-        </div>
-      </div>
+      </main>
     </div>
   </div>
-</section>
 
-<!-- Our Customers Section -->
-<section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">Our Customers</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-      <!-- Customer 1 -->
-      <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
-        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
-          "As a content creator, i need my work to be faster than my deadlines. i rely on cb-builds for high-end workstations and they delivered above my expectations."
-        </p>
-        <p class="font-semibold text-xs md:text-sm">- Roshan</p>
-      </div>
+  <!-- ============================================
+         JAVASCRIPT FOR INTERACTIVITY
+         ============================================ -->
+  <script>
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
 
-      <!-- Customer 2 -->
-      <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
-        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
-          "When i started gaming i needed a computer tailored to my needs and budget. cb-builds listened to my needs and build me a monster gaming machine."
-        </p>
-        <p class="font-semibold text-xs md:text-sm">- Hardik B</p>
-      </div>
-
-      <!-- Customer 3 -->
-      <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
-        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
-          "I have invested in multiple builds in the past and always wanted to upgrade. your team patiently heard my thoughts and helped me build perfect."
-        </p>
-        <p class="font-semibold text-xs md:text-sm">- Abhishek Chouhan</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA Section -->
-<section class="py-12 md:py-16 px-4 md:px-8 bg-gray-50">
-  <div class="max-w-7xl mx-auto text-center">
-    <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide">YOU CLICK, WE BUILD</h2>
-  </div>
-</section>
-<%-include("../../views/partials/user/footer")%>
-<style>
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-</style>
-
-<script>
-  function scrollFlashSales(direction) {
-    const container = document.getElementById('flashSalesContainer');
-    const scrollAmount = 300;
-    container.scrollBy({
-      left: direction * scrollAmount,
-      behavior: 'smooth'
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
     });
-  }
 
-  function scrollBrands(direction) {
-    const container = document.getElementById('brandsContainer');
-    const scrollAmount = 250;
-    container.scrollBy({
-      left: direction * scrollAmount,
-      behavior: 'smooth'
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth < 1024) {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.add('-translate-x-full');
+        }
+      }
     });
-  }
 
-  function scrollBestSeller(direction) {
-    const container = document.getElementById('bestSellerContainer');
-    const scrollAmount = 300;
-    container.scrollBy({
-      left: direction * scrollAmount,
-      behavior: 'smooth'
+    // Close sidebar when clicking on a nav link on mobile
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 1024) {
+          sidebar.classList.add('-translate-x-full');
+        }
+      });
     });
-  }
-</script>
 
+    // Handle responsive sidebar on window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    });
+
+    // Set active nav link on click
+    navLinks.forEach(link => {
+      link.addEventListener('click', function () {
+        navLinks.forEach(l => l.classList.remove('active', 'bg-gray-100'));
+        this.classList.add('active', 'bg-gray-100');
+      });
+    });
+
+    // Active link styling
+    const style = document.createElement('style');
+    style.textContent = `
+            .nav-link.active {
+                background-color: #f3f4f6 !important;
+                color: #1f2937;
+            }
+            
+            /* Responsive scrollbar for chart */
+            @media (max-width: 640px) {
+                .overflow-x-auto {
+                    -webkit-overflow-scrolling: touch;
+                }
+            }
+        `;
+    document.head.appendChild(style);
+  </script>
 </body>
+
 </html>
