@@ -1,21 +1,191 @@
-<link rel="stylesheet" href="/stylesheet/header.css">
-<header>
-  <div class="logo">
-    <img src="/images/logo.png" alt="logo">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<body class="font-[Poppins]">
+
+  <header class="bg-black text-white px-6 md:px-12 py-0 h-24 flex items-center justify-between">
+
+    <div class="logo flex items-center h-24 w-24">
+      <img src="/images/logo.png" alt="logo" class="w-full h-full object-contain">
+    </div>
+
+    <div class="bg-white rounded-md flex items-center px-2 w-1/2 md:w-1/3">
+      <input type="text" placeholder="Search" class="p-2 w-full text-black border-none outline-none text-sm rounded-md">
+    </div>
+
+    <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+        class="w-7 h-7">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+      </svg>
+    </button>
+
+    <div class="hidden md:flex items-center gap-12">
+      <nav class="flex items-center gap-10">
+        <a href="/" class="hover:text-gray-300">Home</a>
+        
+        <!-- Components Dropdown -->
+        <div class="relative group">
+          <button class="hover:text-gray-300 flex items-center gap-1">
+            Components
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+          <div class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Graphics Cards</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Processors</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Motherboards</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">RAM Memory</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Power Supplies</a>
+          </div>
+        </div>
+
+        <!-- Peripherals Dropdown -->
+        <div class="relative group">
+          <button class="hover:text-gray-300 flex items-center gap-1">
+            Peripherals
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+          <div class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Keyboards</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Mice</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Monitors</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Headsets</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Webcams</a>
+          </div>
+        </div>
+
+        <%if(!locals.user){%>
+          <a href="/login" class="hover:text-gray-300">Login / Signup</a>
+        <%}%>
+      </nav>
+
+      <%if(locals.user){%>
+      <div class="flex gap-6 items-center">
+        <a href="#" class="hover:opacity-70 transition">
+          <img src="/images/heart.png" alt="wishlist" class="w-6 h-6">
+        </a>
+        <a href="#" class="hover:opacity-70 transition">
+          <img src="/images/cart.png" alt="cart" class="w-6 h-6">
+        </a>
+        
+        <!-- Profile Dropdown -->
+        <div class="relative group">
+          <button class="hover:text-gray-300 flex items-center gap-1">
+            
+            <%=locals.user.fullName%>
+            <!-- <img src="/images/user.png" alt="user" class="w-6 h-6"> -->
+            <span class="text-sm"><%=locals.user.name%></span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+          <div class="absolute right-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            <a href="/userProfile" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Profile</a>
+            <a href="/logout" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Logout</a>
+          </div>
+        </div>
+      </div>
+      <%}%>
+    </div>
+  </header>
+
+  <div id="mobile-menu" class="hidden flex flex-col items-center bg-black text-white py-4 space-y-4 md:hidden overflow-visible">
+    <a href="/" class="hover:text-gray-300">Home</a>
+    
+    <!-- Mobile Components Dropdown -->
+    <div class="w-full">
+      <button id="mobile-components-btn" class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+        Components
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="components-arrow">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div id="mobile-components-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
+        <a href="#" class="py-2 hover:bg-gray-200">Graphics Cards</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Processors</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Motherboards</a>
+        <a href="#" class="py-2 hover:bg-gray-200">RAM Memory</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Power Supplies</a>
+      </div>
+    </div>
+
+    <!-- Mobile Peripherals Dropdown -->
+    <div class="w-full">
+      <button id="mobile-peripherals-btn" class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+        Peripherals
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="peripherals-arrow">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div id="mobile-peripherals-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
+        <a href="#" class="py-2 hover:bg-gray-200">Keyboards</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Mice</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Monitors</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Headsets</a>
+        <a href="#" class="py-2 hover:bg-gray-200">Webcams</a>
+      </div>
+    </div>
+
+    <%if(!locals.user){%>
+    <a href="/login" class="hover:text-gray-300">Login/Signup</a>
+    <%}%>
+
+    <%if(locals.user){%>
+    <div class="flex flex-col items-center space-y-4">
+      <a href="#" class="hover:text-gray-300">Wishlist</a>
+      <a href="#" class="hover:text-gray-300">Cart</a>
+      
+      <!-- Mobile Profile Dropdown -->
+      <div class="relative w-full">
+        <button id="mobile-profile-btn" class="w-full hover:text-gray-300 flex items-center justify-center gap-1">
+          Profile
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="profile-arrow">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+        <div id="mobile-profile-menu" class="hidden flex flex-col items-center bg-white text-black py-2 w-full rounded-md mt-2 relative z-10">
+          <a href="/userProfile" class="py-2 hover:bg-gray-200 w-full text-center">Profile</a>
+          <a href="/logout" class="py-2 hover:bg-gray-200 w-full text-center">Logout</a>
+        </div>
+      </div>
+    </div>
+    <%}%>
   </div>
-  <nav>
-    <ul>
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Components</a></li>
-      <li><a href="#">Peripherals</a></li>
-    </ul>
-  </nav>
-  <div class="search-box">
-    <input type="text" placeholder="Search">
-  </div>
-  <div class="icons">
-    <span><img src="/images/heart.png" alt="whishlist" class="navicons"></span>
-    <span><img src="/images/cart.png" alt="cart" class="navicons"></span>
-    <span><img src="/images/user.png" alt="user" class="navicons"></span>
-  </div>
-</header>
+
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileComponentsBtn = document.getElementById('mobile-components-btn');
+    const mobileComponentsMenu = document.getElementById('mobile-components-menu');
+    const mobilePeripheralsBtn = document.getElementById('mobile-peripherals-btn');
+    const mobilePeripheralsMenu = document.getElementById('mobile-peripherals-menu');
+    const mobileProfileBtn = document.getElementById('mobile-profile-btn');
+    const mobileProfileMenu = document.getElementById('mobile-profile-menu');
+    const componentsArrow = document.getElementById('components-arrow');
+    const peripheralsArrow = document.getElementById('peripherals-arrow');
+    const profileArrow = document.getElementById('profile-arrow');
+
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    mobileComponentsBtn.addEventListener('click', () => {
+      mobileComponentsMenu.classList.toggle('hidden');
+      componentsArrow.style.transform = mobileComponentsMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+
+    mobilePeripheralsBtn.addEventListener('click', () => {
+      mobilePeripheralsMenu.classList.toggle('hidden');
+      peripheralsArrow.style.transform = mobilePeripheralsMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+
+    mobileProfileBtn.addEventListener('click', () => {
+      mobileProfileMenu.classList.toggle('hidden');
+      profileArrow.style.transform = mobileProfileMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+  </script>
+
+</body>

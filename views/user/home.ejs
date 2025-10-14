@@ -4,90 +4,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClickNBuild - E-Commerce</title>
-    <link rel="stylesheet" href="/stylesheet/home.css">
+    <title>ClickBuild</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
     <%-include("../../views/partials/user/header")%>
-        <section>
-            <h2>Flash Sales</h2>
-            <div class="product-list">
-                <div class="product">
-                    <img src="" alt="">
-                    <h4>Product 1</h4>
-                    <p>₹11,200 <span style="text-decoration: line-through; color: #999;">₹20,000</span></p>
-                    <div class="price">★★★★★</div>
-                </div>
-                <div class="product">
-                    <img src="" alt="">
-                    <h4>Product 2</h4>
-                    <p>₹3,100 <span style="text-decoration: line-through; color: #999;">₹5,999</span></p>
-                    <div class="price">★★★★★</div>
-                </div>
-                <div class="product">
-                    <img src="" alt="">
-                    <h4>Product 3</h4>
-                    <p>₹39,724 <span style="text-decoration: line-through; color: #999;">₹71,990</span></p>
-                    <div class="price">★★★★★</div>
+        <!-- Hero Section -->
+        <div class="w-full h-48 md:h-72 lg:h-96 bg-cover bg-center"
+            style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('../../images/banner1.jpg');">
+            <div class="w-full h-full flex items-center justify-center">
+                <div class="text-center px-4">
+                    <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">YOUR SPECS, OUR BUILD</h1>
+                    <p class="text-sm md:text-base lg:text-lg text-gray-100">BUILD IT. OWN IT. FLAUNT IT.</p>
                 </div>
             </div>
-            <button class="view-all">View All Products</button>
-        </section>
-        <section>
-            <h2>Popular Brands</h2>
-            <div class="brands">
-                <img src="" alt="">
-                <img src="" alt="">
-                <img src="" alt="">
-                <img src="" alt="">
-                <img src="" alt="">
-                <img src="" alt="">
+        </div>
+
+        <!-- Flash Sales Section -->
+        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 md:mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold">Flash Sales</h2>
+                    <div class="flex gap-2">
+                        <button onclick="scrollFlashSales(-1)" class="p-2 hover:bg-gray-200 rounded-full transition">
+                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <button onclick="scrollFlashSales(1)" class="p-2 hover:bg-gray-200 rounded-full transition">
+                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="flashSalesContainer" class="overflow-x-auto scrollbar-hide">
+                    <div class="flex gap-4 md:gap-6 pb-4">
+                        <!-- Product 1 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/Untitled design (9).png" alt="Antec Case"
+                                    class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Product 2 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/lianliodesseyx1.png" alt="Antec Case" class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                        <!-- Product 3 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/antesportscypherg7.png" alt="Antec Case"
+                                    class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                        <!-- Product 4 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/anteccr8white1.png" alt="Antec Case" class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Product 5 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/antecax221.png" alt="Antec Case" class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/antecax221.png" alt="Antec Case" class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="../../images/antecax221.png" alt="Antec Case" class=" h-full object-fit">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Antec C8 AR08 White</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹11,500</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹20,000</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6 md:mt-8">
+                    <button
+                        class="bg-black text-white px-6 md:px-8 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View
+                        All Products</button>
+                </div>
             </div>
         </section>
-        <section>
-            <h2>Limited Edition</h2>
-            <div class="product-list">
-                <div class="product"><img src="" alt="">
-                    <h4>ROG Hatsune Miku Edition</h4>
-                    <p>₹1,68,472</p>
-                </div>
-                <div class="product"><img src="" alt="">
-                    <h4>ROG Doom Edition</h4>
-                    <p>₹1,77,431</p>
-                </div>
-                <div class="product"><img src="" alt="">
-                    <h4>ROG EVA Edition</h4>
-                    <p>₹1,24,200</p>
+
+        <div class="w-full flex justify-center my-6 px-4">
+            <div class="w-full max-w-3xl h-px bg-gray-300"></div>
+        </div>
+
+
+        <!-- Popular Brands Section -->
+        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Popular Brands</h2>
+
+                <div class="flex items-center justify-between gap-2 md:gap-4">
+                    <button onclick="scrollBrands(-1)"
+                        class="p-2 hover:bg-gray-200 rounded-full transition flex-shrink-0">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <div id="brandsContainer" class="flex-1 overflow-x-auto scrollbar-hide">
+                        <div class="flex gap-6 md:gap-8 pb-2">
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/ASUS_Logo.svg/200px-ASUS_Logo.svg.png"
+                                    alt="ASUS" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MSI_logo.svg/200px-MSI_logo.svg.png"
+                                    alt="MSI" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Razer_Inc._logo.svg/200px-Razer_Inc._logo.svg.png"
+                                    alt="RAZER" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Lian_Li_Logo.svg/200px-Lian_Li_Logo.svg.png"
+                                    alt="LIAN LI" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Corsair_Gaming_Logo.svg/200px-Corsair_Gaming_Logo.svg.png"
+                                    alt="CORSAIR" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Cooler_Master_logo.svg/200px-Cooler_Master_logo.svg.png"
+                                    alt="COOLER MASTER" class="h-8 md:h-10 object-contain">
+                            </div>
+                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/NVIDIA_logo.svg/200px-NVIDIA_logo.svg.png"
+                                    alt="NVIDIA" class="h-8 md:h-10 object-contain">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="scrollBrands(1)"
+                        class="p-2 hover:bg-gray-200 rounded-full transition flex-shrink-0">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </section>
-        <section>
-            <h2>Best Seller</h2>
-            <div class="product-list">
-                <div class="product"><img src="" alt="">
-                    <h4>Product A</h4>
-                    <p>₹1,68,472</p>
-                </div>
-                <div class="product"><img src="" alt="">
-                    <h4>Product B</h4>
-                    <p>₹1,68,472</p>
-                </div>
-                <div class="product"><img src="" alt="">
-                    <h4>Product C</h4>
-                    <p>₹1,68,472</p>
+
+        <div class="w-full my-6">
+            <div class="h-px bg-black w-full"></div>
+        </div>
+
+
+
+        <!-- Limited Edition Section -->
+        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Limited Edition</h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+                    <!-- Limited Product 1 -->
+                    <div>
+                        <div
+                            class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1587614382346-4ec2e10529d0?w=200&h=200&fit=crop"
+                                alt="Product" class="w-full h-full object-cover">
+                            <span
+                                class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
+                        </div>
+                        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG Hatsune Miku</h3>
+                        <div class="flex gap-2 mb-1 text-xs md:text-sm">
+                            <span class="font-bold">₹85,472</span>
+                            <span class="text-gray-500 line-through">₹2,06K</span>
+                        </div>
+                        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
+                    </div>
+
+                    <!-- Limited Product 2 -->
+                    <div>
+                        <div
+                            class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1622663889623-06e7d906b358?w=200&h=200&fit=crop"
+                                alt="Product" class="w-full h-full object-cover">
+                            <span
+                                class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
+                        </div>
+                        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG DOOM Edition</h3>
+                        <div class="flex gap-2 mb-1 text-xs md:text-sm">
+                            <span class="font-bold">₹1,77,431</span>
+                            <span class="text-gray-500 line-through">₹2,38K</span>
+                        </div>
+                        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
+                    </div>
+
+                    <!-- Limited Product 3 -->
+                    <div>
+                        <div
+                            class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1516849677804-a9ce2165b776?w=200&h=200&fit=crop"
+                                alt="Product" class="w-full h-full object-cover">
+                            <span
+                                class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
+                        </div>
+                        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG Ghasoda Core</h3>
+                        <div class="flex gap-2 mb-1 text-xs md:text-sm">
+                            <span class="font-bold">₹2,30,662</span>
+                            <span class="text-gray-500 line-through">₹2,43K</span>
+                        </div>
+                        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
+                    </div>
+
+                    <!-- Limited Product 4 -->
+                    <div>
+                        <div
+                            class="bg-gray-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1587829191301-71ba64f2b122?w=200&h=200&fit=crop"
+                                alt="Product" class="w-full h-full object-cover">
+                            <span
+                                class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
+                        </div>
+                        <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">ROG EVA-02 Edition</h3>
+                        <div class="flex gap-2 mb-1 text-xs md:text-sm">
+                            <span class="font-bold">₹1,34,200</span>
+                            <span class="text-gray-500 line-through">₹1,60K</span>
+                        </div>
+                        <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
+                    </div>
                 </div>
             </div>
         </section>
-        <section>
-            <h2>Our Customers</h2>
-            <div class="customers">
-                <div class="customer-box">“I was tired of using systems that lagged...”</div>
-                <div class="customer-box">“Being a student, I wanted a computer that could balance...”</div>
-                <div class="customer-box">“I had always wanted to build a gaming PC...”</div>
+
+        <div class="w-full my-6">
+            <div class="h-px bg-black w-full"></div>
+        </div>
+
+        <!-- Best Seller Section -->
+        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 md:mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold">Best Seller</h2>
+                    <button
+                        class="bg-black text-white px-4 md:px-6 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View
+                        All</button>
+                </div>
+
+                <div id="bestSellerContainer" class="overflow-x-auto scrollbar-hide">
+                    <div class="flex gap-4 md:gap-6 pb-4">
+                        <!-- Best Seller Product 1 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1593642632505-06dc76b1c458?w=200&h=200&fit=crop"
+                                    alt="Product" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG Liquid Cooler</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Best Seller Product 2 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1592286927505-1def25115558?w=200&h=200&fit=crop"
+                                    alt="Product" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG Air Cooler</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Best Seller Product 3 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1587614382346-4ec2e10529d0?w=200&h=200&fit=crop"
+                                    alt="Product" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG AIO Cooler</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Best Seller Product 4 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1622663889623-06e7d906b358?w=200&h=200&fit=crop"
+                                    alt="Product" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG RGB Cooler</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+
+                        <!-- Best Seller Product 5 -->
+                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
+                            <div
+                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1516849677804-a9ce2165b776?w=200&h=200&fit=crop"
+                                    alt="Product" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">Gaming PC Case</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
+                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full my-6">
+            <div class="h-px bg-black w-full"></div>
+        </div>
+
+        <!-- Our Customers Section -->
+        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">Our Customers</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <!-- Customer 1 -->
+                    <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
+                        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
+                            "As a content creator, i need my work to be faster than my deadlines. i rely on cb-builds
+                            for high-end workstations and they delivered above my expectations."
+                        </p>
+                        <p class="font-semibold text-xs md:text-sm">- Roshan</p>
+                    </div>
+
+                    <!-- Customer 2 -->
+                    <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
+                        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
+                            "When i started gaming i needed a computer tailored to my needs and budget. cb-builds
+                            listened to my needs and build me a monster gaming machine."
+                        </p>
+                        <p class="font-semibold text-xs md:text-sm">- Hardik B</p>
+                    </div>
+
+                    <!-- Customer 3 -->
+                    <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
+                        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
+                            "I have invested in multiple builds in the past and always wanted to upgrade. your team
+                            patiently heard my thoughts and helped me build perfect."
+                        </p>
+                        <p class="font-semibold text-xs md:text-sm">- Abhishek Chouhan</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-12 md:py-16 px-4 md:px-8 bg-gray-50">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide">YOU CLICK, WE BUILD</h2>
             </div>
         </section>
         <%-include("../../views/partials/user/footer")%>
+            <style>
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            </style>
+
+            <script>
+                function scrollFlashSales(direction) {
+                    const container = document.getElementById('flashSalesContainer');
+                    const scrollAmount = 300;
+                    container.scrollBy({
+                        left: direction * scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+
+                function scrollBrands(direction) {
+                    const container = document.getElementById('brandsContainer');
+                    const scrollAmount = 250;
+                    container.scrollBy({
+                        left: direction * scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+
+                function scrollBestSeller(direction) {
+                    const container = document.getElementById('bestSellerContainer');
+                    const scrollAmount = 300;
+                    container.scrollBy({
+                        left: direction * scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            </script>
+
 </body>
 
 </html>

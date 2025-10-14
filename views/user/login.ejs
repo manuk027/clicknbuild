@@ -2,42 +2,61 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
-    <link rel="stylesheet" href="/stylesheet/login.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <div class="container">
-        <h2>Sign In</h2>
-        <form>
-            <div class="form-group">
-                <label for="email">Email address</label>
-                <input type="email" id="email" name="email" placeholder="Email">
-            </div>
+<body class="bg-white flex justify-center items-center h-screen font-[Poppins]">
+  <div class="w-full max-w-sm p-6 text-center">
+    <h2 class="text-2xl font-semibold mb-8">Sign In</h2>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Password">
-                <div class="forgot">
-                    <a href="#">Forgot password?</a>
-                </div>
-            </div>
+    <form action="/login" method="post">
+      <!-- Email -->
+      <div class="text-left mb-5">
+        <label for="email" class="block text-sm text-gray-600 mb-1">Email address</label>
+        <input type="text" id="email" name="email" placeholder="Email"
+          class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black">
+      </div>
 
-            <button type="submit" class="btn-login">Log in</button>
-        </form>
-
-        <div class="signup">
-            New user? <a href="#">Sign up</a>
+      <!-- Password -->
+      <div class="text-left mb-5">
+        <label for="password" class="block text-sm text-gray-600 mb-1">Password</label>
+        <input type="password" id="password" name="password" placeholder="Password"
+          class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black">
+        <div class="text-right mt-1">
+          <a href="#" class="text-xs text-gray-600 hover:underline">Forgot password?</a>
         </div>
+      </div>
 
-        <div class="divider">Or Login with</div>
+      <p class="text-red-500"><%-message%></p>
 
-        <button class="btn-google">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google icon"> Google
-        </button>
+      <!-- Login Button -->
+      <button type="submit"
+        class="w-full bg-black text-white py-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition duration-200 my-3">Log
+        in</button>
+    </form>
+
+    <!-- Sign Up -->
+    <div class="text-sm text-gray-600 mt-6">
+      New user? <a href="/signup" class="text-black font-medium hover:underline">Sign up</a>
     </div>
+
+    <!-- Divider -->
+    <div class="flex items-center text-gray-400 text-sm my-6">
+      <div class="flex-1 border-t border-gray-200"></div>
+      <span class="px-3">Or Login with</span>
+      <div class="flex-1 border-t border-gray-200"></div>
+    </div>
+
+    <!-- Google Button -->
+    <button
+      class="w-full py-3 border border-gray-300 rounded-lg flex justify-center items-center gap-2 text-sm bg-white hover:bg-gray-50 transition duration-200">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google icon" class="w-5 h-5">
+      Google
+    </button>
+  </div>
 </body>
 
 </html>

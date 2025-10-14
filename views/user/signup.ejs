@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white flex items-center justify-center min-h-screen font-inter">
+
+    <div class="w-80 text-center">
+        <h1 class="text-2xl font-semibold mb-6">Sign Up</h1>
+
+        <form id="signup" class="flex flex-col gap-3" action="/signup" method="post">
+
+            <!-- Full Name -->
+            <label class="text-left text-sm text-gray-800">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Fullname"
+                class="w-full p-2.5 border border-gray-300 rounded-md outline-none">
+            <div id="fullNameError" class="text-red-500 text-sm"></div>
+
+            <!-- Email -->
+            <label class="text-left text-sm text-gray-800">Email</label>
+            <input type="text" id="email" name="email" placeholder="Email"
+                class="w-full p-2.5 border border-gray-300 rounded-md outline-none">
+            <div id="emailError" class="text-red-500 text-sm"></div>
+
+            <!-- Password -->
+            <label class="text-left text-sm text-gray-800">Password</label>
+            <div class="relative">
+                <input type="password" id="password" name="password" placeholder="Password"
+                    class="w-full p-2.5 border border-gray-300 rounded-md outline-none">
+            </div>
+            <div id="passwordError" class="text-red-500 text-sm"></div>
+
+            <!-- Confirm Password -->
+            <label class="text-left text-sm text-gray-800">Confirm Password</label>
+            <div class="relative">
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password"
+                    class="w-full p-2.5 border border-gray-300 rounded-md outline-none">
+            </div>
+            <div id="confirmPasswordError" class="text-red-500 text-sm"></div>
+
+            <p class="text-red-500"><%-message%></p>
+
+            <!-- Referral -->
+            <p class="text-xs text-gray-600 mt-3">Anyone has referred you? Claim the reward</p>
+            <button type="button"
+                class="w-full border border-gray-300 rounded-md py-2 mt-1 font-medium hover:bg-gray-50">REFERRAL
+                CODE</button>
+
+            <!-- Login Link -->
+            <p class="text-xs text-gray-500 mt-2">Already have an account? <a href="/login"
+                    class="text-black font-semibold">Log in</a></p>
+
+            <!-- Sign Up Button -->
+            <button type="submit"
+                class="w-full bg-black text-white py-2 rounded-md font-semibold mt-2 hover:bg-gray-900">Sign
+                Up</button>
+
+            <!-- Divider -->
+            <div class="flex items-center justify-center text-gray-500 text-xs my-3">
+                <span class="border-t border-gray-300 w-2/5 mr-2"></span>
+                Or Register with
+                <span class="border-t border-gray-300 w-2/5 ml-2"></span>
+            </div>
+
+            <!-- Google Auth -->
+            <a type="button" href="/auth/google"
+                class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 font-medium hover:bg-gray-50">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo" class="w-5 h-5">
+                Google
+            </a>
+        </form>
+    </div>
+    <script>
+        const fullName = document.getElementById("fullName");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const fullNameError = document.getElementById("fullNameError");
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+        const confirmPasswordError = document.getElementById("confirmPasswordError");
+        const signup = document.getElementById("signup");
+
+        //fullName validation
+        function nameValidation(e) {
+            const fullNamePattern = /^[A-Za-z\s]+$/;
+            if (fullName.value.trim() === "") {
+                fullNameError.style.display = "block";
+                fullNameError.innerHTML = "Please enter your full name."
+            } else if (!fullNamePattern.test(fullName.value.trim())) {
+                fullNameError.style.display = "block";
+                fullNameError.innerHTML = "Name can only contain alphabets and spaces."
+            } else {
+                fullNameError.style.display = "none";
+                fullNameError.innerHTML = "";
+            }
+        };
+
+        //email validation
+        function emailValidation() {
+            const emailPattern = /^([a-zA-Z0-9._-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})$/;
+            if (email.value.trim() === "") {
+                emailError.style.display = "block";
+                emailError.innerHTML = "Please enter your email."
+            } else if (!emailPattern.test(email.value.trim())) {
+                emailError.style.display = "block";
+                emailError.innerHTML = "Email should be of the form example@email.com."
+            } else {
+                emailError.style.display = "none";
+                emailError.innerHTML = "";
+            }
+        };
+
+        //password validation
+        function passwordValidation() {
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
+
+            if (password.value.trim() === "") {
+                passwordError.style.display = "block";
+                passwordError.innerHTML = "Please enter your password.";
+            } else if (password.value.trim().length < 8) {
+                passwordError.style.display = "block";
+                passwordError.innerHTML = "Password should contain at least 8 characters.";
+            } else if (!passwordPattern.test(password.value.trim())) {
+                passwordError.style.display = "block";
+                passwordError.innerHTML = "Password should contain at least one special character, one digit, and a capital letter.";
+            } else {
+                passwordError.style.display = "none";
+                passwordError.innerHTML = "";
+            }
+        }
+
+
+        function confirmPasswordValidation() {
+            if (confirmPassword.value.trim() === "") {
+                confirmPasswordError.style.display = "block";
+                confirmPasswordError.innerHTML = "Please confirm your password.";
+            } else if (password.value.trim() !== confirmPassword.value.trim()) {
+                confirmPasswordError.style.display = "block";
+                confirmPasswordError.innerHTML = "Passwords do not match.";
+            } else {
+                confirmPasswordError.style.display = "none";
+                confirmPasswordError.innerHTML = "";
+            }
+        }
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            signup.addEventListener("submit", function (e) {
+                nameValidation();
+                emailValidation();
+                passwordValidation();
+                confirmPasswordValidation();
+                if (fullNameError.innerHTML || emailError.innerHTML || passwordError.innerHTML || confirmPasswordError.innerHTML) {
+                    e.preventDefault();
+                }
+            })
+        })
+    </script>
+
+</body>
+
+</html>
