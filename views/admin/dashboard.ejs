@@ -1,1 +1,213 @@
-<h1>dashboard</h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CB Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+  <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
+    <%- include("../../views/partials/admin/sidebar") %>
+      <div class="flex flex-col flex-1 w-full overflow-hidden">
+        <%- include("../../views/partials/admin/header") %>
+          <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
+
+            <!-- Stats Cards Row - Responsive Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
+
+              <!-- Total Customers Card -->
+              <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Customers</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">5,423</h3>
+                    <p class="text-green-600 text-xs font-medium mt-2">↑ 16% this month</p>
+                  </div>
+                  <div
+                    class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                    <i class="fas fa-users text-green-600 text-base sm:text-lg"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total Orders Card -->
+              <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Orders</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">1,893</h3>
+                    <p class="text-gray-500 text-xs font-medium mt-2">Orders placed</p>
+                  </div>
+                  <div
+                    class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                    <i class="fas fa-truck text-green-600 text-base sm:text-lg"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total Sales Card -->
+              <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Sales</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">₹65,805</h3>
+                    <p class="text-gray-500 text-xs font-medium mt-2">Revenue</p>
+                  </div>
+                  <div
+                    class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                    <i class="fas fa-dollar-sign text-green-600 text-base sm:text-lg"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total Pending Card -->
+              <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Pending</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">189</h3>
+                    <p class="text-gray-500 text-xs font-medium mt-2">Pending orders</p>
+                  </div>
+                  <div
+                    class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                    <i class="fas fa-hourglass-half text-green-600 text-base sm:text-lg"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sales Details Section Header -->
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Sales Details</h2>
+
+            <!-- Sales Details Grid - Responsive Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+
+              <!-- Sales Progress Card -->
+              <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-base sm:text-lg font-semibold text-gray-800">Sales Progress</h3>
+                  <button class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                </div>
+                <p class="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">This Quarter</p>
+
+                <!-- Circular Progress -->
+                <div class="flex justify-center mb-4 sm:mb-6">
+                  <div class="relative w-24 sm:w-32 h-24 sm:h-32">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                      <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                      <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="8"
+                        stroke-dasharray="235.619" stroke-dashoffset="57.14" stroke-linecap="round" />
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                      <span class="text-lg sm:text-2xl font-bold text-gray-800">75.55%</span>
+                      <span class="text-xs sm:text-sm text-green-600 font-medium">+10%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">You succeed earn ₹28963 today, its higher than
+                  yesterday</p>
+
+                <!-- Progress Stats -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
+                  <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-1">Target</p>
+                    <p class="text-sm sm:text-lg font-bold text-gray-800">₹30k <span
+                        class="text-red-500 text-xs">↓</span>
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-1">Revenue</p>
+                    <p class="text-sm sm:text-lg font-bold text-gray-800">₹16k <span
+                        class="text-green-500 text-xs">↑</span>
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-1">Today</p>
+                    <p class="text-sm sm:text-lg font-bold text-gray-800">₹28k <span
+                        class="text-green-500 text-xs">↑</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Activity Chart Card -->
+              <div class="lg:col-span-2 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+                  <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity</h3>
+                  <select
+                    class="text-xs sm:text-sm text-gray-600 bg-transparent border border-gray-300 rounded px-2 sm:px-3 py-1 hover:border-gray-400 w-full sm:w-auto">
+                    <option>Month</option>
+                    <option>Week</option>
+                    <option>Year</option>
+                  </select>
+                </div>
+
+                <!-- Responsive Bar Chart -->
+                <div class="overflow-x-auto">
+                  <div class="flex items-end justify-between min-w-max sm:min-w-full h-48 sm:h-64 gap-1 sm:gap-2">
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 20%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">JAN</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 30%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">FEB</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 25%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAR</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 50%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">APR</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 60%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAY</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 45%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUN</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 55%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUL</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 15%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">AUG</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 65%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">SEP</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 75%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">OCT</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 85%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">NOV</p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                      <div class="w-full bg-blue-500 rounded-t" style="height: 95%"></div>
+                      <p class="text-xs text-gray-500 mt-1 sm:mt-2">DEC</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+      </div>
+  </div>
+  <script src="../../public/js/dashboard.js"></script>
+</body>
+
+</html>

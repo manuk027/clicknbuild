@@ -43,4 +43,19 @@ const loadDashboard = async (req, res) => {
     }
 }
 
-export default { loadLogin, login, loadDashboard, loadErrorPage };
+const logout = async (req, res)=>{
+    try {
+        req.session.destroy(err=>{
+            if(err){
+                console.error("Error destroying session", err);
+                return res.redirect("/pageNotFound");
+            }
+            res.redirect('/admin/login');
+        })
+    } catch (error) {
+        console.error('unexpected error during logout', error);
+        res.redirect('/pageNotFound');
+    }
+}
+
+export default { loadLogin, login, loadDashboard, loadErrorPage, logout };

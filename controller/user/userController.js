@@ -7,18 +7,20 @@ dotenv.config();
 
 const loadHomepage = async (req, res) => {
     try {
-        const userId = req.session.user;
+        const userId = req.user?._id || req.session?.user;
+
         if (userId) {
             const userData = await User.findOne({ _id: userId });
-            res.render("home", { user: userData, });
+            return res.render("home", { user: userData });
         } else {
-            return res.render('home');
+            return res.render("home", { user: null });
         }
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
     }
 };
+
 
 const loadErrorPage = async (req, res) => {
     try {
@@ -235,13 +237,13 @@ const login = async (req, res) => {
     }
 };
 
-const logout = async (req, res)=> {
+const logout = async (req, res) => {
     try {
-        req.session.destroy((err)=>{
-            if(err){
+        req.session.destroy((err) => {
+            if (err) {
                 console.log("Sesssion destroy error", err);
                 return res.redirect('/pageNotFound');
-            } 
+            }
             return res.redirect("/");
         });
     } catch (error) {

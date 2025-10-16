@@ -1,6 +1,6 @@
+//importing necessary modules and functions
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-
 
 dotenv.config();
 

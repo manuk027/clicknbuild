@@ -17,10 +17,21 @@ router.post('/verifyEmailOTP', userController.verifyEmailOtp);
 
 router.post('/resendOTP', userController.resendOTP);
 
-router.get('/auth/google/', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
-    res.redirect('/')
-})
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => { res.redirect('/') })
+
+router.get('/debug-session', (req, res) => {
+    console.log("req.session:", req.session);
+    console.log("req.user:", req.user);
+    console.log("isAuthenticated():", req.isAuthenticated());
+    res.json({
+        session: req.session,
+        user: req.user,
+        isAuthenticated: req.isAuthenticated()
+    });
+});
+
 
 router.get('/login', userController.loadLogin);
 router.post('/login', userController.login);
