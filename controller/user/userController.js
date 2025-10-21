@@ -3,23 +3,38 @@ import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import emailOtp from "../../models/otp.js";
 dotenv.config();
 
 const loadHomepage = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
 
-        if (userId) {
-            const userData = await User.findOne({ _id: userId });
-            return res.render("home", { user: userData });
-        } else {
+        if (!userId) {
             return res.render("home", { user: null });
+        }
+
+        const userData = await User.findById(userId);
+
+        if (!userData) {
+            req.session.destroy(() => {
+                res.clearCookie("connect.sid");
+                return res.render("home", { user: null });
+            });
+        } else if (userData.isBlocked) {
+            req.session.destroy(() => {
+                res.clearCookie("connect.sid");
+                return res.render("home", { user: null });
+            });
+        } else {
+            return res.render("home", { user: userData });
         }
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
     }
 };
+
 
 
 const loadErrorPage = async (req, res) => {
@@ -48,8 +63,15 @@ const loadSignin = async (req, res) => {
     }
 };
 
-function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+async function generateOtp(email) {
+    await emailOtp.deleteMany({ email });
+    let otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationOTP = new emailOtp({
+        otp: otp,
+        email: email,
+    })
+    await verificationOTP.save()
+    return otp;
 }
 
 async function sendEmail(email, otp, userName) {
@@ -129,7 +151,7 @@ const signup = async (req, res) => {
                 message: "User with the same email already exist.",
             });
         }
-        const otp = generateOtp();
+        const otp = await generateOtp(email);
         const emailSent = await sendEmail(email, otp, fullName);
         if (!emailSent) {
             return res.json("email-error");
@@ -144,32 +166,27 @@ const signup = async (req, res) => {
     }
 };
 
-const hashPassword = async (password) => {
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        return hashedPassword;
-    } catch (error) {
-        console.error(error);
-    }
-};
 
 const verifyEmailOtp = async (req, res) => {
     try {
-        const { otp } = req.body;
-        console.log(req.body);
-        if (String(otp) === String(req.session.userOtp)) {
+        const { otp, email } = req.body;
+        let otpDoc = await emailOtp.findOne({ email: email });
+        if (!otpDoc) {
+            return res.status(400).json({ success: false, message: "OTP expired." });
+        }
+        if (String(otp) === String(otpDoc.otp)) {
             const user = req.session.userData;
-            const hashedPassword = await hashPassword(user.password);
             const saveUserData = new User({
                 fullName: user.fullName,
                 email: user.email,
-                password: hashedPassword,
+                password: user.password,
             });
             await saveUserData.save();
             req.session.user = saveUserData._id;
-            res.json({ success: true, redirectUrl: "/" });
+            await emailOtp.deleteMany({ email });
+            return res.json({ success: true, redirectUrl: "/" });
         } else {
-            res.status(400).json({ success: false, message: "Invalid OTP." });
+            return res.status(400).json({ success: false, message: "Invalid OTP." });
         }
     } catch (error) {
         console.error("Error verifying OTP", error);
@@ -179,27 +196,43 @@ const verifyEmailOtp = async (req, res) => {
 
 const resendOTP = async (req, res) => {
     try {
-        const { fullName, email } = req.session.userData;
-        const otp = generateOtp();
-        req.session.userOtp = otp;
+        const user = req.session.userData;
+        if (!user || !user.email) {
+            return res.status(400).json({ success: false, message: "User session not found." });
+        }
+
+        const { fullName, email } = user;
+
+        // delete any old OTP for the user
+        await emailOtp.deleteMany({ email });
+
+        // generate a new OTP
+        const otp = await generateOtp(email);
+
+        // send email
         const emailSent = await sendEmail(email, otp, fullName);
+
         if (emailSent) {
-            console.log("Resend otp", otp);
-            res.status(200).json({
-                Success: true,
-                message: "OTP resend successfully",
+            console.log("Resent OTP:", otp);
+            return res.status(200).json({
+                success: true,
+                message: "OTP resent successfully.",
             });
         } else {
-            res.status(500).json({
-                Success: false,
-                message: "Failed to resend otp",
+            return res.status(500).json({
+                success: false,
+                message: "Failed to resend OTP.",
             });
         }
     } catch (error) {
-        console.error("Error resending otp", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Error resending OTP:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+        });
     }
 };
+
 
 const loadLogin = async (req, res) => {
     try {
@@ -216,7 +249,7 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const findUser = await User.findOne({ isAdmin: 0, email: email });
+        const findUser = await User.findOne({ isAdmin: false, email: email, });
         if (findUser.isBlocked) {
             return res.render("login", {
                 message: "User has been blocked by the admin",
@@ -225,11 +258,11 @@ const login = async (req, res) => {
         if (!findUser) {
             res.render("login", { message: "User does not exist" });
         }
-        const passwordMatch = await bcrypt.compare(password, findUser.password);
-        if (!passwordMatch) {
+        if (!password === findUser.password) {
             return res.render("login", { message: "Incorrect Password" });
         }
         req.session.user = findUser._id;
+
         res.redirect("/");
     } catch (error) {
         console.error("login error", error)

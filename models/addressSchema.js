@@ -1,6 +1,11 @@
+//importing necessary modules and functions
 import mongoose, { now } from "mongoose";
+
+
 const { Schema, model } = mongoose;
 
+
+//defining address schema for the user
 const addressSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, },
     address: [{
@@ -17,5 +22,7 @@ const addressSchema = new Schema({
     }]
 })
 
+
+//creating a model for Address
 const Address = model("Address", addressSchema);
 export default Address;

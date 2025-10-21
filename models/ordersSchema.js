@@ -1,8 +1,13 @@
+//importing necessary modules and functions
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 import Address from "./addressSchema";
+
+
 const { Schema, model } = mongoose;
 
+
+//defining order schema
 const orderSchema = new Schema({
     orderId: { type: String, default: () => uuidv4(), unique: true, },
     orderedItems: [{
@@ -17,7 +22,9 @@ const orderSchema = new Schema({
     finalAmount: { type: Number, default: 0 },
     status: { type: String, required: true, enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"], },
     couponApplied: { type: Boolean, default: false, },
-}, {timestamps: true});
+}, { timestamps: true });
 
+
+//creating model for Order
 const Order = model("Order", orderSchema);
 export default Order;

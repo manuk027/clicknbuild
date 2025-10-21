@@ -16,7 +16,7 @@
             <h1 class="text-3xl font-bold text-gray-900 mb-4">Verify OTP</h1>
             <p class="text-gray-600">
                 We've sent an email with an activation<br>
-                code to your email <span class="font-semibold"><%-email%></span>
+                code to your email <span class="font-semibold" id="email"><%-email%></span>
             </p>
         </div>
 
@@ -46,13 +46,15 @@
             <!-- Resend Timer -->
             <div class="text-center">
                 <p class="text-gray-600 text-sm mb-3">
-                    Send code again <span class="font-semibold text-gray-900" id="timer">02:00</span>
+                    Send code again <span class="font-semibold text-gray-900" id="timer">03:00</span>
                 </p>
                 <button type="button" id="resendBtn"
                     class="text-blue-600 hover:text-blue-700 font-semibold text-sm disabled:text-gray-400 disabled:cursor-not-allowed"
                     disabled onclick="resendOTP()">
                     Resend
                 </button>
+
+
             </div>
 
             <!-- Verify Button -->
@@ -68,7 +70,7 @@
         const timerDisplay = document.getElementById('timer');
         const resendBtn = document.getElementById('resendBtn');
         const otpForm = document.getElementById('otpForm');
-        let timeLeft = 120;
+        let timeLeft = 180;
 
         // Handle OTP Input
         otpInputs.forEach((input, index) => {
@@ -118,7 +120,7 @@
 
         // Timer functionality
         function startTimer() {
-            timeLeft = 120;
+            timeLeft = 180;
             resendBtn.disabled = true;
             const timerInterval = setInterval(() => {
                 timeLeft--;
@@ -139,13 +141,12 @@
 
         //otp validation for email.
         function otpValidation() {
-            console.log("otp validation")
             const inputOtp = Array.from(otpInputs).map(input => input.value).join('');
-            console.log(inputOtp);
+            const userEmail = document.getElementById("email").textContent.trim();
             $.ajax({
                 type: "POST",
                 url: "/verifyEmailOTP",
-                data: { otp: inputOtp },
+                data: { otp: inputOtp, email: userEmail },
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
@@ -177,15 +178,13 @@
                 }
             })
             return false;
-        }
+        };
 
         //otp resend
         function resendOTP() {
-            clearInterval(timerInterval);
-            timer = 120;
-            document.getElementById("resendBtn").disabled = false;
-            document.getElementById("timer").classList.remove('expired');
             startTimer();
+            otpInputs[0].focus();
+
             $.ajax({
                 type: "POST",
                 url: "/resendOTP",
@@ -193,22 +192,30 @@
                 success: function (response) {
                     if (response.success) {
                         Swal.fire({
-                            icon: "fire",
-                            title: "OTP have been resend.",
+                            icon: "success",
+                            title: "OTP has been resent!",
                             showConfirmButton: false,
                             timer: 1500,
-                        })
+                        });
                     } else {
                         Swal.fire({
                             icon: "error",
-                            title: 'error',
-                            text: "Error occured while resending OTP, please try again",
-                        })
+                            title: "Error",
+                            text: "Failed to resend OTP. Please try again.",
+                        });
                     }
-                }
-            })
-            return false;
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Could not resend OTP. Please try again later.",
+                    });
+                },
+            });
         }
+
+
     </script>
 </body>
 

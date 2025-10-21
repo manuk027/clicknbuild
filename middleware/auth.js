@@ -1,5 +1,8 @@
+//importing necessary modules and functions
 import User from "../models/userSchema.js";
 
+
+//middleware for user authentication
 const userAuth = (req, res, next) => {
     if (req.session.user) {
         User.findById(req.session.user)
@@ -19,6 +22,7 @@ const userAuth = (req, res, next) => {
     }
 }
 
+//middleware for admin authentication
 const adminAuth = (req, res, next) => {
     User.findById(req.session.admin)
         .then(data => {
@@ -34,4 +38,6 @@ const adminAuth = (req, res, next) => {
         })
 }
 
+
+//exporting middlewares
 export default { userAuth, adminAuth, };

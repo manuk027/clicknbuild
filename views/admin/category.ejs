@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category List - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <aside id="sidebar"
+            class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
+            <%- include("../../views/partials/admin/sidebar") %>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-h-screen">
+
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <%- include("../../views/partials/admin/header") %>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+                <!-- Page Title & Breadcrumb -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center w-full">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">CATEGORY LIST</h1>
+                        <a href="/admin/category/add"
+                            class="flex items-center justify-center gap-2 px-4 py-2.5 border border-black rounded-lg hover:bg-gray-50 hover:text-black transition-colors bg-black text-white">
+                            <span>ADD CATEGORY</span>
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <span><a href="/admin">Dashboard</a></span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900">Category</span>
+                    </div>
+                </div>
+
+                <!-- Search & Filter Bar -->
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Search customer..."
+                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                    </div>
+                    <div class="flex gap-4">
+
+                        <!-- Filters Button -->
+                        <div class="relative">
+                            <button id="filtersBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-sliders-h"></i>
+                                <span>Filters</span>
+                                <i class="fas fa-chevron-down text-sm ml-1"></i>
+                            </button>
+                            <div id="filtersDropdown"
+                                class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price</a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Category</a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Availability</a>
+                            </div>
+                        </div>
+
+                        <!-- Sort Button -->
+                        <div class="relative">
+                            <button id="sortBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-sort"></i>
+                                <span>SORT</span>
+                                <i class="fas fa-chevron-down text-sm ml-1"></i>
+                            </button>
+                            <div id="sortDropdown"
+                                class="hidden absolute mt-2 w-35 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: Low to High</a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: High to Low</a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Customer Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[800px] ">
+                            <thead class="bg-black text-white text-center">
+                                <tr>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        SL NO
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Category Name
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Sales
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Component/Peripheral
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Listing
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Add/Remove Offer
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Actions
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Offers
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-200 text-center">
+                                <% for (let i=0; i < data.length; i++) { %>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+
+                                        <!-- Serial Number -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%= (current - 1) * limit + i + 1 %>
+                                        </td>
+
+                                        <!-- Category Name -->
+                                        <td class="px-4 py-4">
+                                            <p class="font-medium text-gray-900">
+                                                <%= data[i].name %>
+                                            </p>
+                                        </td>
+
+                                        <!-- Sales -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            sales
+                                        </td>
+
+                                        <!-- Stock -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            stock
+                                        </td>
+
+                                        <!-- List / Unlist -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <% if (data[i].isListed) { %>
+                                                <a href="#"
+                                                    class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
+                                                    Unlist
+                                                </a>
+                                                <% } else { %>
+                                                    <a href="/admin/blockCustomers?id=<%= data[i].isListed %>"
+                                                        class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
+                                                        List
+                                                    </a>
+                                                    <% } %>
+                                        </td>
+
+                                        <!-- Add / Remove Offer -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <% if (data[i].maxOffer===0) { %>
+                                                <button onclick="addOffer('<%=data[i]._id%>')"
+                                                    class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
+                                                    Add
+                                                </button>
+                                                <% } else { %>
+                                                    <button onclick="removeOffer('<%=data[i]._id%>')"
+                                                        class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                                                        Remove
+                                                    </button>
+                                                    <% } %>
+                                        </td>
+
+                                        <!-- Action Buttons -->
+                                        <td class="px-4 py-4">
+                                            <div class="flex justify-center items-center space-x-2">
+                                                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                                    <i class="fas fa-add"></i>
+                                                </button>
+                                                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="delete-btn p-2 text-red-600 hover:bg-red-50 rounded"
+                                                    data-id="<%= data[i]._id %>">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+
+                                        <!-- Offer Percentage -->
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%= data[i].maxOffer %>%
+                                        </td>
+
+                                    </tr>
+                                    <% } %>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <% if (data.length> 0) { %>
+                    <div class="flex justify-center m-6">
+                        <nav aria-label="Dashboard Pagination">
+                            <ul class="flex items-center space-x-2">
+                                <!-- First Page -->
+                                <% if (current==1) { %>
+                                    <li>
+                                        <span
+                                            class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
+                                    </li>
+                                    <% } else { %>
+                                        <li>
+                                            <a href="/admin/category/?page=1"
+                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
+                                        </li>
+                                        <% } %>
+
+                                            <!-- Ellipsis before -->
+                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                                <% if (i !==1) { %>
+                                                    <li><span
+                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <!-- Page Numbers -->
+                                                        <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                                            <% if (i==current) { %>
+                                                                <li>
+                                                                    <span
+                                                                        class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                                        <%= i %>
+                                                                    </span>
+                                                                </li>
+                                                                <% } else { %>
+                                                                    <li>
+                                                                        <a href="/admin/category/?page=<%= i %>"
+                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                            <%= i %>
+                                                                        </a>
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% if (i==Number(current) + 4 && i < pages) { %>
+                                                                            <li><span
+                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                            </li>
+                                                                            <% } %>
+                                                                                <% } %>
+
+                                                                                    <!-- Last Page -->
+                                                                                    <% if (current==pages) { %>
+                                                                                        <li>
+                                                                                            <span
+                                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">Last</span>
+                                                                                        </li>
+                                                                                        <% } else { %>
+                                                                                            <li>
+                                                                                                <a href="/admin/category/?page=<%= pages %>"
+                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
+                                                                                            </li>
+                                                                                            <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    <% } %>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function addOffer(categoryId) {
+            const { value: amount } = await Swal.fire({
+                title: 'Offer in percentage',
+                input: 'number',
+                inputLabel: "Percentage",
+                inputPlaceholder: '%',
+            });
+            if (amount) {
+                try {
+                    const response = await fetch('/admin/category/addCategoryOffer', {
+                        method: 'POST',
+                        headers: {
+                            'content-type': "application/json",
+                        },
+                        body: JSON.stringify({ percentage: amount, categoryId: categoryId })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.status) {
+                        Swal.fire(
+                            "Offer added",
+                            "The offer has been added",
+                            "Success"
+                        ).then(() => {
+                            location.reload();
+                        })
+                    } else {
+                        Swal.fire("Failed", data.message || "Adding Offer failed", "error");
+                    }
+                } catch (error) {
+                    Swal.fire(
+                        "Error",
+                        "An error occured while adding the offer",
+                        "error"
+                    );
+                    console.log("Error adding the offer: ", error);
+                }
+            }
+        }
+
+
+        async function removeOffer(categoryId) {
+            try {
+                const response = await fetch('/admin/category/removeCategoryOffer', {
+                    method: "POST",
+                    headers: {
+                        'content-type': "application/json",
+                    },
+                    body: JSON.stringify({
+                        categoryId: categoryId,
+                    })
+                })
+                const data = await response.json();
+                if (response.ok && data.status === true) {
+                    Swal.fire(
+                        "Offer has been removed",
+                        "The offer has been removed",
+                        "success",
+                    ).then(() => {
+                        location.reload();
+                    })
+                } else {
+                    Swal.fire("Failed", data.message || "Removing Offer failed", "error")
+                }
+            } catch (error) {
+                Swal.fire(
+                    "Error",
+                    "An error occured while removing the offer",
+                    "error"
+                );
+                console.log("Error adding the offer: ", error);
+            }
+        }
+    </script>
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Block/Unblock toggle functionality
+        const blockButtons = document.querySelectorAll('td:nth-child(6) button');
+        blockButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const isBlocked = this.classList.contains('bg-red-600');
+                const statusBadge = this.closest('tr').querySelector('td:nth-child(5) span');
+
+                if (isBlocked) {
+                    // Change to Block state
+                    this.classList.remove('bg-red-600');
+                    this.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                    this.querySelector('span').textContent = 'BLOCK';
+                    this.querySelector('span').classList.remove('text-white');
+                    this.querySelector('span').classList.add('text-gray-700');
+
+                    // Update status badge
+                    statusBadge.classList.remove('bg-red-100', 'text-red-700');
+                    statusBadge.classList.add('bg-green-100', 'text-green-700');
+                    statusBadge.textContent = 'Active';
+                } else {
+                    // Change to Unblock state
+                    this.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                    this.classList.add('bg-red-600');
+                    this.querySelector('span').textContent = 'UNBLOCK';
+                    this.querySelector('span').classList.remove('text-gray-700');
+                    this.querySelector('span').classList.add('text-white');
+
+                    // Update status badge
+                    statusBadge.classList.remove('bg-green-100', 'text-green-700');
+                    statusBadge.classList.add('bg-red-100', 'text-red-700');
+                    statusBadge.textContent = 'Blocked';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        const filtersBtn = document.getElementById('filtersBtn');
+        const filtersDropdown = document.getElementById('filtersDropdown');
+        const sortBtn = document.getElementById('sortBtn');
+        const sortDropdown = document.getElementById('sortDropdown');
+
+        // Toggle Filters dropdown
+        filtersBtn.addEventListener('click', () => {
+            filtersDropdown.classList.toggle('hidden');
+            sortDropdown.classList.add('hidden'); // close sort dropdown if open
+        });
+
+        // Toggle Sort dropdown
+        sortBtn.addEventListener('click', () => {
+            sortDropdown.classList.toggle('hidden');
+            filtersDropdown.classList.add('hidden'); // close filters dropdown if open
+        });
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', (e) => {
+            if (!filtersBtn.contains(e.target) && !filtersDropdown.contains(e.target)) {
+                filtersDropdown.classList.add('hidden');
+            }
+            if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                sortDropdown.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <script>
+        // Delete category
+        $(document).on("click", ".delete-btn", function () {
+            const categoryId = $(this).data("id");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Delete"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/admin/category/" + categoryId,
+                        type: "DELETE",
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: response.message,
+                                    timer: 1200,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload(); // refresh the list
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Could not delete category. Please try again."
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

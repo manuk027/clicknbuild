@@ -1,10 +1,14 @@
+//importing necessary modules and functions
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/userSchema.js';
 import dotenv from 'dotenv';
 
+
 dotenv.config();
 
+
+//google authentication
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -31,12 +35,16 @@ passport.use(new GoogleStrategy({
             return done(error, null);
         }
     }
-))
+));
 
+
+//stores session in passportjs
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
+
+//retrieves the data from the session in passportjs
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
@@ -47,4 +55,5 @@ passport.deserializeUser(async (id, done) => {
 });
 
 
+//exporting passport object
 export default passport;

@@ -1,11 +1,18 @@
+//importing necessary modules and functions
 import User from "../../models/userSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 
+//function to load the error page
 const loadErrorPage = async (req, res) => {
-    res.render('errorPage');
+    res.render('adminErrorPage');
 };
+
+/*
+User login
+
+ */
 
 const loadLogin = async (req, res) => {
     if (req.session.admin) {
@@ -14,6 +21,8 @@ const loadLogin = async (req, res) => {
     res.render('adminLogin', { message: null });
 }
 
+
+//function to login user
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -33,6 +42,8 @@ const login = async (req, res) => {
     }
 }
 
+
+//function to load dashboard
 const loadDashboard = async (req, res) => {
     try {
         if (req.session.admin) {
@@ -43,10 +54,12 @@ const loadDashboard = async (req, res) => {
     }
 }
 
-const logout = async (req, res)=>{
+
+//function to logout user
+const logout = async (req, res) => {
     try {
-        req.session.destroy(err=>{
-            if(err){
+        req.session.destroy(err => {
+            if (err) {
                 console.error("Error destroying session", err);
                 return res.redirect("/pageNotFound");
             }
@@ -58,4 +71,6 @@ const logout = async (req, res)=>{
     }
 }
 
+
+//export functions
 export default { loadLogin, login, loadDashboard, loadErrorPage, logout };

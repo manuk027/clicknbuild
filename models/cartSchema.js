@@ -1,6 +1,11 @@
+//importing necessary modules and functions
 import mongoose from "mongoose";
+
+
 const { Schema, model } = mongoose;
 
+
+//defining cart schema for the user
 const cartSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, },
     items: [{
@@ -13,5 +18,7 @@ const cartSchema = new Schema({
     }]
 });
 
+
+//creating model for the Cart
 const Cart = model("Cart", cartSchema);
 export default Cart;

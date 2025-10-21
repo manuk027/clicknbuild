@@ -2,426 +2,317 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CB Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Category - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-50">
-  <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <%- include("../../views/partials/admin/sidebar") %>
 
-    <!-- ============================================
-             SIDEBAR SECTION - Mobile Responsive
-             ============================================ -->
-    <aside id="sidebar"
-      class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
-      <!-- Logo -->
-      <div class="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white flex items-center justify-center">
-        <div class="flex items-center gap-2">
-          <div
-            class="w-14 sm:w-20 h-14 sm:h-20 bg-black rounded flex items-center justify-center text-white font-bold text-xs sm:text-lg overflow-hidden">
-            <img src="/public/images/logo.png" alt="Logo" class="w-full h-full object-contain object-center">
-          </div>
-        </div>
-      </div>
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col min-h-screen">
+                <!-- Header -->
+                <%- include("../../views/partials/admin/header") %>
 
+                    <!-- Page Content -->
+                    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                        <!-- Page Title -->
+                        <div class="mb-6">
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h2>
+                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                <span><a href="/admin">Dashboard</a></span>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                                <span class="text-gray-900"><a href="/admin/category">Category</a></span>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                                <span class="text-gray-900">Add</span>
+                            </div>
+                        </div>
 
-      <!-- Navigation Menu -->
-      <nav class="p-2 sm:p-4 space-y-1 sm:space-y-2">
-        <!-- Dashboard Link -->
-        <a href="#dashboard"
-          class="nav-link flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors active bg-gray-100">
-          <i class="fas fa-chart-line w-5"></i>
-          <span class="text-sm sm:text-base">Dashboard</span>
-        </a>
+                        <!-- Form -->
+                        <form method="post" action="/admin/category/add" onsubmit="return handleFormSubmit(event)">
+                            <!-- Header Image Upload -->
+                            <!-- <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                                <div id="dropZone"
+                                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                                    <div id="uploadPrompt">
+                                        <i class="fas fa-image text-4xl sm:text-5xl text-indigo-500 mb-4"></i>
+                                        <p class="text-sm sm:text-base text-gray-600 mb-4">Drag and drop image here, or
+                                            click add image</p>
+                                        <label for="categoryImage"
+                                            class="inline-block px-4 sm:px-6 py-2 sm:py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer text-sm sm:text-base">
+                                            Add Image
+                                        </label>
+                                        <input type="file" id="categoryImage" name="categoryImage" accept="image/*"
+                                            class="hidden">
+                                    </div>
+                                    <div id="imagePreview" class="hidden">
+                                        <img id="previewImg" src="" alt="Preview" class="max-h-64 mx-auto rounded-lg">
+                                        <button type="button" id="removeImage"
+                                            class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm">
+                                            Remove Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div> -->
 
-        <!-- Products Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-box w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Products</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
+                            <!-- Two Column Layout for Offer and Category Name -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                <!-- Category Name -->
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Category Name
+                                    </label>
+                                    <input type="text" id="name" name="name"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
+                                        placeholder="Type category name here...">
+                                </div>
+                                <!-- Category Offer -->
+                                <div>
+                                    <label for="maxOffer" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Category Offer:
+                                    </label>
+                                    <input type="number" id="maxOffer" name="maxOffer" min="0" max="100"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
+                                        placeholder="Enter offer percentage">
+                                </div>
+                            </div>
 
-        <!-- Order List Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-list w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Order List</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
+                            <!-- Description -->
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Description
+                                </label>
+                                <textarea id="description" name="description" rows="6"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm sm:text-base"
+                                    placeholder="Type category description here..."></textarea>
+                            </div>
 
-        <!-- Customer Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-user w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Customer</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
+                            <!-- Listed/Unlisted Status -->
+                            <!-- <div>
+                                <div class="flex flex-wrap gap-4">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="isListed" value="true" checked
+                                            class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
+                                        <span class="ml-2 text-sm sm:text-base text-gray-700">Listed</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="isListed" value="false"
+                                            class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
+                                        <span class="ml-2 text-sm sm:text-base text-gray-700">Unlisted</span>
+                                    </label>
+                                </div>
+                            </div> -->
 
-        <!-- Sales Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-receipt w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Sales</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
-
-        <!-- Category Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-th w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Category</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
-
-        <!-- Coupons Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-ticket-alt w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Coupons</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
-
-        <!-- Banner Link -->
-        <button
-          class="nav-link w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-          <div class="flex items-center gap-3 min-w-0">
-            <i class="fas fa-image w-5 flex-shrink-0"></i>
-            <span class="text-sm sm:text-base truncate">Banner</span>
-          </div>
-          <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </button>
-      </nav>
-
-      <!-- Footer Section -->
-      <div class="p-2 sm:p-4 border-t border-gray-200 space-y-2 sticky bottom-0 bg-white">
-        <button
-          class="w-full px-3 sm:px-4 py-2 border-2 border-black rounded-lg text-black font-medium text-sm sm:text-base hover:bg-black hover:text-white transition-colors">
-          Account
-        </button>
-        <button
-          class="w-full px-3 sm:px-4 py-2 bg-black text-white rounded-lg font-medium text-sm sm:text-base hover:bg-gray-800 transition-colors">
-          Logout
-        </button>
-      </div>
-    </aside>
-
-    <!-- ============================================
-             MAIN CONTENT SECTION - Responsive Layout
-             ============================================ -->
-    <div class="flex flex-col flex-1 w-full overflow-hidden">
-
-      <!-- ============================================
-                 HEADER SECTION - Mobile Responsive
-                 ============================================ -->
-      <header class="bg-white shadow-sm sticky top-0 z-30">
-        <div class="flex items-center justify-between px-3 sm:px-6 md:px-8 py-3 sm:py-4">
-          <!-- Mobile Menu Toggle -->
-          <button id="menuToggle"
-            class="lg:hidden flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors">
-            <i class="fas fa-bars text-gray-700 text-lg"></i>
-          </button>
-
-          <!-- Header Title (Responsive) -->
-          <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Dashboard</h1>
-
-          <!-- Header Right Section -->
-          <div class="flex items-center gap-2 sm:gap-4">
-            <button
-              class="hidden sm:flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors text-gray-600">
-              <i class="fas fa-search text-lg"></i>
-            </button>
-            <button
-              class="flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 relative">
-              <i class="fas fa-bell text-lg"></i>
-              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-            <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200">
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop" alt="Admin"
-                class="w-6 sm:w-8 h-6 sm:h-8 rounded-full">
-              <div class="hidden sm:block">
-                <p class="text-xs sm:text-sm font-medium text-gray-700">Admin</p>
-              </div>
-              <i class="fas fa-chevron-down text-xs sm:text-sm text-gray-600 hidden sm:block"></i>
+                            <!-- Submit Button -->
+                            <div class="flex justify-end pt-4">
+                                <button type="submit"
+                                    class="px-6 sm:px-8 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm sm:text-base">
+                                    Add Category
+                                </button>
+                            </div>
+                        </form>
+                    </main>
             </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- ============================================
-                 PAGE CONTENT SECTION - Responsive Grid
-                 ============================================ -->
-      <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
-
-        <!-- Stats Cards Row - Responsive Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
-
-          <!-- Total Customers Card -->
-          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between">
-              <div class="flex-1 min-w-0">
-                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Customers</p>
-                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">5,423</h3>
-                <p class="text-green-600 text-xs font-medium mt-2">↑ 16% this month</p>
-              </div>
-              <div
-                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                <i class="fas fa-users text-green-600 text-base sm:text-lg"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Orders Card -->
-          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between">
-              <div class="flex-1 min-w-0">
-                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Orders</p>
-                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">1,893</h3>
-                <p class="text-gray-500 text-xs font-medium mt-2">Orders placed</p>
-              </div>
-              <div
-                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                <i class="fas fa-truck text-green-600 text-base sm:text-lg"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Sales Card -->
-          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between">
-              <div class="flex-1 min-w-0">
-                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Sales</p>
-                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">₹65,805</h3>
-                <p class="text-gray-500 text-xs font-medium mt-2">Revenue</p>
-              </div>
-              <div
-                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                <i class="fas fa-dollar-sign text-green-600 text-base sm:text-lg"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Pending Card -->
-          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between">
-              <div class="flex-1 min-w-0">
-                <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Pending</p>
-                <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">189</h3>
-                <p class="text-gray-500 text-xs font-medium mt-2">Pending orders</p>
-              </div>
-              <div
-                class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                <i class="fas fa-hourglass-half text-green-600 text-base sm:text-lg"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sales Details Section Header -->
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Sales Details</h2>
-
-        <!-- Sales Details Grid - Responsive Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-
-          <!-- Sales Progress Card -->
-          <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base sm:text-lg font-semibold text-gray-800">Sales Progress</h3>
-              <button class="text-gray-400 hover:text-gray-600 text-lg">
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-            </div>
-            <p class="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">This Quarter</p>
-
-            <!-- Circular Progress -->
-            <div class="flex justify-center mb-4 sm:mb-6">
-              <div class="relative w-24 sm:w-32 h-24 sm:h-32">
-                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8" />
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="8"
-                    stroke-dasharray="235.619" stroke-dashoffset="57.14" stroke-linecap="round" />
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span class="text-lg sm:text-2xl font-bold text-gray-800">75.55%</span>
-                  <span class="text-xs sm:text-sm text-green-600 font-medium">+10%</span>
-                </div>
-              </div>
-            </div>
-
-            <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">You succeed earn ₹28963 today, its higher than
-              yesterday</p>
-
-            <!-- Progress Stats -->
-            <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
-              <div class="text-center">
-                <p class="text-xs text-gray-500 mb-1">Target</p>
-                <p class="text-sm sm:text-lg font-bold text-gray-800">₹30k <span class="text-red-500 text-xs">↓</span>
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-xs text-gray-500 mb-1">Revenue</p>
-                <p class="text-sm sm:text-lg font-bold text-gray-800">₹16k <span class="text-green-500 text-xs">↑</span>
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-xs text-gray-500 mb-1">Today</p>
-                <p class="text-sm sm:text-lg font-bold text-gray-800">₹28k <span class="text-green-500 text-xs">↑</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Activity Chart Card -->
-          <div class="lg:col-span-2 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
-              <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity</h3>
-              <select
-                class="text-xs sm:text-sm text-gray-600 bg-transparent border border-gray-300 rounded px-2 sm:px-3 py-1 hover:border-gray-400 w-full sm:w-auto">
-                <option>Month</option>
-                <option>Week</option>
-                <option>Year</option>
-              </select>
-            </div>
-
-            <!-- Responsive Bar Chart -->
-            <div class="overflow-x-auto">
-              <div class="flex items-end justify-between min-w-max sm:min-w-full h-48 sm:h-64 gap-1 sm:gap-2">
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 20%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JAN</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 30%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">FEB</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 25%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAR</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 50%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">APR</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 60%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAY</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 45%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUN</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 55%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUL</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 15%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">AUG</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 65%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">SEP</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 75%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">OCT</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 85%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">NOV</p>
-                </div>
-                <div class="flex flex-col items-center flex-1">
-                  <div class="w-full bg-blue-500 rounded-t" style="height: 95%"></div>
-                  <p class="text-xs text-gray-500 mt-1 sm:mt-2">DEC</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
     </div>
-  </div>
 
-  <!-- ============================================
-         JAVASCRIPT FOR INTERACTIVITY
-         ============================================ -->
-  <script>
-    // Mobile Menu Toggle
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
+    <!-- Mobile Menu Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-    });
-
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', (e) => {
-      if (window.innerWidth < 1024) {
-        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-          sidebar.classList.add('-translate-x-full');
-        }
-      }
-    });
-
-    // Close sidebar when clicking on a nav link on mobile
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth < 1024) {
-          sidebar.classList.add('-translate-x-full');
-        }
-      });
-    });
-
-    // Handle responsive sidebar on window resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) {
-        sidebar.classList.remove('-translate-x-full');
-      } else {
-        sidebar.classList.add('-translate-x-full');
-      }
-    });
-
-    // Set active nav link on click
-    navLinks.forEach(link => {
-      link.addEventListener('click', function () {
-        navLinks.forEach(l => l.classList.remove('active', 'bg-gray-100'));
-        this.classList.add('active', 'bg-gray-100');
-      });
-    });
-
-    // Active link styling
-    const style = document.createElement('style');
-    style.textContent = `
-            .nav-link.active {
-                background-color: #f3f4f6 !important;
-                color: #1f2937;
+    <script>
+        function handleFormSubmit(ervent) {
+            event.preventDefault();
+            if (!validateForm()) {
+                return;
             }
-            
-            /* Responsive scrollbar for chart */
-            @media (max-width: 640px) {
-                .overflow-x-auto {
-                    -webkit-overflow-scrolling: touch;
+            const name = document.getElementById("name").value.trim();
+            const maxOffer = document.getElementById("maxOffer").value.trim();
+            const description = document.getElementById('description').value.trim();
+            fetch('/admin/category/name', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+
+                },
+                body: JSON.stringify({ name, description, maxOffer })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error);
+                        })
+                    }
+                    return response.json();
+                })
+                .then(data=>{
+                    location.reload();
+                })
+                .catch(error=>{
+                    if(error.message === "Category already exists"){
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: 'Category already exists',
+                        })
+                    }else {
+                        Swal.fire({
+                            icon:'error',
+                            title:'oops',
+                            text: 'An error occured while adding the category'
+                        })
+                    }
+                })
+        }
+
+        function validateForm() {
+            clearErrorMessages();
+            const name = document.getElementById("name").value.trim();
+            const description = document.getElementById('description').value.trim();
+            isValid = true;
+
+            if (name === '') {
+                displayErrorMessage('name-error', "Please enter a name");
+                isValid = false;
+            }
+
+            if (description === '') {
+                displayErrorMessage('description-error', "Please enter the description");
+                isValid = false;
+            }
+        }
+
+        function displayErrorMessage(elementId, message) {
+            var errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+        }
+
+        function clearErrorMessages(elementId, message) {
+            var errorElements = document.getElementsByClassName("error-message");
+            Array.from(errorElements).forEach((element) => {
+                element.innerText = "";
+                element.style.display = none;
+            })
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+        }
+
+        // Mobile menu toggle functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        // Toggle sidebar on menu button click
+        if (menuToggle && sidebar && overlay) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+
+            // Close sidebar when clicking overlay
+            overlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024 && sidebar && menuToggle) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                    if (overlay) overlay.classList.add('hidden');
                 }
             }
-        `;
-    document.head.appendChild(style);
-  </script>
+        });
+
+        // Handle sidebar visibility on window resize
+        window.addEventListener('resize', () => {
+            if (sidebar && overlay) {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.add('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        });
+
+        // Image upload functionality
+        // const dropZone = document.getElementById('dropZone');
+        // const categoryImageInput = document.getElementById('categoryImage');
+        // const uploadPrompt = document.getElementById('uploadPrompt');
+        // const imagePreview = document.getElementById('imagePreview');
+        // const previewImg = document.getElementById('previewImg');
+        // const removeImageBtn = document.getElementById('removeImage');
+
+        // if (dropZone && categoryImageInput) {
+        //     // Click to upload
+        //     dropZone.addEventListener('click', (e) => {
+        //         if (e.target !== removeImageBtn && !removeImageBtn?.contains(e.target)) {
+        //             categoryImageInput.click();
+        //         }
+        //     });
+
+        //     // Drag and drop functionality
+        //     dropZone.addEventListener('dragover', (e) => {
+        //         e.preventDefault();
+        //         dropZone.classList.add('border-indigo-500', 'bg-indigo-50');
+        //     });
+
+        //     dropZone.addEventListener('dragleave', () => {
+        //         dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+        //     });
+
+        //     dropZone.addEventListener('drop', (e) => {
+        //         e.preventDefault();
+        //         dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+
+        //         const files = e.dataTransfer.files;
+        //         if (files.length > 0 && files[0].type.startsWith('image/')) {
+        //             categoryImageInput.files = files;
+        //             previewImage(files[0]);
+        //         }
+        //     });
+
+        //     // File input change
+        //     categoryImageInput.addEventListener('change', (e) => {
+        //         if (e.target.files.length > 0) {
+        //             previewImage(e.target.files[0]);
+        //         }
+        //     });
+
+        //     // Preview image function
+        //     function previewImage(file) {
+        //         const reader = new FileReader();
+        //         reader.onload = (e) => {
+        //             if (previewImg && uploadPrompt && imagePreview) {
+        //                 previewImg.src = e.target.result;
+        //                 uploadPrompt.classList.add('hidden');
+        //                 imagePreview.classList.remove('hidden');
+        //             }
+        //         };
+        //         reader.readAsDataURL(file);
+        //     }
+
+        //     // Remove image
+        //     if (removeImageBtn) {
+        //         removeImageBtn.addEventListener('click', (e) => {
+        //             e.stopPropagation();
+        //             categoryImageInput.value = '';
+        //             if (previewImg) previewImg.src = '';
+        //             if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+        //             if (imagePreview) imagePreview.classList.add('hidden');
+        //         });
+        //     }
+        // }
+    </script>
 </body>
 
 </html>

@@ -22,16 +22,18 @@
     <div class="hidden md:flex items-center gap-12">
       <nav class="flex items-center gap-10">
         <a href="/" class="hover:text-gray-300">Home</a>
-        
+
         <!-- Components Dropdown -->
         <div class="relative group">
           <button class="hover:text-gray-300 flex items-center gap-1">
             Components
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
           </button>
-          <div class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+          <div
+            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
             <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Graphics Cards</a>
             <a href="#" class="block px-4 py-3 hover:bg-gray-200">Processors</a>
             <a href="#" class="block px-4 py-3 hover:bg-gray-200">Motherboards</a>
@@ -44,11 +46,13 @@
         <div class="relative group">
           <button class="hover:text-gray-300 flex items-center gap-1">
             Peripherals
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
           </button>
-          <div class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+          <div
+            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
             <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Keyboards</a>
             <a href="#" class="block px-4 py-3 hover:bg-gray-200">Mice</a>
             <a href="#" class="block px-4 py-3 hover:bg-gray-200">Monitors</a>
@@ -59,47 +63,54 @@
 
         <%if(!locals.user){%>
           <a href="/login" class="hover:text-gray-300">Login / Signup</a>
-        <%}%>
+          <%}%>
       </nav>
 
       <%if(locals.user){%>
-      <div class="flex gap-6 items-center">
-        <a href="#" class="hover:opacity-70 transition">
-          <img src="/images/heart.png" alt="wishlist" class="w-6 h-6">
-        </a>
-        <a href="#" class="hover:opacity-70 transition">
-          <img src="/images/cart.png" alt="cart" class="w-6 h-6">
-        </a>
-        
-        <!-- Profile Dropdown -->
-        <div class="relative group">
-          <button class="hover:text-gray-300 flex items-center gap-1">
-            
-            <%=locals.user.fullName%>
-            <!-- <img src="/images/user.png" alt="user" class="w-6 h-6"> -->
-            <span class="text-sm"><%=locals.user.name%></span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
-            </svg>
-          </button>
-          <div class="absolute right-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <a href="/userProfile" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Profile</a>
-            <a href="/logout" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Logout</a>
+        <div class="flex gap-6 items-center">
+          <a href="#" class="hover:opacity-70 transition">
+            <img src="/images/heart.png" alt="wishlist" class="w-6 h-6">
+          </a>
+          <a href="#" class="hover:opacity-70 transition">
+            <img src="/images/cart.png" alt="cart" class="w-6 h-6">
+          </a>
+
+          <!-- Profile Dropdown -->
+          <div class="relative group">
+            <button class="hover:text-gray-300 flex items-center gap-1">
+
+              <%=locals.user.fullName%>
+                <!-- <img src="/images/user.png" alt="user" class="w-6 h-6"> -->
+                <span class="text-sm">
+                  <%=locals.user.name%>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+            <div
+              class="absolute right-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <a href="/userProfile" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Profile</a>
+              <a href="/logout" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Logout</a>
+            </div>
           </div>
         </div>
-      </div>
-      <%}%>
+        <%}%>
     </div>
   </header>
 
-  <div id="mobile-menu" class="hidden flex flex-col items-center bg-black text-white py-4 space-y-4 md:hidden overflow-visible">
+  <div id="mobile-menu"
+    class="hidden flex flex-col items-center bg-black text-white py-4 space-y-4 md:hidden overflow-visible">
     <a href="/" class="hover:text-gray-300">Home</a>
-    
+
     <!-- Mobile Components Dropdown -->
     <div class="w-full">
-      <button id="mobile-components-btn" class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+      <button id="mobile-components-btn"
+        class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
         Components
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="components-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+          class="w-4 h-4 transition-transform" id="components-arrow">
           <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </button>
@@ -114,9 +125,11 @@
 
     <!-- Mobile Peripherals Dropdown -->
     <div class="w-full">
-      <button id="mobile-peripherals-btn" class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+      <button id="mobile-peripherals-btn"
+        class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
         Peripherals
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="peripherals-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+          class="w-4 h-4 transition-transform" id="peripherals-arrow">
           <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </button>
@@ -130,29 +143,31 @@
     </div>
 
     <%if(!locals.user){%>
-    <a href="/login" class="hover:text-gray-300">Login/Signup</a>
-    <%}%>
+      <a href="/login" class="hover:text-gray-300">Login/Signup</a>
+      <%}%>
 
-    <%if(locals.user){%>
-    <div class="flex flex-col items-center space-y-4">
-      <a href="#" class="hover:text-gray-300">Wishlist</a>
-      <a href="#" class="hover:text-gray-300">Cart</a>
-      
-      <!-- Mobile Profile Dropdown -->
-      <div class="relative w-full">
-        <button id="mobile-profile-btn" class="w-full hover:text-gray-300 flex items-center justify-center gap-1">
-          Profile
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" id="profile-arrow">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
-          </svg>
-        </button>
-        <div id="mobile-profile-menu" class="hidden flex flex-col items-center bg-white text-black py-2 w-full rounded-md mt-2 relative z-10">
-          <a href="/userProfile" class="py-2 hover:bg-gray-200 w-full text-center">Profile</a>
-          <a href="/logout" class="py-2 hover:bg-gray-200 w-full text-center">Logout</a>
-        </div>
-      </div>
-    </div>
-    <%}%>
+        <%if(locals.user){%>
+          <div class="flex flex-col items-center space-y-4">
+            <a href="#" class="hover:text-gray-300">Wishlist</a>
+            <a href="#" class="hover:text-gray-300">Cart</a>
+
+            <!-- Mobile Profile Dropdown -->
+            <div class="relative w-full">
+              <button id="mobile-profile-btn" class="w-full hover:text-gray-300 flex items-center justify-center gap-1">
+                <%=locals.user.fullName%>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-4 h-4 transition-transform" id="profile-arrow">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+              </button>
+              <div id="mobile-profile-menu"
+                class="hidden flex flex-col items-center bg-white text-black py-2 w-full rounded-md mt-2 relative z-10">
+                <a href="/userProfile" class="py-2 hover:bg-gray-200 w-full text-center">Profile</a>
+                <a href="/logout" class="py-2 hover:bg-gray-200 w-full text-center">Logout</a>
+              </div>
+            </div>
+          </div>
+          <%}%>
   </div>
 
   <script>

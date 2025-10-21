@@ -1,3 +1,4 @@
+//importing necessary modules and functions
 import express, { urlencoded } from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
@@ -14,8 +15,8 @@ connectDB();
 const app = express();
 
 //middlewares
+app.use(express.json());           // for JSON bodies
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(
   session({
     secret: process.env.SECRET_KEY,
@@ -28,6 +29,8 @@ app.use(
   })
 );
 
+
+//managing passport session
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -36,11 +39,15 @@ app.use(nocache());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
+//setting views
 app.set("view engine", "ejs");
 app.set("views", [
   path.join(__dirname, "views/user"),
   path.join(__dirname, "views/admin"),
 ]);
+
+//defining routes for admin side and user side
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
