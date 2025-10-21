@@ -158,12 +158,12 @@
                                         <!-- List / Unlist -->
                                         <td class="px-4 py-4 text-gray-700">
                                             <% if (data[i].isListed) { %>
-                                                <a href="#"
+                                                <a href="/admin/category/unListCategory?id=<%=data[i]._id%>"
                                                     class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
                                                     Unlist
                                                 </a>
                                                 <% } else { %>
-                                                    <a href="/admin/blockCustomers?id=<%= data[i].isListed %>"
+                                                    <a href="/admin/category/listCategory?id=<%=data[i]._id%>"
                                                         class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
                                                         List
                                                     </a>

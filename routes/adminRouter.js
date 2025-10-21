@@ -29,6 +29,8 @@ router.post('/category/add', auth.adminAuth, categoryController.addCategory);
 router.delete('/category/:id', auth.adminAuth, categoryController.deleteCategory);
 router.post('/category/addCategoryOffer', auth.adminAuth, categoryController.addCategoryOffer)
 router.post('/category/removeCategoryOffer', auth.adminAuth, categoryController.removeCategoryOffer)
+router.get('/category/unListCategory', auth.adminAuth, categoryController.unListCategory);
+router.get('/category/listCategory', auth.adminAuth, categoryController.listCategory)
 
 
 export default router; 
