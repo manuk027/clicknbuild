@@ -3,8 +3,13 @@ import express from 'express';
 import adminController from "../controller/admin/adminController.js";
 import customerController from "../controller/admin/customerController.js";
 import categoryController from '../controller/admin/categoryController.js';
+import productController from '../controller/admin/productController.js';
+import brandController from '../controller/admin/brandController.js';
 import auth from '../middleware/auth.js'
-
+import multer from 'multer';
+import storage from '../helpers/multer.js';
+import uploads from '../helpers/multer.js';
+// const uploads = multer ({storage: storage});
 
 const router = express.Router();
 
@@ -31,6 +36,23 @@ router.post('/category/addCategoryOffer', auth.adminAuth, categoryController.add
 router.post('/category/removeCategoryOffer', auth.adminAuth, categoryController.removeCategoryOffer)
 router.get('/category/unListCategory', auth.adminAuth, categoryController.unListCategory);
 router.get('/category/listCategory', auth.adminAuth, categoryController.listCategory)
+router.get('/category/editCategory/', auth.adminAuth, categoryController.loadEditCategory);
+router.post('/category/editCategory/', auth.adminAuth, categoryController.editCategory);
+
+
+//brand management
+router.get('/brands', auth.adminAuth, brandController.loadBrand);
+router.get('/brands/addBrand', auth.adminAuth, brandController.loadAddBrand)
+router.post('/brands/addBrand', auth.adminAuth, uploads.single("brandImage"), brandController.addBrand);
+router.get('/brands/unListBrand', auth.adminAuth, brandController.unListBrand);
+router.get('/brands/listBrand', auth.adminAuth, brandController.listBrand);
+router.get('/brands/editBrand/', auth.adminAuth, brandController.loadEditBrand);
+router.post('/brands/editBrand/', auth.adminAuth, uploads.single('brandImage'), brandController.editBrand);
+
+
+// product management
+router.get('/products', auth.adminAuth, productController.loadProduct);
+router.get('/products/addProducts', auth.adminAuth, productController.loadAddProduct);
 
 
 export default router; 

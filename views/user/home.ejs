@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <%-include("../../views/partials/user/header")%>
+    <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
         <!-- Hero Section -->
         <div class="w-full h-48 md:h-72 lg:h-96 bg-cover bg-center"
             style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('../../images/banner1.jpg');">
@@ -168,35 +168,13 @@
                     </button>
 
                     <div id="brandsContainer" class="flex-1 overflow-x-auto scrollbar-hide">
-                        <div class="flex gap-6 md:gap-8 pb-2">
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/ASUS_Logo.svg/200px-ASUS_Logo.svg.png"
-                                    alt="ASUS" class="h-8 md:h-10 object-contain">
+                        <div class="flex gap-8 md:gap-8 pb-2">
+                            <%for(let i=0; i<brand.length; i++){%>
+                            <div class="flex-shrink-0 h-15 md:h-24 flex items-center">
+                                <img src="<%=brand[i].image%>"
+                                    alt="<%=brand[i].name%>" class="h-15 md:h-24 object-contain">
                             </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MSI_logo.svg/200px-MSI_logo.svg.png"
-                                    alt="MSI" class="h-8 md:h-10 object-contain">
-                            </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Razer_Inc._logo.svg/200px-Razer_Inc._logo.svg.png"
-                                    alt="RAZER" class="h-8 md:h-10 object-contain">
-                            </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Lian_Li_Logo.svg/200px-Lian_Li_Logo.svg.png"
-                                    alt="LIAN LI" class="h-8 md:h-10 object-contain">
-                            </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Corsair_Gaming_Logo.svg/200px-Corsair_Gaming_Logo.svg.png"
-                                    alt="CORSAIR" class="h-8 md:h-10 object-contain">
-                            </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Cooler_Master_logo.svg/200px-Cooler_Master_logo.svg.png"
-                                    alt="COOLER MASTER" class="h-8 md:h-10 object-contain">
-                            </div>
-                            <div class="flex-shrink-0 h-12 md:h-16 flex items-center">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/NVIDIA_logo.svg/200px-NVIDIA_logo.svg.png"
-                                    alt="NVIDIA" class="h-8 md:h-10 object-contain">
-                            </div>
+                            <%}%>
                         </div>
                     </div>
 

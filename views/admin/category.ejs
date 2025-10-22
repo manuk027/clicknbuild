@@ -120,7 +120,7 @@
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Actions
+                                        Edit
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
@@ -152,7 +152,11 @@
 
                                         <!-- Stock -->
                                         <td class="px-4 py-4 text-gray-700">
-                                            stock
+                                            <%if(data[i].isPeripheral){%>
+                                                Peripheral
+                                                <%}else{%>
+                                                    Component
+                                                    <%}%>
                                         </td>
 
                                         <!-- List / Unlist -->
@@ -188,22 +192,22 @@
                                         <!-- Action Buttons -->
                                         <td class="px-4 py-4">
                                             <div class="flex justify-center items-center space-x-2">
-                                                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                                <!-- <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
                                                     <i class="fas fa-add"></i>
-                                                </button>
-                                                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                                </button> -->
+                                                <a class="p-2 text-gray-600 hover:bg-gray-100 rounded" href="/admin/category/editCategory?id=<%=data[i]._id%>">
                                                     <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="delete-btn p-2 text-red-600 hover:bg-red-50 rounded"
+                                                </a>
+                                                <!-- <button class="delete-btn p-2 text-red-600 hover:bg-red-50 rounded"
                                                     data-id="<%= data[i]._id %>">
                                                     <i class="fas fa-trash"></i>
-                                                </button>
+                                                </button> -->
                                             </div>
                                         </td>
 
                                         <!-- Offer Percentage -->
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%= data[i].maxOffer %>%
+                                            <%= data[i].maxOffer ?? 0%>%
                                         </td>
 
                                     </tr>

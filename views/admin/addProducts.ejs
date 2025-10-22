@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
+            <%- include("../../views/partials/admin/sidebar") %>
+        </aside>
+
+        <!-- Main layout -->
+        <div class="flex-1 flex flex-col min-h-screen">
+            <!-- Header -->
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <%- include("../../views/partials/admin/header") %>
+            </header>
+
+            <!-- Main content -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">Add Product</h1>
+                <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+                    <a href="/admin" class="hover:text-gray-700">Dashboard</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a href="/admin/products" class="hover:text-gray-700">Products</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-700">Add Product</span>
+                </nav>
+
+                <!-- GENERAL INFORMATION -->
+                <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">General Information</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
+                                <select
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                    <option>Brand</option>
+                                    <%for(let i=0; i<brand.length; i++){%>
+                                        <option><%=brand[i].name%></option>
+                                        <%}%>
+                                </select>
+                            </div>
+                            <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                            <input type="text" placeholder="Type product name here..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea rows="4" placeholder="Write a short description..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                <select
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                    <option>Category</option>
+                                    <%for(let i=0; i<category.length; i++){%>
+                                        <option><%=category[i].name%></option>
+                                        <%}%>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <div class="flex items-center gap-8">
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="status" value="listed" checked class="text-blue-600">
+                                        <span>Listed</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="status" value="unlisted" class="text-blue-600">
+                                        <span>Unlisted</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PRODUCT IMAGES -->
+                <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Product Images (max 4)</h2>
+                    <div id="imageContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div id="uploadBox"
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 hover:border-blue-400 transition cursor-pointer text-center">
+                            <i class="fas fa-image text-3xl text-blue-400 mb-2"></i>
+                            <p class="text-sm text-gray-500">Click or Drop Image</p>
+                            <input type="file" id="imageInput" class="hidden" accept="image/*" multiple>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PRODUCT VARIANTS -->
+                <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Product Variants</h2>
+                    <div id="variantContainer" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 variant-row">
+                            <input type="text" name="variant[]" placeholder="Variant Name"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            <input type="number" name="quantity[]" placeholder="Quantity"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            <input type="number" name="price[]" placeholder="Price"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            <input type="number" name="offerPrice[]" placeholder="Offer Price"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button type="button" id="addVariantBtn"
+                            class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                            + Add Variant
+                        </button>
+                    </div>
+                </section>
+
+                <!-- PRODUCT SPECIFICATIONS -->
+                <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Product Specifications</h2>
+                    <div id="specContainer" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 spec-row">
+                            <input type="text" name="specTitle[]" placeholder="Title"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            <input type="text" name="specification[]" placeholder="Specification"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button type="button" id="addSpecBtn"
+                            class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                            + Add Specification
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ACTION BUTTONS -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button
+                        class="flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition">Add
+                        Product</button>
+                    <button
+                        class="sm:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script>
+        // =========================
+        // IMAGE UPLOAD HANDLING
+        // =========================
+        const imageInput = document.getElementById("imageInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const imageContainer = document.getElementById("imageContainer");
+        let images = [];
+
+        uploadBox.addEventListener("click", () => imageInput.click());
+
+        imageInput.addEventListener("change", (e) => {
+            const files = Array.from(e.target.files);
+            if (images.length + files.length > 4) {
+                alert("You can upload up to 4 images only.");
+                return;
+            }
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    images.push({ name: file.name, url: reader.result });
+                    renderImages();
+                };
+                reader.readAsDataURL(file);
+            });
+            imageInput.value = "";
+        });
+
+        uploadBox.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadBox.classList.add("border-blue-400");
+        });
+
+        uploadBox.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove("border-blue-400");
+        });
+
+        uploadBox.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove("border-blue-400");
+
+            const files = Array.from(e.dataTransfer.files);
+            if (images.length + files.length > 4) {
+                alert("You can upload up to 4 images only.");
+                return;
+            }
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    images.push({ name: file.name, url: reader.result });
+                    renderImages();
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function renderImages() {
+            imageContainer.innerHTML = "";
+            images.forEach((img, index) => {
+                const imgBox = document.createElement("div");
+                imgBox.className = "relative group border border-gray-300 rounded-lg overflow-hidden";
+
+                imgBox.innerHTML = `
+                    <img src="${img.url}" alt="Product" class="w-full h-32 object-cover">
+                    <button data-index="${index}"
+                        class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">
+                        &times;
+                    </button>
+                `;
+                imageContainer.appendChild(imgBox);
+            });
+
+            if (images.length < 4) {
+                imageContainer.appendChild(uploadBox);
+                uploadBox.classList.remove("hidden");
+            } else {
+                uploadBox.classList.add("hidden");
+            }
+
+            document.querySelectorAll('[data-index]').forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const index = e.target.dataset.index;
+                    images.splice(index, 1);
+                    renderImages();
+                });
+            });
+        }
+
+        // =========================
+        // VARIANT HANDLING
+        // =========================
+        const addVariantBtn = document.getElementById("addVariantBtn");
+        const variantContainer = document.getElementById("variantContainer");
+
+        addVariantBtn.addEventListener("click", () => {
+            const variantRow = document.createElement("div");
+            variantRow.className = "grid grid-cols-1 sm:grid-cols-4 gap-4 variant-row relative";
+
+            variantRow.innerHTML = `
+                <input type="text" name="variant[]" placeholder="Variant Name"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <input type="number" name="quantity[]" placeholder="Quantity"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <input type="number" name="price[]" placeholder="Price"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <input type="number" name="offerPrice[]" placeholder="Offer Price"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <button type="button"
+                    class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 remove-variant">
+                    &times;
+                </button>
+            `;
+
+            variantContainer.appendChild(variantRow);
+
+            variantRow.querySelector(".remove-variant").addEventListener("click", () => {
+                variantRow.remove();
+            });
+        });
+
+        // =========================
+        // SPECIFICATION HANDLING
+        // =========================
+        const addSpecBtn = document.getElementById("addSpecBtn");
+        const specContainer = document.getElementById("specContainer");
+
+        addSpecBtn.addEventListener("click", () => {
+            const specRow = document.createElement("div");
+            specRow.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 spec-row relative";
+
+            specRow.innerHTML = `
+                <input type="text" name="specTitle[]" placeholder="Title"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <input type="text" name="specification[]" placeholder="Specification"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                <button type="button"
+                    class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 remove-spec">
+                    &times;
+                </button>
+            `;
+
+            specContainer.appendChild(specRow);
+
+            specRow.querySelector(".remove-spec").addEventListener("click", () => {
+                specRow.remove();
+            });
+        });
+    </script>
+</body>
+
+</html>

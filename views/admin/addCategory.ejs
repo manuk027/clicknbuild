@@ -97,22 +97,22 @@
                     </div>
 
                     <!-- Listed/Unlisted Status -->
-                    <!--
+                    
                     <div>
                         <div class="flex flex-wrap gap-4">
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="isListed" value="true" checked
+                                <input type="radio" name="category" value="peripheral" checked
                                     class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
-                                <span class="ml-2 text-sm sm:text-base text-gray-700">Listed</span>
+                                <span class="ml-2 text-sm sm:text-base text-gray-700">Peripheral</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="isListed" value="false"
+                                <input type="radio" name="category" value="component"
                                     class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
-                                <span class="ml-2 text-sm sm:text-base text-gray-700">Unlisted</span>
+                                <span class="ml-2 text-sm sm:text-base text-gray-700">Component</span>
                             </label>
                         </div>
                     </div>
-                    -->
+                   
 
                     <!-- Submit Button -->
                     <div class="flex justify-end pt-4">
@@ -148,11 +148,20 @@
             const name = $("#name").val().trim();
             const description = $("#description").val().trim();
             const maxOffer = $("#maxOffer").val().trim();
+            const selected = document.querySelector('input[name="category"]:checked').value;
+            let isComponent; let isPeripheral;
+            if(selected==="component"){
+                isComponent = true;
+                isPeripheral = false;
+            } else {
+                isComponent = false;
+                isPeripheral = true;
+            }
 
             $.ajax({
                 url: "/admin/category/add",
                 type: "POST",
-                data: { name, description, maxOffer },
+                data: { name, description, maxOffer, isComponent, isPeripheral },
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {

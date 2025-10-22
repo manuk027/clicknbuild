@@ -12,7 +12,8 @@ const categorySchema = new Schema({
     maxOffer: { type: Number, default: 0, },
     isListed: { type: Boolean, default: true, },
     image: { type: String, },
-
+    isComponent: {type: Boolean},
+    isPeripheral: {type: Boolean},
 }, { timestamps: true });
 
 

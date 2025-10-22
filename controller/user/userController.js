@@ -1,4 +1,6 @@
 import User from "../../models/userSchema.js";
+import Category from "../../models/categorySchema.js";
+import Brand from "../../models/brandSchema.js"
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
@@ -9,25 +11,27 @@ dotenv.config();
 const loadHomepage = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
-
+        const userData = await User.findById(userId);
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        const brand = await Brand.find();
         if (!userId) {
-            return res.render("home", { user: null });
+            return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
         }
 
-        const userData = await User.findById(userId);
 
         if (!userData) {
             req.session.destroy(() => {
                 res.clearCookie("connect.sid");
-                return res.render("home", { user: null });
+                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
             });
         } else if (userData.isBlocked) {
             req.session.destroy(() => {
                 res.clearCookie("connect.sid");
-                return res.render("home", { user: null });
+                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
             });
         } else {
-            return res.render("home", { user: userData });
+            return res.render("home", { user: userData, peripheral: peripheral, component: component, brand: brand });
         }
     } catch (err) {
         console.error(err);
@@ -39,7 +43,11 @@ const loadHomepage = async (req, res) => {
 
 const loadErrorPage = async (req, res) => {
     try {
-        return res.render("errorPage");
+        const userId = req.user?._id || req.session?.user;
+        const userData = await User.findById(userId);
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        return res.render("errorPage", { user: userData, peripheral: peripheral, component: component });
     } catch (err) {
         res.redirect("/pageNotFound");
     }

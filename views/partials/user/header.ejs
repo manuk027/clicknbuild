@@ -34,11 +34,9 @@
           </button>
           <div
             class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Graphics Cards</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Processors</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Motherboards</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">RAM Memory</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Power Supplies</a>
+            <%for(let i=0; i<component.length; i++){%>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md"><%=component[i].name%></a>
+            <%}%>
           </div>
         </div>
 
@@ -53,11 +51,9 @@
           </button>
           <div
             class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Keyboards</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Mice</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Monitors</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200">Headsets</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Webcams</a>
+            <%for(let i=0; i<peripheral.length; i++){%>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md"><%=peripheral[i].name%></a>
+            <%}%>
           </div>
         </div>
 
@@ -115,11 +111,9 @@
         </svg>
       </button>
       <div id="mobile-components-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
-        <a href="#" class="py-2 hover:bg-gray-200">Graphics Cards</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Processors</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Motherboards</a>
-        <a href="#" class="py-2 hover:bg-gray-200">RAM Memory</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Power Supplies</a>
+        <%for(let i=0; i<component.length; i++){%>
+        <a href="#" class="py-2 hover:bg-gray-200"><%=component[i].name%></a>
+         <%}%>
       </div>
     </div>
 
@@ -134,11 +128,9 @@
         </svg>
       </button>
       <div id="mobile-peripherals-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
-        <a href="#" class="py-2 hover:bg-gray-200">Keyboards</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Mice</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Monitors</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Headsets</a>
-        <a href="#" class="py-2 hover:bg-gray-200">Webcams</a>
+        <%for(let i=0; i<peripheral.length; i++){%>
+          <a href="#" class="py-2 hover:bg-gray-200"><%=peripheral[i].name%></a>
+        <%}%>
       </div>
     </div>
 
