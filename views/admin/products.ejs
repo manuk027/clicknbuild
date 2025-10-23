@@ -114,67 +114,55 @@
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
                                         View
                                     </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Offers
-                                    </th>
                                 </tr>
                             </thead>
 
                             <tbody class="divide-y divide-gray-200">
-                                <%for(let i=0; i<data.length; i++){%>
+                                <%for(let i=0; i<product.length; i++){%>
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-4 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <!-- <div class="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div> -->
-                                                <div>
-                                                    <p class="font-medium text-gray-900">
-                                                        <%=data[i].fullName%>
-                                                    </p>
-                                                    <p class="text-sm text-gray-500">
-                                                        <%=data[i].email%>
-                                                    </p>
-                                                </div>
+                                            <div class="w-10 h-10 flex-shrink-0 mx-auto">
+                                                <img src="<%=product[i].images[0]%>" alt="<%= product.name %>"
+                                                    class="rounded-full w-full h-full object-cover">
                                             </div>
                                         </td>
+
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].phoneNumber ?? 1234567890%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].walletBalance%>
+                                            <%=product[i].brand.name%>
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].walletBalance%>
+                                            <%=product[i].model%>
                                         </td>
-                                        <td class="px-4 py-4">
-                                            <span
-                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                <%if(data[i].isBlocked){%>
-                                                    Blocked
-                                                    <%}else{%>
-                                                        Unblocked
-                                                        <%}%>
-                                            </span>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i].category.name%>
                                         </td>
-                                        <td class="px-4 py-4">
-                                            <% if (data[i].isBlocked) { %>
-                                                <a href="/admin/unblockCustomers?id=<%= data[i]._id %>"
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <% if (product[i].isListed) { %>
+                                                <a href="/admin/products/unListProduct?id=<%=product[i]._id%>"
                                                     class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
-                                                    Unblock
+                                                    Unlist
                                                 </a>
                                                 <% } else { %>
-                                                    <a href="/admin/blockCustomers?id=<%= data[i]._id %>"
+                                                    <a href="/admin/products/listProduct?id=<%=product[i]._id%>"
                                                         class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
-                                                        Block
+                                                        List
                                                     </a>
                                                     <% } %>
-
-
                                         </td>
-                                        <td class="px-4 py-4">
-                                            <button class="text-gray-600 hover:text-gray-900 transition-colors">
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <a class="p-2 text-gray-600 hover:bg-gray-100 rounded"
+                                                href="/admin/products/editProduct?id=<%=product[i]._id%>">
+                                                <i class="fas fa-edit"></i>
+
+                                            </a>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <button
+                                                class="text-gray-600 hover:text-gray-900 transition-colors showVariantsBtn"
+                                                data-id="<%= product[i]._id %>">
                                                 <i class="far fa-eye text-lg"></i>
                                             </button>
+
                                         </td>
                                     </tr>
                                     <%}%>
@@ -183,7 +171,7 @@
                     </div>
                 </div>
 
-                <% if (data.length> 0) { %>
+                <% if (product.length> 0) { %>
                     <div class="flex justify-center m-6">
                         <nav aria-label="Dashboard Pagination">
                             <ul class="flex items-center space-x-2">
@@ -196,7 +184,7 @@
                                     </li>
                                     <% } else { %>
                                         <li>
-                                            <a href="/admin/customers/?page=1"
+                                            <a href="/admin/products/?page=1"
                                                 class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
                                         </li>
                                         <% } %>
@@ -220,7 +208,7 @@
                                                                 </li>
                                                                 <% } else { %>
                                                                     <li>
-                                                                        <a href="/admin/customers/?page=<%= i %>"
+                                                                        <a href="/admin/products/?page=<%= i %>"
                                                                             class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
                                                                             <%= i %>
                                                                         </a>
@@ -241,7 +229,7 @@
                                                                                         </li>
                                                                                         <% } else { %>
                                                                                             <li>
-                                                                                                <a href="/admin/customers/?page=<%= pages %>"
+                                                                                                <a href="/admin/products/?page=<%= pages %>"
                                                                                                     class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
                                                                                             </li>
                                                                                             <% } %>
@@ -259,6 +247,71 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/admin/categoryList.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll(".showVariantsBtn").forEach(button => {
+            button.addEventListener("click", async () => {
+                const productId = button.dataset.id;
+                console.log(productId);
+
+                try {
+                    const res = await fetch(`/admin/ptoducts/viewVariants?id=${productId}`);
+                    const data = await res.json();
+                    console.log(data)
+                    if (!data.success) {
+                        return Swal.fire("Error", data.message, "error");
+                    }
+                    const product = data.product;
+
+                    if (!product || !product.variants || product.variants.length === 0) {
+                        return Swal.fire("Info", "No variants found for this product.", "info");
+                    }
+
+                    // Build variants table HTML
+                    let variantsHTML = `
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #ccc; padding:8px;">Variant</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Quantity</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Price</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Offer</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+                    product.variants.forEach(v => {
+                        variantsHTML += `
+            <tr>
+                <td style="border:1px solid #ccc; padding:8px;">${v.variant}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.quantity}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.price}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.offer}</td>
+            </tr>
+        `;
+                    });
+
+                    variantsHTML += '</tbody></table>';
+
+                    // Show popup
+                    Swal.fire({
+                        title: `Variants of ${product.model}`,
+                        html: variantsHTML,
+                        width: '700px',
+                        showCloseButton: true,
+                        confirmButtonText: 'Close'
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire("Error", "Failed to fetch product variants.", "error");
+                }
+
+            });
+        });
+    </script>
+
 </body>
 
 </html>

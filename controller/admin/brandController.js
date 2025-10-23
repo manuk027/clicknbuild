@@ -3,6 +3,7 @@ import Product from '../../models/productSchema.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import cloudinary from "../../config/cloudinary.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,16 +33,15 @@ const loadAddBrand = async (req, res) => {
 
 const addBrand = async (req, res) => {
     try {
-        const brand = req.body.brandName; // Make sure form input is name="name"
+        const brand = req.body.brandName; 
         const findBrand = await Brand.findOne({ name: brand });
-        
+
 
         if (findBrand) {
-            // Brand already exists
             return res.redirect('/admin/brands?error=BrandAlreadyExists');
         }
 
-        const image = req.file ;
+        const image = req.file;
         console.log(image);
         const newBrand = new Brand({
             name: brand,
@@ -79,22 +79,25 @@ const unListBrand = async (req, res) => {
     }
 }
 
-const loadEditBrand = async(req, res)=>{
+const loadEditBrand = async (req, res) => {
     try {
         const id = req.query.id;
         const brand = await Brand.findOne({ _id: id });
-        res.render('editBrand', {brand: brand});
+        res.render('editBrand', { brand: brand });
     } catch (error) {
         console.error('Error loading edit brand:', error);
         res.redirect('/pageNotFound');
     }
 }
 
+
+
+
 const editBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        console.log(req.body)
         const { brandName } = req.body;
+
         const brand = await Brand.findById(id);
         if (!brand) {
             return res.status(404).json({ success: false, message: "Brand not found" });
@@ -103,17 +106,21 @@ const editBrand = async (req, res) => {
         if (existingBrand && existingBrand._id.toString() !== id) {
             return res.json({ success: false, message: "Brand already exists. Please choose another name." });
         }
+
         const updateData = { name: brandName };
         if (req.file) {
             if (brand.image) {
-                const oldImagePath = path.join(__dirname, "../../public/uploads/re-image", brand.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
+                const segments = brand.image.split("/");
+                const filename = segments[segments.length - 1].split(".")[0];
+                const folder = "re-image"; 
+                const publicId = `${folder}/${filename}`;
+                await cloudinary.uploader.destroy(publicId);
             }
-            updateData.image = req.file.filename;
+            updateData.image = req.file.path; 
         }
+
         const updatedBrand = await Brand.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+
         if (updatedBrand) {
             res.status(200).json({
                 success: true,
@@ -123,11 +130,14 @@ const editBrand = async (req, res) => {
         } else {
             res.status(400).json({ success: false, message: "Failed to update brand" });
         }
+
     } catch (error) {
         console.error("Error editing brand:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
 
 
 export default { loadBrand, loadAddBrand, addBrand, unListBrand, listBrand, editBrand, loadEditBrand };

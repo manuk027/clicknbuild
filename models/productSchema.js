@@ -7,7 +7,7 @@ const { Schema, model } = mongoose;
 
 //defining product schema
 const productSchema = new Schema({
-    brand: { type: String, required: true, },
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true, },
     model: { type: String, required: true, },
     description: { type: String, required: true, },
     isListed: { type: Boolean, required: true, default: true, },
@@ -26,7 +26,7 @@ const productSchema = new Schema({
     isPeripheral: { type: Boolean, required: true, },
     onFlashSale: { type: Boolean, required: true, },
     isLimited: { type: Boolean, required: true, },
-    category: { type: Schema.Types.ObjectId, ref: "category", required: true, },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true, },
     rating: { type: Number, required: true, },
 }, { timestamps: true })
 

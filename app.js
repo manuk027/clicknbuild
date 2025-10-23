@@ -9,10 +9,15 @@ import adminRouter from "./routes/adminRouter.js";
 import session from "express-session";
 import nocache from "nocache";
 import passport from "./config/passport.js";
+import cors from 'cors';
+
+
+
 
 dotenv.config();
 connectDB();
 const app = express();
+app.use(cors());
 
 //middlewares
 app.use(express.json());           // for JSON bodies

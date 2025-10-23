@@ -63,7 +63,7 @@
             <!-- Preview -->
             <div id="previewContainer"
               class="mt-4 relative w-48 h-48 <%= brand.image ? '' : 'hidden' %>">
-              <img id="previewImage" src="<%= brand.image ? '/uploads/re-image/' + brand.image : '' %>"
+              <img id="previewImage" src="<%= brand.image %>"
                 class="w-full h-full object-cover rounded-lg border border-gray-300" />
               <button type="button" id="removeImageBtn"
                 class="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-700">

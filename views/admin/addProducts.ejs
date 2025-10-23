@@ -7,6 +7,8 @@
     <title>Add Product - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -27,52 +29,62 @@
 
             <!-- Main content -->
             <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">Add Product</h1>
-                <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-                    <a href="/admin" class="hover:text-gray-700">Dashboard</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <a href="/admin/products" class="hover:text-gray-700">Products</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <span class="text-gray-700">Add Product</span>
-                </nav>
+                <div class="mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h2>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <span><a href="/admin">Dashboard</a></span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900"><a href="/admin/products">Products</a></span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900">Add</span>
+                    </div>
+                </div>
 
                 <!-- GENERAL INFORMATION -->
                 <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">General Information</h2>
                     <div class="space-y-4">
+
+                        <!-- Brand & Product Name -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
-                                <select
+                                <select name="brand"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                    <option>Brand</option>
-                                    <%for(let i=0; i<brand.length; i++){%>
-                                        <option><%=brand[i].name%></option>
-                                        <%}%>
+                                    <option value="">Select Brand</option>
+                                    <% brand.forEach(b=> { %>
+                                        <option value="<%= b._id %>">
+                                            <%= b.name %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                             <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                            <input type="text" placeholder="Type product name here..."
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                                <input type="text" name="productName" placeholder="Type product name here..."
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
                         </div>
-                            
-                        </div>
-                        
+
+                        <!-- Description -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea rows="4" placeholder="Write a short description..."
+                            <textarea name="description" rows="4" placeholder="Write a short description..."
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <!-- Category, Status, Category Type -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                <select
+                                <select name="category"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                    <option>Category</option>
-                                    <%for(let i=0; i<category.length; i++){%>
-                                        <option><%=category[i].name%></option>
-                                        <%}%>
+                                    <option value="">Select Category</option>
+                                    <% category.forEach(c=> { %>
+                                        <option value="<%= c._id %>">
+                                            <%= c.name %>
+                                        </option>
+                                        <% }) %>
                                 </select>
                             </div>
                             <div>
@@ -88,7 +100,35 @@
                                     </label>
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Category Type</label>
+                                <div class="flex items-center gap-8">
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="categoryType" value="component" checked
+                                            class="text-blue-600">
+                                        <span>Component</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="categoryType" value="peripheral"
+                                            class="text-blue-600">
+                                        <span>Peripheral</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Limited Edition & Flash Sale -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <input type="checkbox" name="limitedEdition" class="text-blue-600">
+                                <span>Limited Edition</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <input type="checkbox" name="flashSale" class="text-blue-600">
+                                <span>Flash Sale</span>
+                            </label>
+                        </div>
+
                     </div>
                 </section>
 
@@ -149,166 +189,162 @@
 
                 <!-- ACTION BUTTONS -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button
-                        class="flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition">Add
-                        Product</button>
-                    <button
-                        class="sm:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                    <button type="button" id="submitBtn"
+                        class="flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition">
+                        Add Product
+                    </button>
+                    <button type="button"
+                        class="sm:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- JS -->
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <script>
-        // =========================
-        // IMAGE UPLOAD HANDLING
-        // =========================
+        // ----- IMAGE HANDLING -----
         const imageInput = document.getElementById("imageInput");
         const uploadBox = document.getElementById("uploadBox");
         const imageContainer = document.getElementById("imageContainer");
         let images = [];
 
         uploadBox.addEventListener("click", () => imageInput.click());
+        imageInput.addEventListener("change", e => handleFiles(Array.from(e.target.files)));
+        uploadBox.addEventListener("dragover", e => { e.preventDefault(); uploadBox.classList.add("border-blue-400"); });
+        uploadBox.addEventListener("dragleave", e => { e.preventDefault(); uploadBox.classList.remove("border-blue-400"); });
+        uploadBox.addEventListener("drop", e => { e.preventDefault(); uploadBox.classList.remove("border-blue-400"); handleFiles(Array.from(e.dataTransfer.files)); });
 
-        imageInput.addEventListener("change", (e) => {
-            const files = Array.from(e.target.files);
-            if (images.length + files.length > 4) {
-                alert("You can upload up to 4 images only.");
-                return;
-            }
-
+        function handleFiles(files) {
+            if (images.length + files.length > 4) { Swal.fire('Oops', 'Maximum 4 images allowed', 'error'); return; }
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    images.push({ name: file.name, url: reader.result });
+                    const imgObj = { name: file.name, url: reader.result, file };
+                    images.push(imgObj);
                     renderImages();
                 };
                 reader.readAsDataURL(file);
             });
             imageInput.value = "";
-        });
-
-        uploadBox.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            uploadBox.classList.add("border-blue-400");
-        });
-
-        uploadBox.addEventListener("dragleave", (e) => {
-            e.preventDefault();
-            uploadBox.classList.remove("border-blue-400");
-        });
-
-        uploadBox.addEventListener("drop", (e) => {
-            e.preventDefault();
-            uploadBox.classList.remove("border-blue-400");
-
-            const files = Array.from(e.dataTransfer.files);
-            if (images.length + files.length > 4) {
-                alert("You can upload up to 4 images only.");
-                return;
-            }
-
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    images.push({ name: file.name, url: reader.result });
-                    renderImages();
-                };
-                reader.readAsDataURL(file);
-            });
-        });
+        }
 
         function renderImages() {
             imageContainer.innerHTML = "";
-            images.forEach((img, index) => {
-                const imgBox = document.createElement("div");
-                imgBox.className = "relative group border border-gray-300 rounded-lg overflow-hidden";
-
-                imgBox.innerHTML = `
-                    <img src="${img.url}" alt="Product" class="w-full h-32 object-cover">
-                    <button data-index="${index}"
-                        class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">
-                        &times;
-                    </button>
-                `;
-                imageContainer.appendChild(imgBox);
+            images.forEach((img, idx) => {
+                const div = document.createElement("div");
+                div.className = "relative group border border-gray-300 rounded-lg overflow-hidden";
+                div.innerHTML = `<img src="${img.url}" class="w-full h-32 object-cover">
+                                <button data-index="${idx}" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">&times;</button>`;
+                imageContainer.appendChild(div);
+                img.cropper = new Cropper(div.querySelector("img"), { aspectRatio: 1, viewMode: 1 });
+                div.querySelector("button").addEventListener("click", () => { images.splice(idx, 1); renderImages(); });
             });
-
-            if (images.length < 4) {
-                imageContainer.appendChild(uploadBox);
-                uploadBox.classList.remove("hidden");
-            } else {
-                uploadBox.classList.add("hidden");
-            }
-
-            document.querySelectorAll('[data-index]').forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    const index = e.target.dataset.index;
-                    images.splice(index, 1);
-                    renderImages();
-                });
-            });
+            if (images.length < 4) imageContainer.appendChild(uploadBox);
+            else uploadBox.classList.add("hidden");
         }
 
-        // =========================
-        // VARIANT HANDLING
-        // =========================
+        // ----- VARIANTS -----
         const addVariantBtn = document.getElementById("addVariantBtn");
         const variantContainer = document.getElementById("variantContainer");
-
+        // ...
         addVariantBtn.addEventListener("click", () => {
-            const variantRow = document.createElement("div");
-            variantRow.className = "grid grid-cols-1 sm:grid-cols-4 gap-4 variant-row relative";
-
-            variantRow.innerHTML = `
-                <input type="text" name="variant[]" placeholder="Variant Name"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <input type="number" name="quantity[]" placeholder="Quantity"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <input type="number" name="price[]" placeholder="Price"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <input type="number" name="offerPrice[]" placeholder="Offer Price"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <button type="button"
-                    class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 remove-variant">
-                    &times;
-                </button>
-            `;
-
-            variantContainer.appendChild(variantRow);
-
-            variantRow.querySelector(".remove-variant").addEventListener("click", () => {
-                variantRow.remove();
-            });
+            const row = document.createElement("div");
+            row.className = "grid grid-cols-1 sm:grid-cols-4 gap-4 variant-row relative";
+            // ADDED full classes to each input
+            row.innerHTML = `<input type="text" name="variant[]" placeholder="Variant Name" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                     <input type="number" name="quantity[]" placeholder="Quantity" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                     <input type="number" name="price[]" placeholder="Price" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                     <input type="number" name="offerPrice[]" placeholder="Offer Price" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                     <button type="button" class="absolute -top-3 -right-3 bg-red-600 text-white w-6 h-6 rounded-full remove-variant">&times;</button>`;
+            variantContainer.appendChild(row);
+            row.querySelector(".remove-variant").addEventListener("click", () => row.remove());
         });
 
-        // =========================
-        // SPECIFICATION HANDLING
-        // =========================
+        // ----- SPECIFICATIONS -----
         const addSpecBtn = document.getElementById("addSpecBtn");
         const specContainer = document.getElementById("specContainer");
-
         addSpecBtn.addEventListener("click", () => {
-            const specRow = document.createElement("div");
-            specRow.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 spec-row relative";
+            const row = document.createElement("div");
+            row.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 spec-row relative";
+            row.innerHTML = `<input type="text" name="specTitle[]" placeholder="Title" class="px-4 py-2 border rounded-lg text-sm">
+                             <input type="text" name="specification[]" placeholder="Specification" class="px-4 py-2 border rounded-lg text-sm">
+                             <button type="button" class="absolute -top-3 -right-3 bg-red-600 text-white w-6 h-6 rounded-full remove-spec">&times;</button>`;
+            specContainer.appendChild(row);
+            row.querySelector(".remove-spec").addEventListener("click", () => row.remove());
+        });
 
-            specRow.innerHTML = `
-                <input type="text" name="specTitle[]" placeholder="Title"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <input type="text" name="specification[]" placeholder="Specification"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
-                <button type="button"
-                    class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 remove-spec">
-                    &times;
-                </button>
-            `;
+        // ----- FORM SUBMISSION -----
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.addEventListener("click", async () => {
+            try {
+                const brand = document.querySelector("select[name='brand']").value;
+                const productName = document.querySelector("input[name='productName']").value;
+                const description = document.querySelector("textarea[name='description']").value;
+                const category = document.querySelector("select[name='category']").value;
+                const status = document.querySelector("input[name='status']:checked").value;
+                const categoryType = document.querySelector("input[name='categoryType']:checked").value;
+                const limitedEdition = document.querySelector("input[name='limitedEdition']").checked;
+                const flashSale = document.querySelector("input[name='flashSale']").checked;
+                console.log(brand, productName, description, category, status, categoryType, limitedEdition, flashSale)
+                if (!brand || !productName || !category)
+                    return Swal.fire('Error', 'Brand, Product Name and Category are required!', 'error');
 
-            specContainer.appendChild(specRow);
+                // Upload Images to Cloudinary
+                const uploadedImages = [];
+                for (let i = 0; i < images.length; i++) {
+                    const canvas = images[i].cropper.getCroppedCanvas({ width: 800, height: 800 });
+                    const blob = await new Promise(res => canvas.toBlob(res));
+                    const formData = new FormData();
+                    formData.append("file", blob);
+                    formData.append("upload_preset", "product_upload");
+                    const uploadRes = await axios.post(`https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload`, formData);
+                    uploadedImages.push(uploadRes.data.secure_url);
+                }
+                console.log(uploadedImages)
 
-            specRow.querySelector(".remove-spec").addEventListener("click", () => {
-                specRow.remove();
-            });
+                const variants = Array.from(document.querySelectorAll(".variant-row")).map(r => ({
+                    variant: r.querySelector("input[name='variant[]']").value,
+                    quantity: r.querySelector("input[name='quantity[]']").value,
+                    price: r.querySelector("input[name='price[]']").value,
+                    offer: r.querySelector("input[name='offerPrice[]']").value
+                })).filter(v => v.variant);
+                console.log(variants)
+
+                const specifications = Array.from(document.querySelectorAll(".spec-row")).map(r => ({
+                    title: r.querySelector("input[name='specTitle[]']").value,
+                    details: r.querySelector("input[name='specification[]']").value
+                })).filter(s => s.title);
+                console.log(specifications)
+                const productData = {
+                    brand, productName, description, category, status,
+                    categoryType, limitedEdition, flashSale,
+                    variants, specifications, images: uploadedImages
+                };
+                console.log(productData);
+                const response = await fetch("/admin/products/addProducts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(productData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire('Success', 'Product added successfully!', 'success')
+                        .then(() => window.location.href = "/admin/products");
+                } else {
+                    Swal.fire('Error', result.message || 'Failed to add product', 'error');
+                }
+            }
+            catch (err) {
+                console.error(err);
+                Swal.fire('Error', 'An error occurred while adding the product', 'error');
+            }
         });
     </script>
 </body>
