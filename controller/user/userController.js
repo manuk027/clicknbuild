@@ -1,10 +1,9 @@
 import User from "../../models/userSchema.js";
+import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js";
 import Brand from "../../models/brandSchema.js"
-import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import bcrypt from "bcrypt";
 import emailOtp from "../../models/otp.js";
 dotenv.config();
 
@@ -15,23 +14,23 @@ const loadHomepage = async (req, res) => {
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
         const brand = await Brand.find();
+        const product = await Product.find({ isListed: true }).populate("brand", "name");
         if (!userId) {
-            return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
+            return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
         }
-
 
         if (!userData) {
             req.session.destroy(() => {
                 res.clearCookie("connect.sid");
-                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
+                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
             });
         } else if (userData.isBlocked) {
             req.session.destroy(() => {
                 res.clearCookie("connect.sid");
-                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand });
+                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
             });
         } else {
-            return res.render("home", { user: userData, peripheral: peripheral, component: component, brand: brand });
+            return res.render("home", { user: userData, peripheral: peripheral, component: component, brand: brand, product: product });
         }
     } catch (err) {
         console.error(err);
@@ -166,7 +165,6 @@ const signup = async (req, res) => {
         }
         req.session.userOtp = otp;
         req.session.userData = { fullName, email, password };
-        console.log("OTP", otp);
         res.render("emailOTPVerification", { email: email });
     } catch (err) {
         console.error("Signup Error", err);
@@ -210,18 +208,11 @@ const resendOTP = async (req, res) => {
         }
 
         const { fullName, email } = user;
-
-        // delete any old OTP for the user
         await emailOtp.deleteMany({ email });
-
-        // generate a new OTP
         const otp = await generateOtp(email);
-
-        // send email
         const emailSent = await sendEmail(email, otp, fullName);
 
         if (emailSent) {
-            console.log("Resent OTP:", otp);
             return res.status(200).json({
                 success: true,
                 message: "OTP resent successfully.",
@@ -282,17 +273,128 @@ const logout = async (req, res) => {
     try {
         req.session.destroy((err) => {
             if (err) {
-                console.log("Sesssion destroy error", err);
+                console.error("Sesssion destroy error", err);
                 return res.redirect('/pageNotFound');
             }
             return res.redirect("/");
         });
     } catch (error) {
-        console.log("logout error", error);
+        console.error("logout error", error);
         res.redirect('/pageNotFound');
     }
 };
 
+const loadPeripheral = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        let peripheral = req.params.name;
+        let category = await Category.findOne({ name: peripheral })
+        let product = await Product.find({ category: category, isListed: true }).populate("brand", "name").populate("category", "name");
+        const userData = await User.findById(userId);
+        const peripherals = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        const brand = await Brand.find();
+         const distinctBrand = await Product.distinct("brand").populate("brand", "name");
+        const distinctCategory = await Product.distinct("category").populate("category", "name");
+        let filterBrand = await Brand.find({ _id: { $in: distinctBrand } }, { name: 1, _id: 0 });
+        filterBrand = filterBrand.map(b => b.name);
+
+        let filterCategory = await Category.find({ _id: { $in: distinctCategory } }, { name: 1, _id: 0 });
+        filterCategory = filterCategory.map(b => b.name);
+        if (product.length === 0) {
+            return res.render('noProductFound', { product: product, peripheral: peripherals, component: component, brand: brand, user: userData, filterBrand: filterBrand,
+                filterCategory: filterCategory, });
+        }
+        res.render('productPages', { product: product, peripheral: peripherals, component: component, brand: brand, user: userData, filterBrand: filterBrand,
+                filterCategory: filterCategory, });
+
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+const loadComponent = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        let component = req.params.name;
+        let category = await Category.findOne({ name: component })
+        let product = await Product.find({ category: category, isListed: true }).populate("brand", "name").populate("category", "name");
+        const userData = await User.findById(userId);
+        const peripherals = await Category.find({ isPeripheral: true, isListed: true });
+        const components = await Category.find({ isComponent: true, isListed: true });
+        const brand = await Brand.find();
+         const distinctBrand = await Product.distinct("brand").populate("brand", "name");
+        const distinctCategory = await Product.distinct("category").populate("category", "name");
+        let filterBrand = await Brand.find({ _id: { $in: distinctBrand } }, { name: 1, _id: 0 });
+        filterBrand = filterBrand.map(b => b.name);
+
+        let filterCategory = await Category.find({ _id: { $in: distinctCategory } }, { name: 1, _id: 0 });
+        filterCategory = filterCategory.map(b => b.name);
+        if (product.length == 0) {
+            return res.render('noProductFound', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, filterBrand: filterBrand,
+                filterCategory: filterCategory, });
+        }
+        res.render('productPages', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, filterBrand: filterBrand,
+                filterCategory: filterCategory, });
+
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+const loadAllProducts = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        const allProducts = await Product.find();
+        const userData = await User.findById(userId);
+        const peripherals = await Category.find({ isPeripheral: true, isListed: true });
+        const components = await Category.find({ isComponent: true, isListed: true });
+        const brand = await Brand.find();
+        const distinctBrand = await Product.distinct("brand").populate("brand", "name");
+        const distinctCategory = await Product.distinct("category").populate("category", "name");
+        let filterBrand = await Brand.find({ _id: { $in: distinctBrand } }, { name: 1, _id: 0 });
+        filterBrand = filterBrand.map(b => b.name);
+
+        let filterCategory = await Category.find({ _id: { $in: distinctCategory } }, { name: 1, _id: 0 });
+        filterCategory = filterCategory.map(b => b.name);
+
+        if (allProducts.length == 0) {
+            return res.render('noProductFound', {
+                product: allProducts, peripheral: peripherals, component: components, brand: brand, user: userData,
+                filterBrand: filterBrand,
+                filterCategory: filterCategory,
+            });
+        }
+        res.render('productPages', {
+            product: allProducts, peripheral: peripherals, component: components, brand: brand, user: userData, filterBrand: filterBrand,
+            filterCategory: filterCategory,
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+const loadProductDetails = async (req, res)=>{
+    try {
+         const userId = req.user?._id || req.session?.user;
+        
+        const userData = await User.findById(userId);
+        const peripherals = await Category.find({ isPeripheral: true, isListed: true });
+        const components = await Category.find({ isComponent: true, isListed: true });
+        const brand = await Brand.find();
+        let prodId = req.query.id;
+        const product = await Product.findById(prodId).populate("category", "name").populate("brand", "name");
+        return res.render('productDetails', {product: product, peripheral: peripherals, component: components, brand: brand, user: userData,})
+    } catch (error) {
+        console.error("Error loading the product details page");
+        return res.redirect("/pageNotFound");
+    }
+}
 
 //exporting all the functions
 export default {
@@ -306,4 +408,8 @@ export default {
     loadLogin,
     login,
     logout,
+    loadPeripheral,
+    loadComponent,
+    loadAllProducts,
+    loadProductDetails
 };

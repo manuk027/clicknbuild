@@ -23,7 +23,6 @@ const categoryInfo = async (req, res) => {
 //function to add category in admin side
 const addCategory = async (req, res) => {
     const { name, description, maxOffer, isPeripheral, isComponent } = req.body;
-    console.log(req.body)
     if (!name || !description) {
         return res.status(400).json({ success: false, message: "Name and description are required" });
     }
@@ -118,7 +117,7 @@ const listCategory = async (req, res) => {
         await Category.updateOne({ _id: id }, { $set: { isListed: true } });
         res.redirect('/admin/category');
     } catch (error) {
-        console.log("Error listing the product:", error);
+        console.error("Error listing the product:", error);
         return res.redirect('/pageNotFound');
     }
 }
@@ -129,7 +128,7 @@ const unListCategory = async (req, res) => {
         await Category.updateOne({ _id: id }, { $set: { isListed: false } });
         res.redirect('/admin/category');
     } catch (error) {
-        console.log("Error listing the product:", error);
+        console.error("Error listing the product:", error);
         return res.redirect('/pageNotFound');
     }
 }
@@ -140,7 +139,7 @@ const loadEditCategory = async (req, res) => {
         const category = await Category.findOne({ _id: id });
         res.render("editCategory", { category: category });
     } catch (error) {
-        console.log("Error editing the category: ", error);
+        console.error("Error editing the category: ", error);
         return res.redirect('/pageNotFound')
     }
 }
@@ -162,7 +161,7 @@ const editCategory = async (req, res) => {
             res.status(400).json({ error: "Category not found" });
         }
     } catch (error) {
-        console.log('Error editing category:', error);
+        console.error('Error editing category:', error);
         res.status(500).json({ error: "Internal server error" });
     }
 }

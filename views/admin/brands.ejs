@@ -110,7 +110,7 @@
                             </thead>
 
                             <tbody class="divide-y divide-gray-200 text-center">
-                                <% data.slice().reverse().forEach((brand, index)=> { %>
+                                <% data.slice().forEach((brand, index)=> { %>
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-4 py-4">
                                             <div class="w-10 h-10 flex-shrink-0 mx-auto">
@@ -126,12 +126,12 @@
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
                                             <% if (brand.isListed) { %>
-                                                <a href="/admin/brands/unlistBrand?id=<%=brand._id%>"
+                                                <a href="/admin/brands/unlistBrand?id=<%= brand._id %>&page=<%= current %>"
                                                     class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
                                                     Unlist
                                                 </a>
                                                 <% } else { %>
-                                                    <a href="/admin/brands/listBrand?id=<%=brand._id%>"
+                                                    <a href="/admin/brands/listBrand?id=<%= brand._id %>&page=<%= current %>"
                                                         class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
                                                         List
                                                     </a>
@@ -164,40 +164,34 @@
                                         <span
                                             class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
                                     </li>
-                                    <% } else { %>
-                                        <li>
-                                            <a href="/admin/brands/?page=1"
+                                <% } else { %>
+                                    <li>
+                                        <a href="/admin/brands/?page=1"
                                                 class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
+                                    </li>
+                                <% } %>
+                                    <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                    <% if (i !==1) { %>
+                                        <li>
+                                            <span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
                                         </li>
-                                        <% } %>
-
-                                            <!-- Ellipsis before -->
-                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                                <% if (i !==1) { %>
-                                                    <li><span
-                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                    <% } %>
+                                    <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                            <% if (i==current) { %>
+                                                    <li>
+                                                        <span class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                            <%= i %>
+                                                        </span>
                                                     </li>
-                                                    <% } %>
-
-                                                        <!-- Page Numbers -->
-                                                        <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                                            <% if (i==current) { %>
-                                                                <li>
-                                                                    <span
-                                                                        class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                                        <%= i %>
-                                                                    </span>
-                                                                </li>
-                                                                <% } else { %>
-                                                                    <li>
-                                                                        <a href="/admin/brands/?page=<%= i %>"
-                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                            <%= i %>
-                                                                        </a>
-                                                                    </li>
-                                                                    <% } %>
-                                                                        <% if (i==Number(current) + 4 && i < pages) { %>
-                                                                            <li><span
+                                            <% } else { %>
+                                                    <li>
+                                                        <a href="/admin/brands/?page=<%= i %>" class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                            <%= i %>
+                                                        </a>
+                                                    </li>
+                                            <% } %>
+                                            <% if (i==Number(current) + 4 && i < pages) { %>
+                                            <li><span
                                                                                     class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
                                                                             </li>
                                                                             <% } %>

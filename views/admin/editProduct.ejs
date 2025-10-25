@@ -232,7 +232,6 @@
                 const categoryType = document.querySelector("input[name='categoryType']:checked").value;
                 const limitedEdition = document.querySelector("input[name='limitedEdition']").checked;
                 const flashSale = document.querySelector("input[name='flashSale']").checked;
-                console.log(brand, productName, description, category, status, categoryType, limitedEdition, flashSale)
                 if (!brand || !productName || !category)
                     return Swal.fire('Error', 'Brand, Product Name and Category are required!', 'error');
 
@@ -252,7 +251,6 @@
                     const cloudData = await cloudRes.json();
                     uploadedImages.push(cloudData.secure_url);
                 }
-                console.log(uploadedImages)
 
                 // Variants
                 const variants = Array.from(document.querySelectorAll(".variant-row")).map(r => ({
@@ -261,7 +259,6 @@
                     price: r.querySelector("input[name='price[]']").value,
                     offer: r.querySelector("input[name='offerPrice[]']").value
                 })).filter(v => v.variant);
-                console.log(variants)
 
                 // Specifications
                 const specifications = Array.from(document.querySelectorAll(".spec-row")).map(r => ({
@@ -275,7 +272,6 @@
                     categoryType, limitedEdition, flashSale,
                     variants, specifications, images: uploadedImages
                 };
-                console.log(productData)
 
                 const productId = "<%= product._id %>";
                 const res = await fetch(`/admin/products/editProduct/${productId}`, {

@@ -10,12 +10,12 @@ import cloudinary from "../../config/cloudinary.js";
 const loadProduct = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 10;
         const skip = (page - 1) * limit;
         const products = await Product.find({})
             .populate("category", "name")
             .populate("brand", "name")
-            .sort({ createdAt: 1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
@@ -32,10 +32,10 @@ const loadProduct = async (req, res) => {
 const loadAddProduct = async (req, res) => {
     try {
         let category = await Category.find();
-        let brand = await Brand.find();
+        let brand = await Brand.find().sort({name: 1});
         return res.render('addProducts', { category: category, brand: brand });
     } catch (error) {
-        console.log("Error loading the add product page: ", error);
+        console.error("Error loading the add product page: ", error);
         return res.redirect('/admin/pageNotFound');
     }
 }
@@ -117,7 +117,7 @@ const listProduct = async (req, res) => {
         await Product.updateOne({ _id: id }, { $set: { isListed: true } });
         res.redirect('/admin/products');
     } catch (error) {
-        console.log("Error listing the product:", error);
+        console.error("Error listing the product:", error);
         return res.redirect('/admin/pageNotFound');
     }
 }
@@ -128,7 +128,7 @@ const unListProduct = async (req, res) => {
         await Product.updateOne({ _id: id }, { $set: { isListed: false } });
         res.redirect('/admin/products');
     } catch (error) {
-        console.log("Error listing the product:", error);
+        console.error("Error listing the product:", error);
         return res.redirect('/admin/pageNotFound');
     }
 }

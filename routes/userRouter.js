@@ -27,4 +27,13 @@ router.post('/login', userController.login);
 router.get('/logout', userController.logout);
 
 
+router.get('/peripheral/:name', userController.loadPeripheral)
+router.get('/component/:name', userController.loadComponent);
+router.get('/shop', userController.loadAllProducts);
+
+
+// router.get('/product/:id', userController.loadProductDetails);
+router.get('/product', userController.loadProductDetails);
+
+
 export default router; 

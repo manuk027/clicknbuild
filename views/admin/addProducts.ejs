@@ -9,6 +9,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <style>
+        /* Smooth gradient pulse animation */
+        @keyframes loader-slide {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .animate-loader {
+            animation: loader-slide 1.5s ease-in-out infinite;
+        }
+    </style>
+
 </head>
 
 <body class="bg-gray-50">
@@ -29,6 +53,7 @@
 
             <!-- Main content -->
             <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
+
                 <div class="mb-6">
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h2>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
@@ -58,11 +83,15 @@
                                         </option>
                                         <% }) %>
                                 </select>
+                                <p id="brandError" class="text-red-600 text-sm mt-1 error-message"
+                                    style="display:none;">Brand is required</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
                                 <input type="text" name="productName" placeholder="Type product name here..."
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <p id="nameError" class="text-red-600 text-sm mt-1 error-message" style="display:none;">
+                                    Product name is required</p>
                             </div>
                         </div>
 
@@ -71,6 +100,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                             <textarea name="description" rows="4" placeholder="Write a short description..."
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
+                            <p id="descError" class="text-red-600 text-sm mt-1 error-message" style="display:none;">
+                                Description is required</p>
                         </div>
 
                         <!-- Category, Status, Category Type -->
@@ -86,6 +117,8 @@
                                         </option>
                                         <% }) %>
                                 </select>
+                                <p id="categoryError" class="text-red-600 text-sm mt-1 error-message"
+                                    style="display:none;">Category is required</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -143,6 +176,8 @@
                             <input type="file" id="imageInput" class="hidden" accept="image/*" multiple>
                         </div>
                     </div>
+                    <p id="imageError" class="text-red-600 text-sm mt-1 error-message" style="display:none;">At least
+                        one image is required</p>
                 </section>
 
                 <!-- PRODUCT VARIANTS -->
@@ -160,6 +195,8 @@
                                 class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
                         </div>
                     </div>
+                    <p id="variantError" class="text-red-600 text-sm mt-1 error-message" style="display:none;">At least
+                        one variant is required</p>
                     <div class="mt-4 flex justify-end">
                         <button type="button" id="addVariantBtn"
                             class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
@@ -198,16 +235,24 @@
                         Cancel
                     </button>
                 </div>
+
             </main>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <div id="loader" class="fixed inset-0 bg-white/90 flex items-center justify-center z-50 hidden">
+        <div class="flex flex-col items-center">
+            <h1 id="logoTextLoader" class="text-4xl font-bold text-gray-800 mb-4">clickNbuild</h1>
+            <div class="w-24 h-1 rounded-full overflow-hidden relative">
+                <div
+                    class="loader-bar absolute left-0 top-0 w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-loader">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ----- IMAGE HANDLING -----
+        // ---------------- IMAGE HANDLING ----------------
         const imageInput = document.getElementById("imageInput");
         const uploadBox = document.getElementById("uploadBox");
         const imageContainer = document.getElementById("imageContainer");
@@ -248,14 +293,13 @@
             else uploadBox.classList.add("hidden");
         }
 
-        // ----- VARIANTS -----
+        // ---------------- VARIANTS ----------------
         const addVariantBtn = document.getElementById("addVariantBtn");
         const variantContainer = document.getElementById("variantContainer");
-        // ...
+
         addVariantBtn.addEventListener("click", () => {
             const row = document.createElement("div");
             row.className = "grid grid-cols-1 sm:grid-cols-4 gap-4 variant-row relative";
-            // ADDED full classes to each input
             row.innerHTML = `<input type="text" name="variant[]" placeholder="Variant Name" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
                      <input type="number" name="quantity[]" placeholder="Quantity" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
                      <input type="number" name="price[]" placeholder="Price" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
@@ -265,7 +309,7 @@
             row.querySelector(".remove-variant").addEventListener("click", () => row.remove());
         });
 
-        // ----- SPECIFICATIONS -----
+        // ---------------- SPECIFICATIONS ----------------
         const addSpecBtn = document.getElementById("addSpecBtn");
         const specContainer = document.getElementById("specContainer");
         addSpecBtn.addEventListener("click", () => {
@@ -278,9 +322,18 @@
             row.querySelector(".remove-spec").addEventListener("click", () => row.remove());
         });
 
-        // ----- FORM SUBMISSION -----
+        // ---------------- FORM SUBMISSION ----------------
         const submitBtn = document.getElementById("submitBtn");
+        const loader = document.getElementById("loader");
+        const logoTextLoader = document.getElementById("logoTextLoader");
+
         submitBtn.addEventListener("click", async () => {
+            loader.classList.remove("hidden");
+            logoTextLoader.classList.add("rgb-effect");
+
+            // Clear previous validation messages
+            document.querySelectorAll(".error-message").forEach(e => e.style.display = "none");
+
             try {
                 const brand = document.querySelector("select[name='brand']").value;
                 const productName = document.querySelector("input[name='productName']").value;
@@ -290,11 +343,30 @@
                 const categoryType = document.querySelector("input[name='categoryType']:checked").value;
                 const limitedEdition = document.querySelector("input[name='limitedEdition']").checked;
                 const flashSale = document.querySelector("input[name='flashSale']").checked;
-                console.log(brand, productName, description, category, status, categoryType, limitedEdition, flashSale)
-                if (!brand || !productName || !category)
-                    return Swal.fire('Error', 'Brand, Product Name and Category are required!', 'error');
 
-                // Upload Images to Cloudinary
+                let valid = true;
+                if (!brand) { document.getElementById("brandError").style.display = "block"; valid = false; }
+                if (!productName) { document.getElementById("nameError").style.display = "block"; valid = false; }
+                if (!description) { document.getElementById("descError").style.display = "block"; valid = false; }
+                if (!category) { document.getElementById("categoryError").style.display = "block"; valid = false; }
+                if (images.length === 0) { document.getElementById("imageError").style.display = "block"; valid = false; }
+
+                const variants = Array.from(document.querySelectorAll(".variant-row")).map(r => ({
+                    variant: r.querySelector("input[name='variant[]']").value,
+                    quantity: r.querySelector("input[name='quantity[]']").value,
+                    price: r.querySelector("input[name='price[]']").value,
+                    offer: r.querySelector("input[name='offerPrice[]']").value
+                })).filter(v => v.variant);
+
+                if (variants.length === 0) { document.getElementById("variantError").style.display = "block"; valid = false; }
+
+                if (!valid) {
+                    loader.classList.add("hidden");
+                    logoTextLoader.classList.remove("rgb-effect");
+                    return;
+                }
+
+                // Upload images to Cloudinary
                 const uploadedImages = [];
                 for (let i = 0; i < images.length; i++) {
                     const canvas = images[i].cropper.getCroppedCanvas({ width: 800, height: 800 });
@@ -305,27 +377,14 @@
                     const uploadRes = await axios.post(`https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload`, formData);
                     uploadedImages.push(uploadRes.data.secure_url);
                 }
-                console.log(uploadedImages)
-
-                const variants = Array.from(document.querySelectorAll(".variant-row")).map(r => ({
-                    variant: r.querySelector("input[name='variant[]']").value,
-                    quantity: r.querySelector("input[name='quantity[]']").value,
-                    price: r.querySelector("input[name='price[]']").value,
-                    offer: r.querySelector("input[name='offerPrice[]']").value
-                })).filter(v => v.variant);
-                console.log(variants)
 
                 const specifications = Array.from(document.querySelectorAll(".spec-row")).map(r => ({
                     title: r.querySelector("input[name='specTitle[]']").value,
                     details: r.querySelector("input[name='specification[]']").value
                 })).filter(s => s.title);
-                console.log(specifications)
-                const productData = {
-                    brand, productName, description, category, status,
-                    categoryType, limitedEdition, flashSale,
-                    variants, specifications, images: uploadedImages
-                };
-                console.log(productData);
+
+                const productData = { brand, productName, description, category, status, categoryType, limitedEdition, flashSale, variants, specifications, images: uploadedImages };
+
                 const response = await fetch("/admin/products/addProducts", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -333,6 +392,8 @@
                 });
 
                 const result = await response.json();
+                loader.classList.add("hidden");
+                logoTextLoader.classList.remove("rgb-effect");
 
                 if (result.success) {
                     Swal.fire('Success', 'Product added successfully!', 'success')
@@ -340,9 +401,11 @@
                 } else {
                     Swal.fire('Error', result.message || 'Failed to add product', 'error');
                 }
-            }
-            catch (err) {
+
+            } catch (err) {
                 console.error(err);
+                loader.classList.add("hidden");
+                logoTextLoader.classList.remove("rgb-effect");
                 Swal.fire('Error', 'An error occurred while adding the product', 'error');
             }
         });

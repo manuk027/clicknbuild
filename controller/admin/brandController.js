@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 const loadBrand = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 5;
         const skip = (page - 1) * limit;
-        const brandData = await Brand.find({}).sort({ createdAt: 1 }).skip(skip).limit(limit);
+        const brandData = await Brand.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
         const totalBrand = await Brand.countDocuments();
         const totalPages = Math.ceil(totalBrand / limit);
         res.render('brands', { brand: brandData, data: brandData, current: page, pages: totalPages, totalBrand: totalBrand, limit: limit });
@@ -42,7 +42,6 @@ const addBrand = async (req, res) => {
         }
 
         const image = req.file;
-        console.log(image);
         const newBrand = new Brand({
             name: brand,
             image: image.path,
@@ -60,10 +59,11 @@ const addBrand = async (req, res) => {
 const listBrand = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Brand.updateOne({ _id: id }, { $set: { isListed: true } });
-        res.redirect('/admin/brands');
+        res.redirect(`/admin/brands/?page=${page}`);
     } catch (error) {
-        console.log("Error listing the brand:", error);
+        console.error("Error listing the brand:", error);
         return res.redirect('/pageNotFound');
     }
 }
@@ -71,10 +71,11 @@ const listBrand = async (req, res) => {
 const unListBrand = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Brand.updateOne({ _id: id }, { $set: { isListed: false } });
-        res.redirect('/admin/brands');
+        res.redirect(`/admin/brands/?page=${page}`);
     } catch (error) {
-        console.log("Error unlisting the brand:", error);
+        console.error("Error unlisting the brand:", error);
         return res.redirect('/pageNotFound');
     }
 }

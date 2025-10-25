@@ -23,6 +23,8 @@
       <nav class="flex items-center gap-10">
         <a href="/" class="hover:text-gray-300">Home</a>
 
+        <a href="/shop" class="hover:text-gray-300">Shop</a>
+
         <!-- Components Dropdown -->
         <div class="relative group">
           <button class="hover:text-gray-300 flex items-center gap-1">
@@ -33,12 +35,15 @@
             </svg>
           </button>
           <div
-            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <%for(let i=0; i<component.length; i++){%>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md"><%=component[i].name%></a>
-            <%}%>
+              <a href="/component/<%=component[i].name%>" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">
+                <%=component[i].name%>
+              </a>
+              <%}%>
           </div>
         </div>
+
 
         <!-- Peripherals Dropdown -->
         <div class="relative group">
@@ -52,8 +57,11 @@
           <div
             class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
             <%for(let i=0; i<peripheral.length; i++){%>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md"><%=peripheral[i].name%></a>
-            <%}%>
+              <a href="/peripheral/<%=peripheral[i].name%>"
+                class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">
+                <%=peripheral[i].name%>
+              </a>
+              <%}%>
           </div>
         </div>
 
@@ -75,15 +83,14 @@
           <div class="relative group">
             <button class="hover:text-gray-300 flex items-center gap-1">
 
-              <%=locals.user.fullName%>
-                <!-- <img src="/images/user.png" alt="user" class="w-6 h-6"> -->
-                <span class="text-sm">
-                  <%=locals.user.name%>
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" class="w-4 h-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
+              <!-- <img src="/images/user.png" alt="user" class="w-6 h-6"> -->
+              <span class="text-sm">
+                <%=locals.user.fullName%>
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
             </button>
             <div
               class="absolute right-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -101,7 +108,7 @@
     <a href="/" class="hover:text-gray-300">Home</a>
 
     <!-- Mobile Components Dropdown -->
-    <div class="w-full">
+    <div class="w-full z-index:4-">
       <button id="mobile-components-btn"
         class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
         Components
@@ -112,8 +119,10 @@
       </button>
       <div id="mobile-components-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
         <%for(let i=0; i<component.length; i++){%>
-        <a href="#" class="py-2 hover:bg-gray-200"><%=component[i].name%></a>
-         <%}%>
+          <a href="#" class="py-2 hover:bg-gray-200">
+            <%=component[i].name%>
+          </a>
+          <%}%>
       </div>
     </div>
 
@@ -129,8 +138,10 @@
       </button>
       <div id="mobile-peripherals-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
         <%for(let i=0; i<peripheral.length; i++){%>
-          <a href="#" class="py-2 hover:bg-gray-200"><%=peripheral[i].name%></a>
-        <%}%>
+          <a href="#" class="py-2 hover:bg-gray-200">
+            <%=peripheral[i].name%>
+          </a>
+          <%}%>
       </div>
     </div>
 

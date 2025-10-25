@@ -112,7 +112,7 @@
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        View
+                                        Variants
                                     </th>
                                 </tr>
                             </thead>
@@ -128,13 +128,13 @@
                                         </td>
 
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].brand.name%>
+                                            <%=product[i].brand?.name%>
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].model%>
+                                            <%=product[i]?.model%>
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].category.name%>
+                                            <%=product[i]?.category?.name%>
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
                                             <% if (product[i].isListed) { %>
@@ -252,12 +252,10 @@
         document.querySelectorAll(".showVariantsBtn").forEach(button => {
             button.addEventListener("click", async () => {
                 const productId = button.dataset.id;
-                console.log(productId);
 
                 try {
                     const res = await fetch(`/admin/ptoducts/viewVariants?id=${productId}`);
                     const data = await res.json();
-                    console.log(data)
                     if (!data.success) {
                         return Swal.fire("Error", data.message, "error");
                     }
