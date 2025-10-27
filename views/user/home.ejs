@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>clickNbuild</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -22,6 +23,7 @@
         </div>
 
         <!-- Flash Sales Section -->
+
         <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-white">
             <div class="max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-6 md:mb-8">
@@ -42,11 +44,13 @@
                     </div>
                 </div>
 
+
                 <div id="flashSalesContainer" class="overflow-x-auto scrollbar-hide">
                     <div class="flex gap-4 md:gap-6 pb-4">
                         <!-- Product 1 -->
                         <%for(let i=0; i<product.length; i++){%>
                             <%if(product[i].onFlashSale===true){%>
+                                <a href="/product?id=<%= product[i]._id %>">
                                 <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
                                     <div
                                         class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
@@ -69,15 +73,16 @@
                                             </div>
                                             <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
                                 </div>
+                                </a>
                                 <%}%>
                                     <%}%>
                     </div>
                 </div>
 
                 <div class="text-center mt-6 md:mt-8">
-                    <button
+                    <a href="/shop/limitedEditions"
                         class="bg-black text-white px-6 md:px-8 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View
-                        All Products</button>
+                        All Products</a>
                 </div>
             </div>
         </section>
@@ -89,27 +94,26 @@
 
         <!-- Popular Brands Section -->
         <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
-  <div class="max-w-7xl mx-auto">
-    <!-- Title -->
-    <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800">
-      Popular Brands
-    </h2>
+            <div class="max-w-7xl mx-auto">
+                <!-- Title -->
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800">
+                    Popular Brands
+                </h2>
 
-    <!-- Scrollable Brand Container -->
-    <div id="brandsContainer"
-         class="relative flex overflow-x-auto scrollbar-hide scroll-smooth">
-      <div class="brands-inner flex gap-6 md:gap-8 pb-2">
-        <% for (let i = 0; i < brand.length; i++) { %>
-          <div class="flex-shrink-0 h-14 sm:h-16 md:h-20 lg:h-24 flex items-center justify-center bg-white rounded-lg shadow-sm p-2 md:p-3">
-            <img src="<%= brand[i].image %>"
-                 alt="<%= brand[i].name %>"
-                 class="h-full w-auto object-contain transition-transform duration-300 hover:scale-105">
-          </div>
-        <% } %>
-      </div>
-    </div>
-  </div>
-</section>
+                <!-- Scrollable Brand Container -->
+                <div id="brandsContainer" class="relative flex overflow-x-auto scrollbar-hide scroll-smooth">
+                    <div class="brands-inner flex gap-6 md:gap-8 pb-2">
+                        <% for (let i=0; i < brand.length; i++) { %>
+                            <div
+                                class="flex-shrink-0 h-14 sm:h-16 md:h-20 lg:h-24 flex items-center justify-center bg-white rounded-lg shadow-sm p-2 md:p-3">
+                                <img src="<%= brand[i].image %>" alt="<%= brand[i].name %>"
+                                    class="h-full w-auto object-contain transition-transform duration-300 hover:scale-105">
+                            </div>
+                            <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
 
 
 
@@ -125,6 +129,7 @@
                     <!-- Limited Product 1 -->
                     <%for(let i=0; i<product.length; i++){%>
                         <%if(product[i].isLimited===true){%>
+                            <a href="/product?id=<%= product[i]._id %>">
                             <div>
                                 <div
                                     class="bg-white-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
@@ -145,6 +150,7 @@
                                         </div>
                                         <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★</div>
                             </div>
+                            </a>
                             <%}%>
                                 <%}%>
                 </div>
@@ -318,30 +324,30 @@
                 }
             </script>
             <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("brandsContainer");
-  const inner = container.querySelector(".brands-inner");
+                document.addEventListener("DOMContentLoaded", () => {
+                    const container = document.getElementById("brandsContainer");
+                    const inner = container.querySelector(".brands-inner");
 
-  // Clone the inner content for seamless scrolling
-//   const clone = inner.cloneNode(true);
-//   container.appendChild(clone);
+                    // Clone the inner content for seamless scrolling
+                    //   const clone = inner.cloneNode(true);
+                    //   container.appendChild(clone);
 
-  const scrollSpeed = 0.5; // adjust speed (0.5 = slow, 1 = faster)
+                    const scrollSpeed = 0.5; // adjust speed (0.5 = slow, 1 = faster)
 
-  function smoothScroll() {
-    container.scrollLeft += scrollSpeed;
+                    function smoothScroll() {
+                        container.scrollLeft += scrollSpeed;
 
-    // Reset scrollLeft seamlessly when reaching the original content width
-    if (container.scrollLeft >= inner.scrollWidth) {
-      container.scrollLeft = 0;
-    }
+                        // Reset scrollLeft seamlessly when reaching the original content width
+                        if (container.scrollLeft >= inner.scrollWidth) {
+                            container.scrollLeft = 0;
+                        }
 
-    requestAnimationFrame(smoothScroll);
-  }
+                        requestAnimationFrame(smoothScroll);
+                    }
 
-  smoothScroll(); // start scrolling immediately
-});
-</script>
+                    smoothScroll(); // start scrolling immediately
+                });
+            </script>
 
 
 

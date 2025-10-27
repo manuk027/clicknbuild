@@ -32,8 +32,11 @@ router.get('/component/:name', userController.loadComponent);
 router.get('/shop', userController.loadAllProducts);
 
 
-// router.get('/product/:id', userController.loadProductDetails);
-router.get('/product', userController.loadProductDetails);
 
+router.get('/product', userController.loadProductDetails);
+router.get('/shop/limitedEditions', userController.loadLimitedEditions);
+
+
+router.get('/products', userController.loadSearchedProducts);
 
 export default router; 

@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const loadBrand = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;
+        const limit = 10;
         const skip = (page - 1) * limit;
         const brandData = await Brand.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
         const totalBrand = await Brand.countDocuments();

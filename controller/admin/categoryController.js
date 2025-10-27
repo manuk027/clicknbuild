@@ -7,7 +7,7 @@ import Product from "../../models/productSchema.js";
 const categoryInfo = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 10;
         const skip = (page - 1) * limit;
         const categoryData = await Category.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
         const totalCategories = await Category.countDocuments();

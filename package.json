@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "cropperjs": "^2.1.0",
     "dotenv": "^17.2.3",
+    "drift-zoom": "^1.5.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
