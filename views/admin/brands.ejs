@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brand List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +14,8 @@
 <body class="bg-gray-50">
 
     <div class="flex min-h-screen">
-        <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
+        <aside id="sidebar"
+            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
             <%- include("../../views/partials/admin/sidebar") %>
         </aside>
 
@@ -72,14 +74,52 @@
                             </button>
                             <div id="sortDropdown"
                                 class="hidden absolute mt-2 w-35 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: Low to High</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: High to Low</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
+                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
+                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
                             </div>
+                            <script>
+                                function applySort(sortType) {
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.set("sort", sortType);
+                                    window.location.href = url.toString();
+                                }
+                            </script>
                         </div>
                     </div>
                 </div>
+                <script>
+                    // Wait until the DOM is loaded
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const filtersBtn = document.getElementById("filtersBtn");
+                        const filtersDropdown = document.getElementById("filtersDropdown");
+                        const sortBtn = document.getElementById("sortBtn");
+                        const sortDropdown = document.getElementById("sortDropdown");
+
+                        // Toggle Filters dropdown
+                        filtersBtn.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            filtersDropdown.classList.toggle("hidden");
+                            sortDropdown.classList.add("hidden"); // close sort if open
+                        });
+
+                        // Toggle Sort dropdown
+                        sortBtn.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            sortDropdown.classList.toggle("hidden");
+                            filtersDropdown.classList.add("hidden"); // close filters if open
+                        });
+
+                        // Close dropdowns when clicking outside
+                        document.addEventListener("click", () => {
+                            filtersDropdown.classList.add("hidden");
+                            sortDropdown.classList.add("hidden");
+                        });
+
+                        // Prevent dropdown click from closing itself
+                        filtersDropdown.addEventListener("click", (e) => e.stopPropagation());
+                        sortDropdown.addEventListener("click", (e) => e.stopPropagation());
+                    });
+                </script>
 
                 <div class="bg-white rounded-lg shadow overflow-hidden">
                     <div class="overflow-x-auto">
@@ -137,7 +177,7 @@
                                                     </a>
                                                     <% } %>
                                         </td>
-                                        
+
                                         <td class="px-4 py-4">
                                             <div class="flex justify-center items-center space-x-2">
                                                 <a class="p-2 text-gray-600 hover:bg-gray-100 rounded"
@@ -164,34 +204,38 @@
                                         <span
                                             class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
                                     </li>
-                                <% } else { %>
-                                    <li>
-                                        <a href="/admin/brands/?page=1"
-                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
-                                    </li>
-                                <% } %>
-                                    <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                    <% if (i !==1) { %>
+                                    <% } else { %>
                                         <li>
-                                            <span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                            <a href="/admin/brands/?page=1"
+                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
                                         </li>
-                                    <% } %>
-                                    <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                            <% if (i==current) { %>
+                                        <% } %>
+                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                                <% if (i !==1) { %>
                                                     <li>
-                                                        <span class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                            <%= i %>
-                                                        </span>
+                                                        <span
+                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
                                                     </li>
-                                            <% } else { %>
-                                                    <li>
-                                                        <a href="/admin/brands/?page=<%= i %>" class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                            <%= i %>
-                                                        </a>
-                                                    </li>
-                                            <% } %>
-                                            <% if (i==Number(current) + 4 && i < pages) { %>
-                                            <li><span
+                                                    <% } %>
+                                                        <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                                            <% if (i==current) { %>
+                                                                <li>
+                                                                    <span
+                                                                        class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                                        <%= i %>
+                                                                    </span>
+                                                                </li>
+                                                                <% } else { %>
+                                                                    <li>
+                                                                        <a href="/admin/brands/?page=<%= i %>&sort=<%= sort %>"
+                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                            <%= i %>
+                                                                        </a>
+
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% if (i==Number(current) + 4 && i < pages) { %>
+                                                                            <li><span
                                                                                     class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
                                                                             </li>
                                                                             <% } %>
@@ -206,7 +250,10 @@
                                                                                         <% } else { %>
                                                                                             <li>
                                                                                                 <a href="/admin/brands/?page=<%= pages %>"
-                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
+                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                                    Last
+                                                                                                </a>
+
                                                                                             </li>
                                                                                             <% } %>
                             </ul>

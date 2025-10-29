@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Category - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -14,31 +15,34 @@
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <%- include("../../views/partials/admin/sidebar") %>
+        <aside id="sidebar"
+            class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
+            <%- include("../../views/partials/admin/sidebar") %>
+        </aside>
 
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-h-screen">
             <!-- Header -->
             <%- include("../../views/partials/admin/header") %>
 
-            <!-- Page Content -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <!-- Page Title -->
-                <div class="mb-6">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h2>
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <span><a href="/admin">Dashboard</a></span>
-                        <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900"><a href="/admin/category">Category</a></span>
-                        <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900">Add</span>
+                <!-- Page Content -->
+                <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                    <!-- Page Title -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD A CATEGORY</h2>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <span><a href="/admin">Dashboard</a></span>
+                            <i class="fas fa-chevron-right text-xs"></i>
+                            <span class="text-gray-900"><a href="/admin/category">Category</a></span>
+                            <i class="fas fa-chevron-right text-xs"></i>
+                            <span class="text-gray-900">Add</span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Form -->
-                <form id="addCategoryForm">
-                    <!-- Header Image Upload -->
-                    <!--
+                    <!-- Form -->
+                    <form id="addCategoryForm">
+                        <!-- Header Image Upload -->
+                        <!--
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
                         <div id="dropZone"
@@ -63,67 +67,67 @@
                     </div>
                     -->
 
-                    <!-- Two Column Layout for Offer and Category Name -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <!-- Category Name -->
+                        <!-- Two Column Layout for Offer and Category Name -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <!-- Category Name -->
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Category Name
+                                </label>
+                                <input type="text" id="name" name="name"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
+                                    placeholder="Type category name here...">
+                                <p id="name-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
+                            </div>
+                            <!-- Category Offer -->
+                            <div>
+                                <label for="maxOffer" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Category Offer:
+                                </label>
+                                <input type="number" id="maxOffer" name="maxOffer" min="0" max="100"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
+                                    placeholder="Enter offer percentage">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                                Category Name
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                Description
                             </label>
-                            <input type="text" id="name" name="name"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
-                                placeholder="Type category name here...">
-                            <p id="name-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
+                            <textarea id="description" name="description" rows="6"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm sm:text-base"
+                                placeholder="Type category description here..."></textarea>
+                            <p id="description-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
                         </div>
-                        <!-- Category Offer -->
+
+                        <!-- Listed/Unlisted Status -->
+
                         <div>
-                            <label for="maxOffer" class="block text-sm font-medium text-gray-700 mb-2">
-                                Category Offer:
-                            </label>
-                            <input type="number" id="maxOffer" name="maxOffer" min="0" max="100"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm sm:text-base"
-                                placeholder="Enter offer percentage">
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="category" value="peripheral" checked
+                                        class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
+                                    <span class="ml-2 text-sm sm:text-base text-gray-700">Peripheral</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="category" value="component"
+                                        class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
+                                    <span class="ml-2 text-sm sm:text-base text-gray-700">Component</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Description -->
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea id="description" name="description" rows="6"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm sm:text-base"
-                            placeholder="Type category description here..."></textarea>
-                        <p id="description-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
-                    </div>
 
-                    <!-- Listed/Unlisted Status -->
-                    
-                    <div>
-                        <div class="flex flex-wrap gap-4">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="category" value="peripheral" checked
-                                    class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
-                                <span class="ml-2 text-sm sm:text-base text-gray-700">Peripheral</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="category" value="component"
-                                    class="appearance-none w-5 h-5 border-2 border-gray-400 rounded-full checked:bg-black checked:border-black focus:outline-none">
-                                <span class="ml-2 text-sm sm:text-base text-gray-700">Component</span>
-                            </label>
+                        <!-- Submit Button -->
+                        <div class="flex justify-end pt-4">
+                            <button type="submit"
+                                class="px-6 sm:px-8 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm sm:text-base">
+                                Add Category
+                            </button>
                         </div>
-                    </div>
-                   
-
-                    <!-- Submit Button -->
-                    <div class="flex justify-end pt-4">
-                        <button type="submit"
-                            class="px-6 sm:px-8 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm sm:text-base">
-                            Add Category
-                        </button>
-                    </div>
-                </form>
-            </main>
+                    </form>
+                </main>
         </div>
     </div>
 
@@ -151,7 +155,7 @@
             const maxOffer = $("#maxOffer").val().trim();
             const selected = document.querySelector('input[name="category"]:checked').value;
             let isComponent; let isPeripheral;
-            if(selected==="component"){
+            if (selected === "component") {
                 isComponent = true;
                 isPeripheral = false;
             } else {
@@ -224,4 +228,5 @@
         }
     </script>
 </body>
+
 </html>

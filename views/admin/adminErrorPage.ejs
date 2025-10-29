@@ -12,8 +12,10 @@
 <body class="bg-gray-50 text-black flex min-h-screen">
 
   <!-- Sidebar -->
+   <aside id="sidebar"
+            class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
   <%- include("../../views/partials/admin/sidebar") %>
-
+</aside>
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
 
@@ -24,7 +26,7 @@
     <div class="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-16">
       <h1 class="text-[120px] sm:text-[140px] font-extrabold mb-6 tracking-widest">404</h1>
       <p class="text-lg sm:text-xl text-gray-600 mb-8">Oops! Page not found.</p>
-      <a href="/"
+      <a href="/admin/"
          class="bg-black text-white px-6 sm:px-8 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors">
         Back to Home
       </a>

@@ -1,15 +1,17 @@
 //importing necessary modules and functions
 import Category from "../../models/categorySchema.js";
 import Product from "../../models/productSchema.js";
-
+import brandSortOption from "../../helpers/brandSort.js"
 
 //function to load category information in admin side
 const categoryInfo = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
+        const sort = req.query.sort;
+        const sortOption = brandSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
-        const categoryData = await Category.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const categoryData = await Category.find({}).sort(sortOption).skip(skip).limit(limit);
         const totalCategories = await Category.countDocuments();
         const totalPages = Math.ceil(totalCategories / limit);
         res.render('category', { category: categoryData, data: categoryData, current: page, pages: totalPages, totalCategories: totalCategories, limit: limit });

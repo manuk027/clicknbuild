@@ -4,18 +4,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import cloudinary from "../../config/cloudinary.js";
+import brandSortOption from "../../helpers/brandSort.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const loadBrand = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
+        const sort = req.query.sort;
+        const sortOption = brandSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
-        const brandData = await Brand.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const brandData = await Brand.find({}).sort(sortOption).skip(skip).limit(limit);
         const totalBrand = await Brand.countDocuments();
         const totalPages = Math.ceil(totalBrand / limit);
-        res.render('brands', { brand: brandData, data: brandData, current: page, pages: totalPages, totalBrand: totalBrand, limit: limit });
+        res.render('brands', { brand: brandData, data: brandData, current: page, pages: totalPages, totalBrand: totalBrand, limit: limit, sort });
     } catch (error) {
         console.error("Error loding brand: ", error);
         return res.redirect('/admin/pageNotFound');

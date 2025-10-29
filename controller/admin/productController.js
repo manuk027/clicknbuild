@@ -6,23 +6,26 @@ import fs from 'fs';
 import path from "path";
 import sharp from 'sharp';
 import cloudinary from "../../config/cloudinary.js";
+import brandSortOption from "../../helpers/brandSort.js"
 
 const loadProduct = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
+        const sort = req.query.sort;
+        const sortOption = brandSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
         const products = await Product.find({})
             .populate("category", "name")
             .populate("brand", "name")
-            .sort({ createdAt: -1 })
+            .sort(sortOption)
             .skip(skip)
             .limit(limit);
 
         const category = await Category.findById(products._id);
         const totalProducts = await Product.countDocuments();
         const totalPages = Math.ceil(totalProducts / limit);
-        res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category });
+        res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category, sort, search: req.query.search || "" });
     } catch (error) {
         console.error('Error loading the product page: ', error);
         return res.redirect('/admin/pageNotFound');

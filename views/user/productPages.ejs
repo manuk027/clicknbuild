@@ -14,6 +14,7 @@
 
 <body class="font-[Poppins] bg-gray-50">
     <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
+
         <!-- Main Content -->
         <main class="container mx-auto px-4 md:px-6 py-8">
 
@@ -30,76 +31,134 @@
                 </span>
             </div>
 
+            <!-- Mobile Filter & Sort Dropdowns -->
+            <div class="flex items-center justify-between mb-6 lg:hidden">
+                <div class="w-1/2 pr-2">
+                    <select id="mobileFilterDropdown"
+                        class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black">
+                        <option value="">Filter By</option>
+                        <% if(filterBrand && filterBrand.length){ %>
+                            <optgroup label="Brand">
+                                <% for(let i=0; i<filterBrand.length; i++){ %>
+                                    <option value="<%=filterBrand[i]%>">
+                                        <%=filterBrand[i]%>
+                                    </option>
+                                    <% } %>
+                            </optgroup>
+                            <% } %>
+                                <% if(filterCategory && filterCategory.length){ %>
+                                    <optgroup label="Category">
+                                        <% for(let i=0; i<filterCategory.length; i++){ %>
+                                            <option value="<%=filterCategory[i]%>">
+                                                <%=filterCategory[i]%>
+                                            </option>
+                                            <% } %>
+                                    </optgroup>
+                                    <% } %>
+                    </select>
+                </div>
+
+                <div class="w-1/2 pl-2">
+                    <select id="mobileSortDropdown"
+                        class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                        onchange="applySort(this.value)">
+                        <option value="">Sort By</option>
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priceAsc">Price: Low - High</option>
+                        <option value="priceDesc">Price: High - Low</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="flex flex-col lg:flex-row gap-8">
 
                 <!-- Sidebar Filters -->
-                <aside class="lg:w-64 flex-shrink-0">
-                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                        <h2 class="text-xl font-semibold mb-6">Filter By</h2>
-
-                        <!-- Brand Filter -->
-                        <%if(filterBrand){%>
-                            <div class="mb-6">
-                                <h3 class="font-medium mb-3">Brand</h3>
-                                <div class="space-y-2">
-                                    <%for(let i=0; i<filterBrand.length; i++){%>
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox"
-                                                class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
-                                            <span class="ml-2 text-sm">
-                                                <%=filterBrand[i]%>
-                                            </span>
-                                        </label>
-                                        <%}%>
-                                </div>
+                <form id="filterForm" method="GET" action="/<%=route%>/<%=name%>">
+                    <!-- Brand Filter -->
+                    <% if (filterBrand) { %>
+                        <div class="mb-6">
+                            <h3 class="font-medium mb-3">Brand</h3>
+                            <div class="space-y-2">
+                                <% for (let i=0; i < filterBrand.length; i++) { %>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" name="brand" value="<%= filterBrand[i] %>"
+                                            class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                            <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
+                                            : '' %> >
+                                        <span class="ml-2 text-sm">
+                                            <%= filterBrand[i] %>
+                                        </span>
+                                    </label>
+                                    <% } %>
                             </div>
-                            <%}%>
+                        </div>
+                        <% } %>
 
-                                <!-- Category Filter -->
-                                <%if(filterCategory){%>
-                                    <div class="mb-6">
-                                        <h3 class="font-medium mb-3">Category</h3>
-                                        <div class="space-y-2">
-                                            <%for(let i=0; i<filterCategory.length; i++){%>
-                                                <label class="flex items-center cursor-pointer">
-                                                    <input type="checkbox"
-                                                        class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
-                                                    <span class="ml-2 text-sm">
-                                                        <%=filterCategory[i]%>
-                                                    </span>
-                                                </label>
-                                                <%}%>
-
-                                        </div>
+                            <!-- Category Filter -->
+                            <% if (filterCategory) { %>
+                                <div class="mb-6">
+                                    <h3 class="font-medium mb-3">Category</h3>
+                                    <div class="space-y-2">
+                                        <% for (let i=0; i < filterCategory.length; i++) { %>
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="checkbox" name="category" value="<%= filterCategory[i] %>"
+                                                    class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                                    <%=selectedCategories && selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %> >
+                                                <span class="ml-2 text-sm">
+                                                    <%= filterCategory[i] %>
+                                                </span>
+                                            </label>
+                                            <% } %>
                                     </div>
-                                    <%}%>
+                                </div>
+                                <% } %>
 
-                                        <!-- Size Filter -->
+                                    <button type="submit"
+                                        class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium">
+                                        APPLY
+                                    </button>
+                </form>
 
-
-                                        <button
-                                            class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium">
-                                            APPLY
-                                        </button>
-                    </div>
-                </aside>
 
                 <!-- Products Section -->
                 <div class="flex-1">
 
-                    <!-- Sort Bar -->
+                    <!-- Sort Bar (Visible on Desktop Only) -->
                     <div
-                        class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-
-
+                        class="bg-white rounded-lg shadow-sm p-4 mb-6 flex-wrap items-center justify-between gap-4 hidden lg:flex">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-sm text-gray-600">Sort By</span>
-                            <button class="px-4 py-2 text-sm border-b-2 border-black font-medium">Popularity</button>
-                            <button class="px-4 py-2 text-sm text-gray-600 hover:text-black">Newest First</button>
-                            <button class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Low - High</button>
-                            <button class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: High - Low</button>
+                            <span class="text-sm text-gray-600 font-bold">Sort By</span>
+                            <a onclick="applySort('newest')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Newest First</a>
+                            <a onclick="applySort('oldest')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Oldest First</a>
+                            <a onclick="applySort('priceAsc')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Low - High</a>
+                            <a onclick="applySort('priceDesc')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: High - Low</a>
                         </div>
                     </div>
+
+                    <script>
+                        function applySort(sortType) {
+                            const url = new URL(window.location.href);
+                            if (sortType) {
+                                url.searchParams.set("sort", sortType);
+                            } else {
+                                url.searchParams.delete("sort");
+                            }
+                            window.location.href = url.toString();
+                        }
+
+                        // Mobile filter select behavior
+                        document.getElementById('mobileFilterDropdown')?.addEventListener('change', (e) => {
+                            const value = e.target.value;
+                            if (value) {
+                                alert(`Filter selected: ${value}`);
+                            }
+                        });
+                    </script>
 
                     <!-- Products Grid -->
                     <%if(product.length){%>
@@ -108,7 +167,6 @@
                                 <a href="/product?id=<%= product[i]._id %>">
                                     <div
                                         class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden group flex flex-col h-full min-h-[500px]">
-
                                         <div
                                             class="relative aspect-square bg-gray-100 flex items-center justify-center p-6">
                                             <img src="<%=product[i].images[0]%>" alt="<%=product[i].brand.name%>"
@@ -154,7 +212,6 @@
                                                             <span class="text-yellow-400">★★★★★</span>
                                                         </div>
 
-                                                        <!-- Button pinned to bottom -->
                                                         <%if(product[i].variants[0].quantity>=1){%>
                                                             <button
                                                                 class="mt-auto w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition font-medium text-sm">
@@ -185,7 +242,6 @@
                                     Back to Home
                                 </a>
                             </div>
-
                             <%}%>
 
                                 <script>
@@ -209,15 +265,8 @@
                                         });
                                     });
                                 </script>
-
-
-
-
-
-
                 </div>
             </div>
-
         </main>
         <%- include("../../views/partials/user/footer") %>
 
@@ -238,7 +287,7 @@
                     });
                 });
 
-                // Sort buttons
+                // Sort buttons highlight
                 const sortBtns = document.querySelectorAll('[class*="px-4 py-2"]');
                 sortBtns.forEach(btn => {
                     btn.addEventListener('click', function () {

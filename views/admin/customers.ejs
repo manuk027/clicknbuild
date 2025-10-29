@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-        <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
+        <aside id="sidebar"
+            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
             <%- include("../../views/partials/admin/sidebar") %>
         </aside>
 
@@ -60,7 +62,7 @@
                             </div>
                         </div>
 
-                        <!-- Sort Button -->
+
                         <div class="relative">
                             <button id="sortBtn"
                                 class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -68,14 +70,40 @@
                                 <span>SORT</span>
                                 <i class="fas fa-chevron-down text-sm ml-1"></i>
                             </button>
+
                             <div id="sortDropdown"
-                                class="hidden absolute mt-2 w-35 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: Low to High</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: High to Low</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
+                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
+                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
                             </div>
                         </div>
+
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const sortBtn = document.getElementById("sortBtn");
+                                const sortDropdown = document.getElementById("sortDropdown");
+
+                                sortBtn.addEventListener("click", (e) => {
+                                    e.stopPropagation();
+                                    sortDropdown.classList.toggle("hidden");
+                                });
+
+                                document.addEventListener("click", (e) => {
+                                    if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                                        sortDropdown.classList.add("hidden");
+                                    }
+                                });
+
+                                window.applySort = function (sortType) {
+                                    sortDropdown.classList.add("hidden");
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.set("sort", sortType);
+                                    window.location.href = url.toString();
+                                };
+                            });
+                        </script>
+
+
 
                     </div>
 
@@ -290,12 +318,6 @@
         filtersBtn.addEventListener('click', () => {
             filtersDropdown.classList.toggle('hidden');
             sortDropdown.classList.add('hidden'); // close sort dropdown if open
-        });
-
-        // Toggle Sort dropdown
-        sortBtn.addEventListener('click', () => {
-            sortDropdown.classList.toggle('hidden');
-            filtersDropdown.classList.add('hidden'); // close filters dropdown if open
         });
 
         // Close dropdowns when clicking outside

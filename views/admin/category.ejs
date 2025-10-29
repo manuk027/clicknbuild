@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category List - Admin Dashboard</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-50">
     <div class="flex min-h-screen">
-       <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
+        <aside id="sidebar"
+            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
             <%- include("../../views/partials/admin/sidebar") %>
         </aside>
 
@@ -78,11 +79,16 @@
                             </button>
                             <div id="sortDropdown"
                                 class="hidden absolute mt-2 w-35 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: Low to High</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price: High to Low</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
+                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
+                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
                             </div>
+                            <script>
+                                function applySort(sortType) {
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.set("sort", sortType);
+                                    window.location.href = url.toString();
+                                }
+                            </script>
                         </div>
 
                     </div>
@@ -195,7 +201,8 @@
                                                 <!-- <button class="p-2 text-gray-600 hover:bg-gray-100 rounded">
                                                     <i class="fas fa-add"></i>
                                                 </button> -->
-                                                <a class="p-2 text-gray-600 hover:bg-gray-100 rounded" href="/admin/category/editCategory?id=<%=data[i]._id%>">
+                                                <a class="p-2 text-gray-600 hover:bg-gray-100 rounded"
+                                                    href="/admin/category/editCategory?id=<%=data[i]._id%>">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <!-- <button class="delete-btn p-2 text-red-600 hover:bg-red-50 rounded"

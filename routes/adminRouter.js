@@ -60,4 +60,10 @@ router.get('/ptoducts/viewVariants', auth.adminAuth, productController.viewVaria
 router.get('/products/editProduct/', auth.adminAuth, productController.loadEditProduct);
 router.put("/products/editProduct/:id", upload.array("images", 4), productController.editProduct);
 
+
+
+router.get(/(.*)/, (req, res)=>{
+    res.render('adminErrorPage');
+});
+
 export default router; 
