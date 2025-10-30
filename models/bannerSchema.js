@@ -2,7 +2,9 @@
 import mongoose from 'mongoose';
 
 
+
 const { Schema, model } = Schema;
+
 
 
 //defining banner schema for the admin
@@ -13,6 +15,7 @@ const bannerSchema = new Schema({
     startDate: { type: Date, required: true, },
     endingDate: { type: Date, required: true, },
 });
+
 
 
 //creating model for Banner

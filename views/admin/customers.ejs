@@ -39,15 +39,51 @@
 
                 <!-- Search & Filter Bar -->
                 <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div class="flex-1 relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" placeholder="Search customer..."
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                    <div class="flex items-center justify-between mb-6 w-full">
+                        <form id="searchForm" action="/admin/customers" method="GET" class="flex w-full max-w-md">
+                            <div class="flex-1 relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
+                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
+               focus:outline-none focus:ring-2 focus:ring-black" />
+                                <% if (search) { %>
+                                    <button type="button" id="clearSearch"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <% } %>
+                            </div>
+                            <button type="submit"
+                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
+                                Search
+                            </button>
+                        </form>
                     </div>
+                    <script>
+                        // ✅ Optional: clear search button
+                        const clearSearch = document.getElementById("clearSearch");
+                        if (clearSearch) {
+                            clearSearch.addEventListener("click", () => {
+                                window.location.href = "/admin/brands"; // Reset to full list
+                            });
+                        }
+
+                        // ✅ Trigger search on pressing Enter
+                        const searchInput = document.getElementById("searchInput");
+                        const searchForm = document.getElementById("searchForm");
+                        if (searchInput && searchForm) {
+                            searchInput.addEventListener("keypress", function (event) {
+                                if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    searchForm.submit();
+                                }
+                            });
+                        }
+                    </script>
                     <div class="flex gap-4">
 
                         <!-- Filters Button -->
-                        <div class="relative">
+                        <!-- <div class="relative">
                             <button id="filtersBtn"
                                 class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-sliders-h"></i>
@@ -60,7 +96,7 @@
                                 <a href="#" class="block px-4 py-2 hover:bg-gray-100">Category</a>
                                 <a href="#" class="block px-4 py-2 hover:bg-gray-100">Availability</a>
                             </div>
-                        </div>
+                        </div> -->
 
 
                         <div class="relative">

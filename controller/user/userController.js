@@ -24,19 +24,26 @@ const loadHomepage = async (req, res) => {
         if (!userId) {
             return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
         }
-        if (!userData) {
-            req.session.destroy(() => {
-                res.clearCookie("connect.sid");
-                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
-            });
-        } else if (userData.isBlocked) {
-            req.session.destroy(() => {
-                res.clearCookie("connect.sid");
-                return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
+        if (!userData || userData.isBlocked) {
+            delete req.session.user;
+
+            return res.render("home", {
+                user: null,
+                peripheral,
+                component,
+                brand,
+                product
             });
         } else {
-            return res.render("home", { user: userData, peripheral: peripheral, component: component, brand: brand, product: product });
+            return res.render("home", {
+                user: userData,
+                peripheral,
+                component,
+                brand,
+                product
+            });
         }
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
@@ -574,7 +581,6 @@ const loadLimitedEditions = async (req, res) => {
 
 
 
-
 const loadSearchedProducts = async (req, res) => {
     try {
         const searchQuery = req.query.search?.trim() || "";
@@ -626,6 +632,92 @@ const loadSearchedProducts = async (req, res) => {
 
 
 
+const loadForgotPassword = async (req, res) => {
+    try {
+        return res.render('forgotPassword', { message: null });
+    } catch (error) {
+        console.error("Error loading the forgot password page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
 
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts };
+
+const sendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.render('forgotPassword', { message: "User not found." })
+        }
+        const otp = await generateOtp(email);
+        const emailSent = await sendEmail(email, otp, user.fullName);
+        if (emailSent) {
+            return res.render('passwordOtp', { email });
+        } else {
+            return res.status(500).json({ success: false, message: "Failed to send email" });
+        }
+    } catch (error) {
+        console.error("Error sending the otp for password change: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+
+const verify = async (req, res) => {
+    try {
+        const { otp, email } = req.body;
+        let otpDoc = await emailOtp.findOne({ email: email });
+        console.log(otpDoc)
+        if (!otpDoc) {
+            return res.status(400).json({ success: false, message: "OTP expired." });
+        }
+        if (String(otp) === String(otpDoc.otp)) {
+            await emailOtp.deleteMany({ email });
+            return res.json({ success: true, redirectUrl: `/newPassword/${email}` });
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid OTP." });
+        }
+    } catch (error) {
+        console.error("Error verifying the otp for password change: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+
+const loadUpdatePassword = async (req, res) => {
+    try {
+        const email = req.params.email;
+        console.log(email);
+        return res.render('changePassword', { email: email });
+    } catch (error) {
+        console.error("Error loading the otp change page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+
+const updatePassword = async (req, res) => {
+    try {
+        const email = req.params.email;
+        const { newPassword } = req.body;
+
+        console.log("Email:", email);
+        console.log("New Password:", newPassword);
+
+        const user = await User.findOne({ email: email });
+        user.password = newPassword;
+        await user.save();
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error("Error updating the password:", error);
+        return res.redirect('/pageNotFound');
+    }
+};
+
+
+
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword };

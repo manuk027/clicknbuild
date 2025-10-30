@@ -2,7 +2,9 @@
 import mongoose from "mongoose";
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 //defining product schema
@@ -29,6 +31,7 @@ const productSchema = new Schema({
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true, },
     rating: { type: Number, required: true, },
 }, { timestamps: true })
+
 
 
 //creating model for Product

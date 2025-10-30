@@ -2,7 +2,9 @@
 import mongoose from "mongoose";
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 //defining category schema for the product
@@ -12,9 +14,10 @@ const categorySchema = new Schema({
     maxOffer: { type: Number, default: 0, },
     isListed: { type: Boolean, default: true, },
     image: { type: String, },
-    isComponent: {type: Boolean},
-    isPeripheral: {type: Boolean},
+    isComponent: { type: Boolean },
+    isPeripheral: { type: Boolean },
 }, { timestamps: true });
+
 
 
 //creating model for Category

@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 // defining user schema
@@ -26,6 +28,7 @@ const userSchema = new Schema({
 });
 
 
+
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
     try {
@@ -38,9 +41,11 @@ userSchema.pre("save", async function (next) {
 });
 
 
+
 userSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
+
 
 
 //creating model for User

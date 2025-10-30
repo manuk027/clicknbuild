@@ -57,4 +57,13 @@ router.get('/shop/limitedEditions', userController.loadLimitedEditions);
 
 router.get('/products', userController.loadSearchedProducts);
 
+
+router.get('/forgotPassword', userController.loadForgotPassword);
+router.post('/forgotPassword', userController.sendOtp)
+router.post('/emailOTP', userController.verify);
+router.get('/newPassword/:email', userController.loadUpdatePassword);
+router.patch('/newPassword/:email', userController.updatePassword)
+
+
+
 export default router; 

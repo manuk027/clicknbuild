@@ -7,7 +7,6 @@ import productController from '../controller/admin/productController.js';
 import brandController from '../controller/admin/brandController.js';
 import auth from '../middleware/auth.js'
 import multer from 'multer';
-import storage from '../helpers/multer.js';
 import uploads from '../helpers/multer.js';
 
 const router = express.Router();
@@ -47,7 +46,7 @@ router.post('/brands/addBrand', auth.adminAuth, uploads.single("brandImage"), br
 router.get('/brands/unListBrand', auth.adminAuth, brandController.unListBrand);
 router.get('/brands/listBrand', auth.adminAuth, brandController.listBrand);
 router.get('/brands/editBrand/', auth.adminAuth, brandController.loadEditBrand);
-router.post('/brands/editBrand/', auth.adminAuth, uploads.single('brandImage'), brandController.editBrand);
+router.put('/brands/editBrand/', auth.adminAuth, uploads.single('brandImage'), brandController.editBrand);
 
 
 // product management

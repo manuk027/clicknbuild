@@ -5,7 +5,9 @@ import User from '../models/userSchema.js';
 import dotenv from 'dotenv';
 
 
+
 dotenv.config();
+
 
 
 //google authentication
@@ -41,10 +43,12 @@ passport.use(new GoogleStrategy({
 ));
 
 
+
 //stores session in passportjs
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
+
 
 
 //retrieves the data from the session in passportjs
@@ -56,6 +60,7 @@ passport.deserializeUser(async (id, done) => {
         done(err, null);
     }
 });
+
 
 
 //exporting passport object

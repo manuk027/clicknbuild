@@ -2,7 +2,9 @@
 import mongoose, { now } from "mongoose";
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 //defining address schema for the user
@@ -21,6 +23,7 @@ const addressSchema = new Schema({
         updatedAt: { type: Date, default: Date.now },
     }]
 })
+
 
 
 //creating a model for Address

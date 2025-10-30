@@ -1,12 +1,9 @@
 import Product from "../../models/productSchema.js";
 import Category from "../../models/categorySchema.js";
 import Brand from "../../models/brandSchema.js";
-import User from '../../models/userSchema.js';
-import fs from 'fs';
-import path from "path";
-import sharp from 'sharp';
-import cloudinary from "../../config/cloudinary.js";
 import brandSortOption from "../../helpers/brandSort.js"
+
+
 
 const loadProduct = async (req, res) => {
     try {
@@ -15,33 +12,33 @@ const loadProduct = async (req, res) => {
         const sortOption = brandSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
-        const products = await Product.find({})
-            .populate("category", "name")
-            .populate("brand", "name")
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limit);
-
+        const searchTerm = req.query.search ? req.query.search.trim() : "";
+        const searchQuery = searchTerm ? { model: { $regex: searchTerm, $options: "i" }, } : {};
+        const products = await Product.find(searchQuery).populate("category", "name").populate("brand", "name").sort(sortOption).skip(skip).limit(limit);
         const category = await Category.findById(products._id);
-        const totalProducts = await Product.countDocuments();
+        const totalProducts = products.length;
         const totalPages = Math.ceil(totalProducts / limit);
-        res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category, sort, search: req.query.search || "" });
+        res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category, sort, search: searchTerm });
     } catch (error) {
         console.error('Error loading the product page: ', error);
         return res.redirect('/admin/pageNotFound');
     }
 }
 
+
+
 const loadAddProduct = async (req, res) => {
     try {
         let category = await Category.find();
-        let brand = await Brand.find().sort({name: 1});
+        let brand = await Brand.find().sort({ name: 1 });
         return res.render('addProducts', { category: category, brand: brand });
     } catch (error) {
         console.error("Error loading the add product page: ", error);
         return res.redirect('/admin/pageNotFound');
     }
 }
+
+
 
 const addProduct = async (req, res) => {
     try {
@@ -114,6 +111,7 @@ const addProduct = async (req, res) => {
 };
 
 
+
 const listProduct = async (req, res) => {
     try {
         let id = req.query.id;
@@ -126,6 +124,8 @@ const listProduct = async (req, res) => {
     }
 }
 
+
+
 const unListProduct = async (req, res) => {
     try {
         let id = req.query.id;
@@ -137,6 +137,8 @@ const unListProduct = async (req, res) => {
         return res.redirect('/admin/pageNotFound');
     }
 }
+
+
 
 const viewVariants = async (req, res) => {
     try {
@@ -152,6 +154,8 @@ const viewVariants = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+
 
 const loadEditProduct = async (req, res) => {
     try {
@@ -221,7 +225,7 @@ const editProduct = async (req, res) => {
         product.category = category;
         product.variants = validVariants;
         product.specification = validSpecs;
-        product.images = images; 
+        product.images = images;
 
         await product.save();
 

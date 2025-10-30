@@ -3,23 +3,28 @@ import Category from "../../models/categorySchema.js";
 import Product from "../../models/productSchema.js";
 import brandSortOption from "../../helpers/brandSort.js"
 
+
+
 //function to load category information in admin side
 const categoryInfo = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const sort = req.query.sort;
+        const sort = req.query.sort || "name";
         const sortOption = brandSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
-        const categoryData = await Category.find({}).sort(sortOption).skip(skip).limit(limit);
+        const searchTerm = req.query.search ? req.query.search.trim() : "";
+        const searchQuery = searchTerm ? { name: { $regex: searchTerm, $options: "i" } } : {};
+        const categoryData = await Category.find(searchQuery).sort(sortOption).skip(skip).limit(limit);
         const totalCategories = await Category.countDocuments();
         const totalPages = Math.ceil(totalCategories / limit);
-        res.render('category', { category: categoryData, data: categoryData, current: page, pages: totalPages, totalCategories: totalCategories, limit: limit, sort, search: req.query.search || "" });
+        res.render('category', { category: categoryData, data: categoryData, current: page, pages: totalPages, totalCategories: totalCategories, limit: limit, sort, search: searchTerm });
     } catch (error) {
         console.error("Error loding category: ", error);
         return res.redirect('/pageNotFound');
     }
 }
+
 
 
 //function to add category in admin side
@@ -31,17 +36,13 @@ const addCategory = async (req, res) => {
     if (maxOffer && (isNaN(maxOffer) || maxOffer < 0 || maxOffer > 100)) {
         return res.status(400).json({ success: false, message: "Offer must be a number between 0 and 100" });
     }
-
     try {
-        // case-insensitive check
-        const categoryExist = await Category.findOne({ name: name });
-        if (categoryExist) {
+        const existingCategory = await Category.findOne({ name: { $regex: `^${name}$`, $options: "i" } });
+        if (existingCategory) {
             return res.json({ success: false, message: "Category already exists" });
         }
-
         const newCategory = new Category({ name, description, maxOffer, isPeripheral, isComponent });
         await newCategory.save();
-
         return res.json({
             success: true,
             message: "Category added successfully",
@@ -63,10 +64,8 @@ const loadAddCategory = async (req, res) => {
     }
 }
 
-/* 
-    Funciton to delete the category
-    Route: DELETE /admin/category/:id
-*/
+
+
 const deleteCategory = async (req, res) => {
     const { id } = req.params;
     try {
@@ -81,6 +80,8 @@ const deleteCategory = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
+
+
 
 const addCategoryOffer = async (req, res) => {
     try {
@@ -99,6 +100,8 @@ const addCategoryOffer = async (req, res) => {
     }
 }
 
+
+
 const removeCategoryOffer = async (req, res) => {
     try {
         const categoryId = req.body.categoryId;
@@ -113,6 +116,8 @@ const removeCategoryOffer = async (req, res) => {
     }
 }
 
+
+
 const listCategory = async (req, res) => {
     try {
         let id = req.query.id;
@@ -124,6 +129,8 @@ const listCategory = async (req, res) => {
         return res.redirect('/pageNotFound');
     }
 }
+
+
 
 const unListCategory = async (req, res) => {
     try {
@@ -137,6 +144,8 @@ const unListCategory = async (req, res) => {
     }
 }
 
+
+
 const loadEditCategory = async (req, res) => {
     try {
         const id = req.query.id;
@@ -147,6 +156,8 @@ const loadEditCategory = async (req, res) => {
         return res.redirect('/pageNotFound')
     }
 }
+
+
 
 const editCategory = async (req, res) => {
     try {

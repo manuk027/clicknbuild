@@ -2,7 +2,9 @@
 import mongoose from 'mongoose';
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 //defining coupon schema 
@@ -15,6 +17,7 @@ const couponSchema = new Coupon({
     isListed: { type: Boolean, default: true, },
     userId: { type: Schema.Types.ObjectId, required: true, },
 });
+
 
 
 //creating model for Coupon

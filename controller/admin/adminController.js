@@ -4,15 +4,13 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 
+
 //function to load the error page
 const loadErrorPage = async (req, res) => {
     res.render('adminErrorPage');
 };
 
-/*
-User login
 
- */
 
 const loadLogin = async (req, res) => {
     if (req.session.admin) {
@@ -20,6 +18,7 @@ const loadLogin = async (req, res) => {
     }
     res.render('adminLogin', { message: null });
 }
+
 
 
 //function to login user
@@ -43,6 +42,7 @@ const login = async (req, res) => {
 }
 
 
+
 //function to load dashboard
 const loadDashboard = async (req, res) => {
     try {
@@ -53,6 +53,7 @@ const loadDashboard = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 }
+
 
 
 //function to logout user
@@ -70,6 +71,7 @@ const logout = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 }
+
 
 
 //export functions

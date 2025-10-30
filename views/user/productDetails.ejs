@@ -156,13 +156,13 @@
 
 
 
-                    <%if(product.variants[0].quantity<=10 && product.variants[0].quantity>=1){%>
+                    <%if(product.variants[index].quantity<=10 && product.variants[index].quantity>=1){%>
                         <div>
                             <p class="text-red-900">
-                                <%=product.variants[0].quantity%> items left.
+                                <%=product.variants[index].quantity%> items left.
                             </p>
                         </div>
-                        <%}else if(product.variants[0].quantity===0){%>
+                        <%}else if(product.variants[index].quantity===0){%>
                             <p class="text-red-900">
                                 Product out of Stock.
                             </p>

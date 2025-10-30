@@ -1,10 +1,11 @@
 //importing necessary modules and functions
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
-import Address from "./addressSchema";
+
 
 
 const { Schema, model } = mongoose;
+
 
 
 //defining order schema
@@ -25,10 +26,7 @@ const orderSchema = new Schema({
 }, { timestamps: true });
 
 
+
 //creating model for Order
 const Order = model("Order", orderSchema);
 export default Order;
-
-
-
-///ORD+++

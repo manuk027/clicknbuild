@@ -2,7 +2,9 @@
 import mongoose from "mongoose";
 
 
+
 const { Schema, model } = mongoose;
+
 
 
 //defining cart schema for the user
@@ -17,6 +19,7 @@ const cartSchema = new Schema({
         cancellationReason: { type: String, defult: "None" },
     }]
 });
+
 
 
 //creating model for the Cart
