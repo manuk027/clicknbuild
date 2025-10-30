@@ -37,7 +37,7 @@ router.post('/category/removeCategoryOffer', auth.adminAuth, categoryController.
 router.get('/category/unListCategory', auth.adminAuth, categoryController.unListCategory);
 router.get('/category/listCategory', auth.adminAuth, categoryController.listCategory)
 router.get('/category/editCategory/', auth.adminAuth, categoryController.loadEditCategory);
-router.post('/category/editCategory/', auth.adminAuth, categoryController.editCategory);
+router.put('/category/editCategory/', auth.adminAuth, categoryController.editCategory);
 
 
 //brand management

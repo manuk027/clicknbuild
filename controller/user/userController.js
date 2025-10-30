@@ -405,7 +405,9 @@ const loadComponent = async (req, res) => {
         if (products.length === 0) {
             return res.render("noProductFound", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, });
         }
-        res.render("productPages", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, route: "component", name: componentName, });
+        res.render("productPages", {
+            product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, route: "component", name: componentName,
+        });
     } catch (error) {
         console.error("Error loading components:", error);
         return res.redirect("/pageNotFound");
@@ -456,15 +458,19 @@ const loadAllProducts = async (req, res) => {
 const loadProductDetails = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
+        const variant = parseInt(req.query.variant) || 0;
         const userData = await User.findById(userId);
 
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
         const brand = await Brand.find();
         let prodId = req.query.id;
-        const product = await Product.findById(prodId).populate("category", "name").populate("brand", "name");
+        const product = await Product.findOne({ _id: prodId, isListed: true }).populate("category", "name").populate("brand", "name");
+        if (!product) {
+            return res.redirect('/pageNotFound')
+        }
         const recommendedProducts = await Product.find({ category: product.category }).limit(4);
-        return res.render('productDetails', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, recommendedProducts, })
+        return res.render('productDetails', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, recommendedProducts, index: variant })
     } catch (error) {
         console.error("Error loading the product details page");
         return res.redirect("/pageNotFound");
@@ -476,26 +482,96 @@ const loadProductDetails = async (req, res) => {
 const loadLimitedEditions = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
+
+        // Extract filters and sort options from query
+        const selectedBrands = req.query.brand;
+        const selectedCategories = req.query.category;
+        const sort = req.query.sort;
+        const sortOption = getSortOption(sort);
+
+        // Build filter object
+        const filter = { onFlashSale: true, isListed: true };
+
+        if (selectedBrands) {
+            filter["brand.name"] = Array.isArray(selectedBrands)
+                ? { $in: selectedBrands }
+                : selectedBrands;
+        }
+
+        if (selectedCategories) {
+            filter["category.name"] = Array.isArray(selectedCategories)
+                ? { $in: selectedCategories }
+                : selectedCategories;
+        }
+
+        // Fetch products based on filter
+        const products = await Product.find(filter)
+            .populate("brand", "name")
+            .populate("category", "name")
+            .sort(sortOption);
+
+        // Fetch additional data
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
-        const brand = await Brand.find();
-        const product = await Product.find({ onFlashSale: true }).populate("category", "name").populate("brand", "name");
-        const distinctBrand = await Product.distinct("brand").populate("brand", "name");
-        const distinctCategory = await Product.distinct("category").populate("category", "name");
-        let filterBrand = await Brand.find({ _id: { $in: distinctBrand } }, { name: 1, _id: 0 });
-        filterBrand = filterBrand.map(b => b.name);
-        let filterCategory = await Category.find({ _id: { $in: distinctCategory } }, { name: 1, _id: 0 });
-        filterCategory = filterCategory.map(b => b.name);
-        if (product.length == 0) {
-            return res.render('noProductFound', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, filterBrand: filterBrand, filterCategory: filterCategory, });
+
+        // Get distinct brands and categories from current product set
+        const distinctBrandIds = [...new Set(products.map(p => p.brand?._id))].filter(Boolean);
+        const distinctCategoryIds = [...new Set(products.map(p => p.category?._id))].filter(Boolean);
+
+        const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
+        const filterBrand = brand.map(b => b.name);
+
+        const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
+        const filterCategory = categoryList.map(c => c.name);
+
+        // Handle query values (single or array)
+        const selectedBrandsArray =
+            selectedBrands === undefined
+                ? []
+                : Array.isArray(selectedBrands)
+                    ? selectedBrands
+                    : [selectedBrands];
+
+        const selectedCategoriesArray =
+            selectedCategories === undefined
+                ? []
+                : Array.isArray(selectedCategories)
+                    ? selectedCategories
+                    : [selectedCategories];
+
+        // Render appropriate view
+        if (products.length === 0) {
+            return res.render("noProductFound", {
+                product: products,
+                peripheral: peripherals,
+                component: components,
+                brand,
+                user: userData,
+                filterBrand,
+                filterCategory,
+                selectedBrands: selectedBrandsArray,
+                selectedCategories: selectedCategoriesArray,
+            });
         }
-        return res.render('productPages', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, filterBrand: filterBrand, filterCategory: filterCategory, })
+
+        return res.render("productPages", {
+            product: products,
+            peripheral: peripherals,
+            component: components,
+            brand,
+            user: userData,
+            filterBrand,
+            filterCategory,
+            selectedBrands: selectedBrandsArray,
+            selectedCategories: selectedCategoriesArray,
+        });
     } catch (error) {
-        console.error("Error loading the Limited Edition page");
+        console.error("Error loading limited edition products:", error);
         return res.redirect("/pageNotFound");
     }
-}
+};
+
 
 
 

@@ -14,7 +14,7 @@ const categoryInfo = async (req, res) => {
         const categoryData = await Category.find({}).sort(sortOption).skip(skip).limit(limit);
         const totalCategories = await Category.countDocuments();
         const totalPages = Math.ceil(totalCategories / limit);
-        res.render('category', { category: categoryData, data: categoryData, current: page, pages: totalPages, totalCategories: totalCategories, limit: limit });
+        res.render('category', { category: categoryData, data: categoryData, current: page, pages: totalPages, totalCategories: totalCategories, limit: limit, sort, search: req.query.search || "" });
     } catch (error) {
         console.error("Error loding category: ", error);
         return res.redirect('/pageNotFound');
@@ -116,8 +116,9 @@ const removeCategoryOffer = async (req, res) => {
 const listCategory = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Category.updateOne({ _id: id }, { $set: { isListed: true } });
-        res.redirect('/admin/category');
+        res.redirect(`/admin/category/?page=${page}`);
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.redirect('/pageNotFound');
@@ -127,8 +128,9 @@ const listCategory = async (req, res) => {
 const unListCategory = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Category.updateOne({ _id: id }, { $set: { isListed: false } });
-        res.redirect('/admin/category');
+        res.redirect(`/admin/category/?page=${page}`);
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.redirect('/pageNotFound');

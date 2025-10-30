@@ -206,7 +206,7 @@
                                     </li>
                                     <% } else { %>
                                         <li>
-                                            <a href="/admin/brands/?page=1"
+                                            <a href="/admin/brands/?page=1&sort=<%= sort %>"
                                                 class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
                                         </li>
                                         <% } %>
@@ -249,7 +249,7 @@
                                                                                         </li>
                                                                                         <% } else { %>
                                                                                             <li>
-                                                                                                <a href="/admin/brands/?page=<%= pages %>"
+                                                                                                <a href="/admin/brands/?page=<%= pages %>&sort=<%= sort %>"
                                                                                                     class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
                                                                                                     Last
                                                                                                 </a>

@@ -41,8 +41,9 @@ const customerInfo = async (req, res) => {
 const blockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
+    const page = req.query.page || 1;
     await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
-    return res.redirect('/admin/customers');
+    return res.redirect(`/admin/customers/?page=${page}`);
   } catch (error) {
     console.error("Error blocking the user: ", error);
     res.redirect('/pageNotFound');
@@ -54,8 +55,9 @@ const blockCustomer = async (req, res) => {
 const unblockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
+    const page = req.query.page || 1;
     await User.updateMany({ _id: id }, { $set: { isBlocked: false } });
-    return res.redirect('/admin/customers');
+    return res.redirect(`/admin/customers/?page=${page}`);
   } catch (error) {
     console.error("Error unblocking the user: ", error);
     res.redirect('/pageNotFound');

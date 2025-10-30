@@ -19,6 +19,9 @@ passport.use(new GoogleStrategy({
             const email = profile.emails[0].value;
             let user = await User.findOne({ email });
             if (user) {
+                if (user.isBlocked) {
+                    return done(null, false, { message: "User is blocked by the admin" });
+                }
                 if (!user.googleId) {
                     user.googleId = profile.id;
                     await user.save();

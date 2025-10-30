@@ -216,7 +216,7 @@
                                         </li>
                                         <% } else { %>
                                             <li>
-                                                <a href="/admin/customers/?page=1"
+                                                <a href="/admin/customers/?page=1&sort=<%= sort %>"
                                                     class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
                                             </li>
                                             <% } %>
@@ -240,7 +240,7 @@
                                                                     </li>
                                                                     <% } else { %>
                                                                         <li>
-                                                                            <a href="/admin/customers/?page=<%= i %>"
+                                                                            <a href="/admin/customers/?page=<%= i %>&sort=<%= sort %>"
                                                                                 class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
                                                                                 <%= i %>
                                                                             </a>
@@ -262,7 +262,7 @@
                                                                                             </li>
                                                                                             <% } else { %>
                                                                                                 <li>
-                                                                                                    <a href="/admin/customers/?page=<%= pages %>"
+                                                                                                    <a href="/admin/customers/?page=<%= pages %>&sort=<%= sort %>"
                                                                                                         class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
                                                                                                 </li>
                                                                                                 <% } %>

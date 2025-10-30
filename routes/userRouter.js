@@ -19,7 +19,25 @@ router.post('/resendOTP', userController.resendOTP);
 
 //routes for google authentication
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => { res.redirect('/') })
+router.get('/auth/google/callback', (req, res, next) => {
+    passport.authenticate('google', async (err, user, info) => {
+        if (err) {
+            console.error("Passport error:", err);
+            return res.render('signup', { message: "Something went wrong. Please try again." });
+        }
+        if (!user) {
+            return res.render('login', { message: info?.message || "User is blocked by the admin." });
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                console.error("Login error:", err);
+                return res.render('signup', { message: "Login failed. Try again." });
+            }
+            return res.redirect('/');
+        });
+    })(req, res, next);
+});
+
 
 
 router.get('/login', userController.loadLogin);

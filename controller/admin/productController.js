@@ -117,8 +117,9 @@ const addProduct = async (req, res) => {
 const listProduct = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Product.updateOne({ _id: id }, { $set: { isListed: true } });
-        res.redirect('/admin/products');
+        res.redirect(`/admin/products/?page=${page}`);
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.redirect('/admin/pageNotFound');
@@ -128,8 +129,9 @@ const listProduct = async (req, res) => {
 const unListProduct = async (req, res) => {
     try {
         let id = req.query.id;
+        const page = req.query.page || 1;
         await Product.updateOne({ _id: id }, { $set: { isListed: false } });
-        res.redirect('/admin/products');
+        res.redirect(`/admin/products/?page=${page}`);
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.redirect('/admin/pageNotFound');

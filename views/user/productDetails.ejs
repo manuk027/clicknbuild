@@ -108,9 +108,9 @@
                     </div>
 
                     <!-- Price -->
-                    <div class="text-3xl sm:text-4xl font-bold">₹<%=product.variants[0].offer%>
+                    <div class="text-3xl sm:text-4xl font-bold">₹<%=product.variants[index].offer%>
                     </div>
-                    <div class="text-xl sm:text-2xl  line-through">₹<%=product.variants[0].price%>
+                    <div class="text-xl sm:text-2xl  line-through">₹<%=product.variants[index].price%>
                     </div>
 
                     <!-- Color Selection -->
@@ -118,32 +118,20 @@
                         <label class="block text-sm font-medium mb-3">Choose Variant</label>
                         <div class="flex flex-wrap gap-3">
                             <% for (let i=0; i < product.variants.length; i++) { %>
-                                <button class="color-btn px-4 sm:px-6 py-2 text-sm sm:text-base border-2 rounded 
-        <%= i === 0 ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700' %>">
+                                <a href="/product?id=<%= product._id %>&variant=<%= i %>" class="color-btn px-4 sm:px-6 py-2 text-sm sm:text-base border-2 rounded 
+         <%= i === index ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700' %>">
                                     <%= product.variants[i].variant %>
-                                </button>
+                                </a>
                                 <% } %>
                         </div>
                     </div>
+
 
                     <script>
                         document.addEventListener("DOMContentLoaded", function () {
                             const colorBtns = document.querySelectorAll(".color-btn");
 
-                            // Make sure only the first button is selected when page loads
-                            function setInitialState() {
-                                colorBtns.forEach((btn, index) => {
-                                    if (index === 0) {
-                                        btn.classList.add("border-black", "bg-black", "text-white");
-                                        btn.classList.remove("border-gray-300", "bg-white", "text-gray-700");
-                                    } else {
-                                        btn.classList.remove("border-black", "bg-black", "text-white");
-                                        btn.classList.add("border-gray-300", "bg-white", "text-gray-700");
-                                    }
-                                });
-                            }
-
-                            // Change selection on click
+                            // Change selection color on click
                             function selectButton(selectedBtn) {
                                 colorBtns.forEach(btn => {
                                     if (btn === selectedBtn) {
@@ -156,17 +144,13 @@
                                 });
                             }
 
-                            // Initial setup — first button selected
-                            setInitialState();
-
                             // Click listener for all buttons
                             colorBtns.forEach(btn => {
-                                btn.addEventListener("click", () => {
-                                    selectButton(btn);
-                                });
+                                btn.addEventListener("click", () => selectButton(btn));
                             });
                         });
                     </script>
+
 
 
 
@@ -350,7 +334,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                     <% recommendedProducts.forEach(p=> { %>
                         <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition">
-                            <a href="/product/<%= p._id %>" class="block">
+                            <a href="/product?id=<%= p._id %>" class="block">
                                 <img src="<%= p.images[0] %>" alt="<%= p.model %>"
                                     class="w-full h-48 object-contain bg-gray-50 p-4">
                                 <div class="p-4">

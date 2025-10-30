@@ -23,59 +23,91 @@
                 <a href="/" class="hover:text-black">Home</a>
                 <span class="mx-2">/</span>
                 <span class="text-black font-medium">
-                    <%if(filterCategory.length>1){%>
+                    <% if(filterCategory.length>1){ %>
                         All Products
-                        <%}else{%>
+                        <% } else { %>
                             <%=product[0].category.name%>
-                                <%}%>
+                                <% } %>
                 </span>
             </div>
 
-            <!-- Mobile Filter & Sort Dropdowns -->
-            <div class="flex items-center justify-between mb-6 lg:hidden">
-                <div class="w-1/2 pr-2">
-                    <select id="mobileFilterDropdown"
-                        class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black">
-                        <option value="">Filter By</option>
-                        <% if(filterBrand && filterBrand.length){ %>
-                            <optgroup label="Brand">
-                                <% for(let i=0; i<filterBrand.length; i++){ %>
-                                    <option value="<%=filterBrand[i]%>">
-                                        <%=filterBrand[i]%>
-                                    </option>
-                                    <% } %>
-                            </optgroup>
-                            <% } %>
-                                <% if(filterCategory && filterCategory.length){ %>
-                                    <optgroup label="Category">
-                                        <% for(let i=0; i<filterCategory.length; i++){ %>
-                                            <option value="<%=filterCategory[i]%>">
-                                                <%=filterCategory[i]%>
-                                            </option>
-                                            <% } %>
-                                    </optgroup>
-                                    <% } %>
-                    </select>
-                </div>
+            <!-- ✅ Mobile Filter & Sort Dropdowns -->
+            <!-- ✅ Mobile Filter & Sort Section (Supports Multiple Filters, Single Sort) -->
+            <div class="lg:hidden mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <form id="filterForm" method="GET"
+                    action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>"
+                    class="hidden lg:block">
 
-                <div class="w-1/2 pl-2">
-                    <select id="mobileSortDropdown"
-                        class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-                        onchange="applySort(this.value)">
-                        <option value="">Sort By</option>
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="priceAsc">Price: Low - High</option>
-                        <option value="priceDesc">Price: High - Low</option>
-                    </select>
-                </div>
+
+                    <!-- Filter Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Filter By</label>
+                        <% if(filterBrand && filterBrand.length){ %>
+                            <h4 class="font-medium text-gray-800 mb-2">Brand</h4>
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <% for(let i=0; i<filterBrand.length; i++){ %>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" name="brand" value="<%=filterBrand[i]%>"
+                                            class="text-black focus:ring-black rounded border-gray-300"
+                                            <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
+                                            : '' %>>
+                                        <span class="text-sm">
+                                            <%=filterBrand[i]%>
+                                        </span>
+                                    </label>
+                                    <% } %>
+                            </div>
+                            <% } %>
+
+                                <% if(filterCategory && filterCategory.length){ %>
+                                    <h4 class="font-medium text-gray-800 mb-2">Category</h4>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <% for(let i=0; i<filterCategory.length; i++){ %>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" name="category" value="<%=filterCategory[i]%>"
+                                                    class="text-black focus:ring-black rounded border-gray-300"
+                                                    <%=selectedCategories &&
+                                                    selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %>>
+                                                <span class="text-sm">
+                                                    <%=filterCategory[i]%>
+                                                </span>
+                                            </label>
+                                            <% } %>
+                                    </div>
+                                    <% } %>
+                    </div>
+
+                    <!-- Sort Dropdown -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                        <select id="mobileSortDropdown" name="sort"
+                            class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black">
+                            <option value="">Select Sort</option>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="priceAsc">Price: Low - High</option>
+                            <option value="priceDesc">Price: High - Low</option>
+                            <option value="nameAsc">Name: A - Z</option>
+                            <option value="nameDesc">Name: Z - A</option>
+                        </select>
+                    </div>
+
+                    <!-- Apply Button -->
+                    <button type="submit"
+                        class="w-full bg-black text-white py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition">
+                        Apply Filter
+                    </button>
+                </form>
             </div>
+            <!-- ✅ End Mobile Section -->
+
+            <!-- ✅ End Mobile Section -->
 
             <div class="flex flex-col lg:flex-row gap-8">
 
                 <!-- Sidebar Filters -->
-                <form id="filterForm" method="GET" action="/<%=route%>/<%=name%>">
-                    <!-- Brand Filter -->
+                <form id="filterForm" method="GET"
+                    action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>">
                     <% if (filterBrand) { %>
                         <div class="mb-6">
                             <h3 class="font-medium mb-3">Brand</h3>
@@ -85,7 +117,7 @@
                                         <input type="checkbox" name="brand" value="<%= filterBrand[i] %>"
                                             class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                                             <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
-                                            : '' %> >
+                                            : '' %>>
                                         <span class="ml-2 text-sm">
                                             <%= filterBrand[i] %>
                                         </span>
@@ -95,7 +127,6 @@
                         </div>
                         <% } %>
 
-                            <!-- Category Filter -->
                             <% if (filterCategory) { %>
                                 <div class="mb-6">
                                     <h3 class="font-medium mb-3">Category</h3>
@@ -104,7 +135,8 @@
                                             <label class="flex items-center cursor-pointer">
                                                 <input type="checkbox" name="category" value="<%= filterCategory[i] %>"
                                                     class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                                                    <%=selectedCategories && selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %> >
+                                                    <%=selectedCategories &&
+                                                    selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %>>
                                                 <span class="ml-2 text-sm">
                                                     <%= filterCategory[i] %>
                                                 </span>
@@ -119,7 +151,6 @@
                                         APPLY
                                     </button>
                 </form>
-
 
                 <!-- Products Section -->
                 <div class="flex-1">
@@ -137,6 +168,10 @@
                                 class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Low - High</a>
                             <a onclick="applySort('priceDesc')"
                                 class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: High - Low</a>
+                            <a onclick="applySort('nameAsc')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Name: A - Z</a>
+                            <a onclick="applySort('nameDesc')"
+                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Z - A</a>
                         </div>
                     </div>
 
@@ -150,18 +185,10 @@
                             }
                             window.location.href = url.toString();
                         }
-
-                        // Mobile filter select behavior
-                        document.getElementById('mobileFilterDropdown')?.addEventListener('change', (e) => {
-                            const value = e.target.value;
-                            if (value) {
-                                alert(`Filter selected: ${value}`);
-                            }
-                        });
                     </script>
 
                     <!-- Products Grid -->
-                    <%if(product.length){%>
+                    <% if(product.length){ %>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             <% for(let i=0; i<product.length; i++){ %>
                                 <a href="/product?id=<%= product[i]._id %>">
@@ -183,15 +210,16 @@
                                         </div>
 
                                         <div class="p-4 flex flex-col flex-grow">
-                                            <%if(product[i].variants[0].quantity<=10 && product[i].variants[0].quantity>=1){%>
+                                            <% if(product[i].variants[0].quantity<=10 &&
+                                                product[i].variants[0].quantity>=1){ %>
                                                 <h3 class="font-medium text-red-900 mb-1 truncate">
                                                     <%=product[i].variants[0].quantity%> items left.
                                                 </h3>
-                                                <%}else if(product[i].variants[0].quantity===0){%>
-                                                    <h3 class="font-medium text-red-900 mb-1 truncate">
-                                                        Out of Stock.
+                                                <% } else if(product[i].variants[0].quantity===0){ %>
+                                                    <h3 class="font-medium text-red-900 mb-1 truncate">Out of Stock.
                                                     </h3>
-                                                    <%}%>
+                                                    <% } %>
+
                                                         <h3 class="font-medium text-gray-800 mb-1 truncate">
                                                             <%=product[i].brand.name%>
                                                         </h3>
@@ -200,11 +228,11 @@
                                                         </h6>
 
                                                         <div class="flex items-center gap-2 mb-2">
-                                                            <span class="text-gray-400 line-through text-sm">
-                                                                ₹<%=product[i].variants[0].price%>
+                                                            <span class="text-gray-400 line-through text-sm">₹
+                                                                <%=product[i].variants[0].price%>
                                                             </span>
-                                                            <span class="text-lg font-semibold text-gray-900">
-                                                                ₹<%=product[i].variants[0].offer%>
+                                                            <span class="text-lg font-semibold text-gray-900">₹
+                                                                <%=product[i].variants[0].offer%>
                                                             </span>
                                                         </div>
 
@@ -212,37 +240,32 @@
                                                             <span class="text-yellow-400">★★★★★</span>
                                                         </div>
 
-                                                        <%if(product[i].variants[0].quantity>=1){%>
+                                                        <% if(product[i].variants[0].quantity>=1){ %>
                                                             <button
                                                                 class="mt-auto w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition font-medium text-sm">
                                                                 Add to Cart
                                                             </button>
-                                                            <%}%>
+                                                            <% } %>
                                         </div>
                                     </div>
                                 </a>
                                 <% } %>
                         </div>
-                        <%}else{%>
+                        <% } else { %>
                             <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
                                 <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png"
                                     alt="No products found" class="w-32 sm:w-40 mb-6 opacity-80 select-none" />
-
-                                <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-2">
-                                    No Products Found
-                                </h2>
-
+                                <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-2">No Products Found</h2>
                                 <p class="text-gray-500 max-w-md">
                                     We couldn’t find any items that match your search or filter criteria.<br />
                                     Try adjusting your filters or explore other categories.
                                 </p>
-
                                 <a href="/"
                                     class="mt-6 inline-block bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition text-sm font-medium">
                                     Back to Home
                                 </a>
                             </div>
-                            <%}%>
+                            <% } %>
 
                                 <script>
                                     document.querySelectorAll('.product-img').forEach(img => {
@@ -268,39 +291,16 @@
                 </div>
             </div>
         </main>
+
         <%- include("../../views/partials/user/footer") %>
 
             <script>
-                // Add to cart functionality
                 document.querySelectorAll('button').forEach(btn => {
                     if (btn.textContent.includes('Add to Cart')) {
-                        btn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                        });
+                        btn.addEventListener('click', e => e.preventDefault());
                     }
                 });
-
-                // Filter functionality
-                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function () {
-                    });
-                });
-
-                // Sort buttons highlight
-                const sortBtns = document.querySelectorAll('[class*="px-4 py-2"]');
-                sortBtns.forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        sortBtns.forEach(b => {
-                            b.classList.remove('border-b-2', 'border-black', 'font-medium');
-                            b.classList.add('text-gray-600');
-                        });
-                        this.classList.add('border-b-2', 'border-black', 'font-medium');
-                        this.classList.remove('text-gray-600');
-                    });
-                });
             </script>
-
 </body>
 
 </html>

@@ -4,6 +4,8 @@ function getSortOption(sort) {
     case "oldest": return { createdAt: 1 };
     case "priceAsc": return { "variants.offer": 1 };
     case "priceDesc": return { "variants.offer": -1 };
+    case "nameAsc": return { model: 1 };
+    case "nameDesc": return { model: -1 };
     default: return {};
   }
 }

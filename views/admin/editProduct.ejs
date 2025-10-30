@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -221,6 +222,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+        // 🔧 CHANGED: Added image array + upload handler
+        let images = [];
+        const imageInput = document.getElementById("imageInput");
+        const uploadBox = document.getElementById("uploadBox");
+
+        uploadBox.addEventListener("click", () => imageInput.click());
+
+        imageInput.addEventListener("change", (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const img = document.createElement("img");
+                    img.src = reader.result;
+                    img.classList.add("object-cover", "w-full", "h-32");
+                    const cropperInstance = new Cropper(img, { aspectRatio: 1 });
+                    images.push({ cropper: cropperInstance });
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
         const submitBtn = document.getElementById("submitBtn");
 
         submitBtn.addEventListener("click", async () => {
@@ -229,28 +252,39 @@
                 const productName = document.querySelector("input[name='productName']").value;
                 const description = document.querySelector("textarea[name='description']").value;
                 const category = document.querySelector("select[name='category']").value;
-                const status = document.querySelector("input[name='status']:checked").value;
-                const categoryType = document.querySelector("input[name='categoryType']:checked").value;
+                const statusEl = document.querySelector("input[name='status']:checked");
+                const categoryTypeEl = document.querySelector("input[name='categoryType']:checked");
+
+                // 🔧 CHANGED: safer validation
+                if (!brand || !productName || !category || !statusEl || !categoryTypeEl) {
+                    return Swal.fire('Error', 'All required fields must be filled!', 'error');
+                }
+
+                const status = statusEl.value;
+                const categoryType = categoryTypeEl.value;
                 const limitedEdition = document.querySelector("input[name='limitedEdition']").checked;
                 const flashSale = document.querySelector("input[name='flashSale']").checked;
-                if (!brand || !productName || !category)
-                    return Swal.fire('Error', 'Brand, Product Name and Category are required!', 'error');
 
-                // Upload images to Cloudinary
+                // 🔧 CHANGED: Handle old images if no new ones uploaded
                 const uploadedImages = [];
-                for (let i = 0; i < images.length; i++) {
-                    const canvas = images[i].cropper.getCroppedCanvas({ width: 800, height: 800 });
-                    const blob = await new Promise(res => canvas.toBlob(res));
-                    const formData = new FormData();
-                    formData.append("file", blob);
-                    formData.append("upload_preset", "product_upload");
+                if (images.length > 0) {
+                    for (let i = 0; i < images.length; i++) {
+                        const canvas = images[i].cropper.getCroppedCanvas({ width: 800, height: 800 });
+                        const blob = await new Promise(res => canvas.toBlob(res));
+                        const formData = new FormData();
+                        formData.append("file", blob);
+                        formData.append("upload_preset", "product_upload");
 
-                    const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload`, {
-                        method: "POST",
-                        body: formData
-                    });
-                    const cloudData = await cloudRes.json();
-                    uploadedImages.push(cloudData.secure_url);
+                        const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload`, {
+                            method: "POST",
+                            body: formData
+                        });
+                        const cloudData = await cloudRes.json();
+                        uploadedImages.push(cloudData.secure_url);
+                    }
+                } else {
+                    uploadedImages.push(...<% - JSON.stringify(product.images) %>);
+
                 }
 
                 // Variants
@@ -266,7 +300,6 @@
                     title: r.querySelector("input[name='specTitle[]']").value,
                     details: r.querySelector("input[name='specification[]']").value
                 })).filter(s => s.title);
-                console.log(specifications)
 
                 const productData = {
                     brand, productName, description, category, status,
@@ -288,6 +321,7 @@
                 } else {
                     Swal.fire('Error', result.message || 'Failed to update product', 'error');
                 }
+
             } catch (err) {
                 console.error(err);
                 Swal.fire('Error', 'An error occurred while updating the product', 'error');
