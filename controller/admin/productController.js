@@ -14,9 +14,10 @@ const loadProduct = async (req, res) => {
         const skip = (page - 1) * limit;
         const searchTerm = req.query.search ? req.query.search.trim() : "";
         const searchQuery = searchTerm ? { model: { $regex: searchTerm, $options: "i" }, } : {};
+         const totalProducts = await Product.countDocuments(searchQuery);
         const products = await Product.find(searchQuery).populate("category", "name").populate("brand", "name").sort(sortOption).skip(skip).limit(limit);
         const category = await Category.findById(products._id);
-        const totalProducts = products.length;
+        // const totalProducts = products.length;
         const totalPages = Math.ceil(totalProducts / limit);
         res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category, sort, search: searchTerm });
     } catch (error) {

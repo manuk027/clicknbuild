@@ -71,4 +71,9 @@ router.put('/editProfile', userController.updateProfile);
 router.get('/editPassword', userController.loadEditPassword)
 router.put('/editPassword', userController.editPassword);
 
+router.get('/addresses', userController.loadAdresses);
+
+router.get('/address', userController.loadAddAdresses)
+router.post('/address', userController.addAddress)
+
 export default router; 

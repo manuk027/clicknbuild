@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import emailOtp from "../../models/otp.js";
 import getSortOption from "../../helpers/productSort.js";
 import bcrypt from "bcryptjs";
+import Address from "../../models/addressSchema.js";
 
 
 
@@ -721,16 +722,16 @@ const updatePassword = async (req, res) => {
 };
 
 
-const loadProfilePage = async(req, res)=>{
+const loadProfilePage = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
         const user = await User.findById(userId);
-        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
-        const component = await Product.find({isComponent:true}).populate('category', 'name');
-        if(!user){
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        if (!user) {
             return res.redirect('/login');
-        }else{
-            return res.render('profile', {peripheral, component, user, breadcrumbs:"Profile"});
+        } else {
+            return res.render('profile', { peripheral, component, user, breadcrumbs: "Profile" });
         }
     } catch (error) {
         console.error("Error loading the profile page: ", error);
@@ -738,16 +739,16 @@ const loadProfilePage = async(req, res)=>{
     }
 }
 
-const loadEditProfile  = async(req, res)=>{
+const loadEditProfile = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
         const user = await User.findById(userId);
-        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
-        const component = await Product.find({isComponent:true}).populate('category', 'name');
-        if(!user){
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        if (!user) {
             return res.redirect('/login');
-        }else{
-            return res.render('editProfile', {peripheral, component, user, breadcrumbs:"Profile"});
+        } else {
+            return res.render('editProfile', { peripheral, component, user, breadcrumbs: "Profile" });
         }
     } catch (error) {
         console.error("Error loading the edit profile page: ", error);
@@ -755,62 +756,149 @@ const loadEditProfile  = async(req, res)=>{
     }
 }
 
-const updateProfile = async(req, res)=>{
+const updateProfile = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
-        const {fullName, phoneNumber} = req.body;
-        if(!userId){
+        const { fullName, phoneNumber } = req.body;
+        if (!userId) {
             return res.redirect('/login');
         }
-        let user = await User.findByIdAndUpdate(userId, {$set:{fullName:fullName, phoneNumber: phoneNumber}});
-        if(!user){
-            return res.status(404).json({success: false, message: "User not found"});
+        let user = await User.findByIdAndUpdate(userId, { $set: { fullName: fullName, phoneNumber: phoneNumber } });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
-        return res.json({success:true, message: "Profile updated successfully", user: user})
+        return res.json({ success: true, message: "Profile updated successfully", user: user })
     } catch (error) {
         console.error("Error updating the profile:", error);
         return res.redirect('/pageNotFound');
     }
 };
 
-const loadEditPassword = async(req, res)=>{
+const loadEditPassword = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const user = await User.findById(userId);
-        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
-        const component = await Product.find({isComponent:true}).populate('category', 'name');
-        if(!user){
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        if (!user) {
             return res.redirect('/login');
         }
-        return res.render('editPassword', {peripheral, component, user, breadcrumbs:"Profile"});
+        return res.render('editPassword', { peripheral, component, user, breadcrumbs: "Profile" });
     } catch (error) {
         console.error("Error loading the editpassword page.");
         return res.render('/pageNotFound');
     }
 }
 
-const editPassword = async(req, res)=>{
+const editPassword = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
-        const {oldPassword, newPassword} = req.body;
-        if(!userId){
+        const { oldPassword, newPassword } = req.body;
+        if (!userId) {
             return res.redirect('/login');
         }
         let user = await User.findById(userId);
         const pass = await bcrypt.compare(oldPassword, user.password);
-        if(!pass){
-            return res.status(404).json({success:false, message:"Incorrect password."})
+        if (!pass) {
+            return res.status(404).json({ success: false, message: "Incorrect password." })
         }
-        if(!user){
-            return res.status(404).json({success: false, message: "User not found"});
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
         user.password = newPassword;
         await user.save();
-        return res.json({success:true, message: "Profile updated successfully", user: user})
+        return res.json({ success: true, message: "Profile updated successfully", user: user })
     } catch (error) {
         console.error("Error updating the profile:", error);
         return res.redirect('/pageNotFound');
     }
 }
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword };
+const loadAdresses = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        const address = await Address.find({ userId: userId });
+        console.log(address);
+        if (!user) {
+            return res.redirect('/login');
+        } else {
+            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address });
+        }
+    } catch (error) {
+        console.error("Error loading the address page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+const loadAddAdresses = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        const address = await Address.find({ userId: userId });
+        return res.render('addAddress', { peripheral, component, user, breadcrumbs: "Address", address });
+    } catch (error) {
+        console.error("Error loading the address adding page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+
+const addAddress = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+        const newAddress = req.body;
+        if (!newAddress) {
+            return res.json({ success: false, message: "Address not added. Please try again." });
+        }
+        const existingAddress = await Address.findOne({ userId });
+        if (existingAddress) {
+            existingAddress.address.push({
+                fullName: newAddress.fullName,
+                phoneNumber: newAddress.mobileNumber,
+                address: newAddress.address,
+                district: newAddress.district,
+                state: newAddress.state,
+                city: newAddress.city,
+                pincode: newAddress.pinCode,
+                landmark: newAddress.landmark,
+            });
+
+            await existingAddress.save();
+        } else {
+            const address = new Address({
+                userId,
+                address: [{
+                    fullName: newAddress.fullName,
+                    phoneNumber: newAddress.mobileNumber,
+                    address: newAddress.address,
+                    district: newAddress.district,
+                    state: newAddress.state,
+                    city: newAddress.city,
+                    pincode: newAddress.pinCode,
+                    landmark: newAddress.landmark,
+                }],
+            });
+            await address.save();
+        }
+        console.log("Address saved for user:", userId);
+        return res.status(200).json({ success: true, message: "Address added successfully" });
+    } catch (error) {
+        console.error("Error adding new address:", error);
+        return res.redirect('/pageNotFound');
+    }
+};
+
+
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress };
