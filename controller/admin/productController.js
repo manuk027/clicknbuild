@@ -2,7 +2,7 @@ import Product from "../../models/productSchema.js";
 import Category from "../../models/categorySchema.js";
 import Brand from "../../models/brandSchema.js";
 import brandSortOption from "../../helpers/brandSort.js"
-
+import productService from "../../services/productService.js";
 
 
 const loadProduct = async (req, res) => {
@@ -175,65 +175,27 @@ const loadEditProduct = async (req, res) => {
 
 
 
-const editProduct = async (req, res) => {
-    try {
-        const productId = req.params.id;
-        const product = await Product.findById(productId);
-        if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
-        const {
-            brand, productName, description, category,
-            status = "listed", categoryType = "component",
-            limitedEdition = false, flashSale = false,
-            variants = [], specifications = [], images = []
-        } = req.body;
 
-        if (!brand || !productName || !category)
-            return res.json({ success: false, message: "Missing required fields" });
+export const editProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const productData = req.body;
 
-        if (!images.length)
-            return res.json({ success: false, message: "Please upload at least one image" });
+    const updatedProduct = await productService.updateProduct(productId, productData);
 
-        const isListed = status === "listed";
-        const isComponent = categoryType === "component";
-        const isPeripheral = categoryType === "peripheral";
-        const isLimited = limitedEdition === true || limitedEdition === "true";
-        const onFlashSale = flashSale === true || flashSale === "true";
-
-        const validVariants = variants.filter(v => v.variant && v.price && v.quantity)
-            .map(v => ({
-                variant: v.variant,
-                quantity: Number(v.quantity),
-                price: Number(v.price),
-                offer: Number(v.offer || 0)
-            }));
-
-        const validSpecs = specifications.filter(s => s.title && s.details)
-            .map(s => ({ title: s.title, details: s.details }));
-
-        if (validVariants.length === 0)
-            return res.json({ success: false, message: "Please add at least one valid variant" });
-
-        product.brand = brand;
-        product.model = productName;
-        product.description = description;
-        product.isListed = isListed;
-        product.isComponent = isComponent;
-        product.isPeripheral = isPeripheral;
-        product.isLimited = isLimited;
-        product.onFlashSale = onFlashSale;
-        product.category = category;
-        product.variants = validVariants;
-        product.specification = validSpecs;
-        product.images = images;
-
-        await product.save();
-
-        return res.json({ success: true, message: "Product updated successfully" });
-    } catch (error) {
-        console.error("Update product error:", error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
+    return res.json({
+      success: true,
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Update product error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
 

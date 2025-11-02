@@ -64,6 +64,11 @@ router.post('/emailOTP', userController.verify);
 router.get('/newPassword/:email', userController.loadUpdatePassword);
 router.patch('/newPassword/:email', userController.updatePassword)
 
+router.get('/profile', userController.loadProfilePage);
+router.get('/editProfile', userController.loadEditProfile);
+router.put('/editProfile', userController.updateProfile);
 
+router.get('/editPassword', userController.loadEditPassword)
+router.put('/editPassword', userController.editPassword);
 
 export default router; 

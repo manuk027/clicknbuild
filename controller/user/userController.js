@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import emailOtp from "../../models/otp.js";
 import getSortOption from "../../helpers/productSort.js";
+import bcrypt from "bcryptjs";
 
 
 
@@ -286,20 +287,21 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const findUser = await User.findOne({ isAdmin: false, email: email, });
+        if (!findUser) {
+            return res.render("login", { message: "User does not exist" });
+        }
         if (findUser.isBlocked) {
             return res.render("login", {
                 message: "User has been blocked by the admin",
             });
         }
-        if (!findUser) {
-            res.render("login", { message: "User does not exist" });
-        }
-        if (!password === findUser.password) {
+        let comparePassword = await bcrypt.compare(password, findUser.password);
+        if (!comparePassword) {
             return res.render("login", { message: "Incorrect Password" });
         }
         req.session.user = findUser._id;
 
-        res.redirect("/");
+        return res.redirect("/");
     } catch (error) {
         console.error("login error", error)
         res.render("login", { message: "Login failed, please try again" })
@@ -719,5 +721,96 @@ const updatePassword = async (req, res) => {
 };
 
 
+const loadProfilePage = async(req, res)=>{
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
+        const component = await Product.find({isComponent:true}).populate('category', 'name');
+        if(!user){
+            return res.redirect('/login');
+        }else{
+            return res.render('profile', {peripheral, component, user, breadcrumbs:"Profile"});
+        }
+    } catch (error) {
+        console.error("Error loading the profile page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword };
+const loadEditProfile  = async(req, res)=>{
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
+        const component = await Product.find({isComponent:true}).populate('category', 'name');
+        if(!user){
+            return res.redirect('/login');
+        }else{
+            return res.render('editProfile', {peripheral, component, user, breadcrumbs:"Profile"});
+        }
+    } catch (error) {
+        console.error("Error loading the edit profile page: ", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+const updateProfile = async(req, res)=>{
+    try {
+        const userId = req.user?._id || req.session?.user
+        const {fullName, phoneNumber} = req.body;
+        if(!userId){
+            return res.redirect('/login');
+        }
+        let user = await User.findByIdAndUpdate(userId, {$set:{fullName:fullName, phoneNumber: phoneNumber}});
+        if(!user){
+            return res.status(404).json({success: false, message: "User not found"});
+        }
+        return res.json({success:true, message: "Profile updated successfully", user: user})
+    } catch (error) {
+        console.error("Error updating the profile:", error);
+        return res.redirect('/pageNotFound');
+    }
+};
+
+const loadEditPassword = async(req, res)=>{
+    try {
+        const userId = req.user?._id || req.session?.user;
+        const user = await User.findById(userId);
+        const peripheral = await Product.find({isPeripheral: true}).populate('category', 'name');
+        const component = await Product.find({isComponent:true}).populate('category', 'name');
+        if(!user){
+            return res.redirect('/login');
+        }
+        return res.render('editPassword', {peripheral, component, user, breadcrumbs:"Profile"});
+    } catch (error) {
+        console.error("Error loading the editpassword page.");
+        return res.render('/pageNotFound');
+    }
+}
+
+const editPassword = async(req, res)=>{
+    try {
+        const userId = req.user?._id || req.session?.user
+        const {oldPassword, newPassword} = req.body;
+        if(!userId){
+            return res.redirect('/login');
+        }
+        let user = await User.findById(userId);
+        const pass = await bcrypt.compare(oldPassword, user.password);
+        if(!pass){
+            return res.status(404).json({success:false, message:"Incorrect password."})
+        }
+        if(!user){
+            return res.status(404).json({success: false, message: "User not found"});
+        }
+        user.password = newPassword;
+        await user.save();
+        return res.json({success:true, message: "Profile updated successfully", user: user})
+    } catch (error) {
+        console.error("Error updating the profile:", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword };

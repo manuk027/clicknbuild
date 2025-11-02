@@ -1,0 +1,124 @@
+<!-- views/partials/user/sidebar.ejs -->
+<aside id="userSidebar"
+    class="hidden lg:block bg-white rounded-lg shadow-lg overflow-hidden w-72 lg:w-80 transition-transform duration-300 transform lg:translate-x-0 -translate-x-full fixed lg:static z-50 lg:z-auto">
+    <!-- User Profile Header -->
+    <div class="bg-gradient-to-r from-gray-100 to-gray-50 p-6 flex items-center space-x-4">
+        <div class="w-16 h-16 bg-black rounded-full flex-shrink-0"></div>
+        <div>
+            <h2 class="font-bold text-lg">
+                <%= user.fullName %>
+            </h2>
+        </div>
+    </div>
+
+    <!-- Menu Items -->
+    <nav class="space-y-1">
+
+        <!-- Profile -->
+        <a href="/profile"
+            class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Profile</span>
+        </a>
+
+        <!-- Address -->
+        <a href="/userAddress"
+            class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Address</span>
+        </a>
+
+        <!-- Orders -->
+        <a href="/orders" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h18l-1 9H4L3 3zm0 12h18v6H3v-6z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Orders</span>
+        </a>
+
+        <!-- Wishlist -->
+        <a href="/wishlist" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A4.5 4.5 0 016.5 4c1.74 0 3.41.81 4.5 2.09A6.52 6.52 0 0115.5 4 4.5 4.5 0 0120 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Wishlist</span>
+        </a>
+
+        <!-- Coupons -->
+        <a href="/coupons" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 13h6m2 8H7a2 2 0 01-2-2v-3a2 2 0 010-4V6a2 2 0 012-2h10a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Coupons</span>
+        </a>
+
+        <!-- Change Password -->
+        <a href="/changePassword"
+            class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 11c1.657 0 3-1.343 3-3V5a3 3 0 10-6 0v3c0 1.657 1.343 3 3 3zm-9 4h18v6H3v-6z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Change Password</span>
+        </a>
+
+        <!-- Refer & Earn -->
+        <a href="/refer" class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition group">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-black" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span class="font-medium group-hover:text-black">Refer & Earn</span>
+        </a>
+
+    </nav>
+</aside>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const sidebar = document.getElementById("userSidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        const toggleBtn = document.getElementById("mobileSidebarBtn");
+
+        if (!sidebar || !overlay || !toggleBtn) return;
+
+        // Open sidebar on mobile
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.remove("hidden", "-translate-x-full");
+            overlay.classList.remove("hidden");
+            document.body.classList.add("overflow-hidden"); // prevent scroll behind sidebar
+        });
+
+        // Close sidebar when clicking outside
+        overlay.addEventListener("click", () => {
+            sidebar.classList.add("-translate-x-full");
+            overlay.classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+        });
+
+        // Ensure correct visibility when resizing
+        window.addEventListener("resize", () => {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove("hidden", "-translate-x-full");
+                overlay.classList.add("hidden");
+                document.body.classList.remove("overflow-hidden");
+            } else {
+                sidebar.classList.add("-translate-x-full", "hidden");
+            }
+        });
+    });
+</script>

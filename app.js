@@ -20,7 +20,7 @@ const app = express();
 app.use(cors());
 
 //middlewares
-app.use(express.json());           // for JSON bodies
+app.use(express.json());          
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
@@ -40,7 +40,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(nocache());
-
+ 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
