@@ -55,7 +55,7 @@
                                         class="address-card border border-gray-200 rounded-xl p-6 relative hover:shadow-md transition-all duration-200 bg-white">
 
                                         <!-- Edit Button -->
-                                        <a href="/editAddress/<%= address[0].address[i]._id %>" 
+                                        <a href="/editAddress/<%= address[0].address[i]._id %>"
                                             class="edit-btn absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -97,10 +97,10 @@
                                                     <span
                                                         class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Default</span>
                                                     <%}%>
-                                                        <a href="/deleteAddress/<%= address[0].address[i]._id %>"
+                                                        <button data-id="<%= address[0].address[i]._id %>"
                                                             class="delete-btn text-white bg-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition">
                                                             DELETE
-                                                </a>
+                                                        </button>
                                             </div>
                                         </div>
                                     </div>
@@ -152,6 +152,47 @@
                         userSidebar.classList.remove('hidden', 'fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
                         sidebarOverlay.classList.add('hidden');
                     }
+                });
+            </script>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const deleteButtons = document.querySelectorAll(".delete-btn");
+
+                    deleteButtons.forEach((button) => {
+                        button.addEventListener("click", async (event) => {
+                            event.preventDefault();
+                            const addressId = button.getAttribute("data-id");
+
+                            const confirm = await Swal.fire({
+                                title: "Are you sure?",
+                                text: "This address will be permanently deleted.",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#000",
+                                cancelButtonColor: "#6b7280",
+                                confirmButtonText: "Yes, delete it",
+                                cancelButtonText: "Cancel"
+                            });
+
+                            if (confirm.isConfirmed) {
+                                try {
+                                    const response = await fetch(`/deleteAddress/${addressId}`, {
+                                        method: "DELETE",
+                                    });
+                                    const result = await response.json();
+
+                                    if (result.success) {
+                                        Swal.fire("Deleted!", "The address was deleted successfully.", "success")
+                                            .then(() => location.reload());
+                                    } else {
+                                        Swal.fire("Error!", result.message || "Something went wrong.", "error");
+                                    }
+                                } catch (err) {
+                                    Swal.fire("Error!", "Unable to delete the address.", "error");
+                                }
+                            }
+                        });
+                    });
                 });
             </script>
 

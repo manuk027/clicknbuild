@@ -76,4 +76,8 @@ router.get('/addresses', userController.loadAdresses);
 router.get('/address', userController.loadAddAdresses)
 router.post('/address', userController.addAddress)
 
+router.get('/editAddress/:address', userController.loadEditAddress);
+router.put('/editAddress/:address', userController.editAddress);
+router.delete('/deleteAddress/:address', userController.deleteAddress);
+
 export default router; 

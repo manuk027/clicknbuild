@@ -8,6 +8,9 @@ import emailOtp from "../../models/otp.js";
 import getSortOption from "../../helpers/productSort.js";
 import bcrypt from "bcryptjs";
 import Address from "../../models/addressSchema.js";
+import mongoose from "mongoose";
+
+
 
 
 
@@ -821,7 +824,6 @@ const loadAdresses = async (req, res) => {
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
         const address = await Address.find({ userId: userId });
-        console.log(address);
         if (!user) {
             return res.redirect('/login');
         } else {
@@ -892,7 +894,6 @@ const addAddress = async (req, res) => {
             });
             await address.save();
         }
-        console.log("Address saved for user:", userId);
         return res.status(200).json({ success: true, message: "Address added successfully" });
     } catch (error) {
         console.error("Error adding new address:", error);
@@ -900,5 +901,87 @@ const addAddress = async (req, res) => {
     }
 };
 
+const loadEditAddress = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+        const addressId = req.params.address;
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        let address = await Address.find({ userId: userId });
+        address = address[0].address.find(addr => addr._id.toString() === addressId);
+        return res.render('editAddress', { peripheral, component, user, breadcrumbs: "Address", address });
+    } catch (error) {
+        console.error("Error loading  the address editing page:", error);
+        return res.redirect('/pageNotFound');
+    }
+}
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress };
+const editAddress = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        if (!userId) {
+            return res.redirect("/login");
+        }
+        const addressId = req.params.address;
+        const editedAddress = req.body;
+        const userAddressDoc = await Address.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+        if (!userAddressDoc) {
+            return res.status(404).json({ success: false, message: "User address record not found" });
+        }
+        const result = await Address.findOneAndUpdate(
+            {
+                userId: new mongoose.Types.ObjectId(userId),
+                "address._id": new mongoose.Types.ObjectId(addressId)
+            },
+            {
+                $set: {
+                    "address.$.fullName": editedAddress.fullName,
+                    "address.$.phoneNumber": editedAddress.mobileNumber,
+                    "address.$.address": editedAddress.address,
+                    "address.$.district": editedAddress.district,
+                    "address.$.state": editedAddress.state,
+                    "address.$.city": editedAddress.city,
+                    "address.$.pincode": editedAddress.pinCode,
+                    "address.$.landmark": editedAddress.landmark,
+                    "address.$.updatedAt": new Date(),
+                }
+            },
+            { new: true }
+        );
+        return res.status(200).json({
+            success: true,
+            message: "Address updated successfully",
+        });
+    } catch (error) {
+        console.error("Error editing the address:", error);
+        return res.redirect("/pageNotFound");
+    }
+};
+
+
+
+const deleteAddress = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user;
+        const addressId = req.params.address;
+        console.log(addressId);
+        const result = await Address.updateOne(
+            { userId: userId },
+            { $pull: { address: { _id: addressId } } }
+        );
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ success: false, message: "Address not found" });
+        }
+        res.status(200).json({ success: true, message: "Address deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting address:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress };
