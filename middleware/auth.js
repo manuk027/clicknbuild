@@ -4,8 +4,9 @@ import User from "../models/userSchema.js";
 
 //middleware for user authentication
 const userAuth = (req, res, next) => {
-    if (req.session.user) {
-        User.findById(req.session.user)
+    let userId = req.session.user || req.user?._id;
+    if (userId) {
+        User.findById(userId)
             .then(data => {
                 if (data && !data.isBlocked) {
                     next();

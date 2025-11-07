@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clickNbuild</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .cart-item-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
+        <nav class="mb-6 text-sm pl-5 pt-5">
+            <ol class="flex flex-wrap items-center space-x-2 text-gray-600">
+                <li><a href="/" class="hover:text-gray-900">Home</a></li>
+                <li><span>></span></li>
+                <li><a href="/cart" class="hover:text-gray-900 font-bold">Cart</a></li>
+            </ol>
+        </nav>
+        <!-- Main Content -->
+        <%if(cart.length>=1){%>
+            <div class="container mx-auto px-4 py-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
+                    <h1 class="text-3xl font-bold mb-4 lg:mb-0">CART</h1>
+                    <button onclick="emptyCart()"
+                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition">
+                        Empty my Cart
+                    </button>
+                </div>
+
+                <!-- Cart Items -->
+                <div id="cart-items" class="space-y-4 mb-8">
+                    <!-- Cart Item 1 -->
+                    <% for (let i=0; i < cart.length; i++) { %>
+                        <div class="bg-white rounded-lg shadow p-4 md:p-6 cart-item" data-id="<%= i %>">
+                            <div class="flex flex-col md:flex-row items-center gap-4">
+                                <img src="<%= cart[i].productId.images[0] %>" alt="Product"
+                                    class="w-20 h-20 object-cover rounded">
+
+                                <div class="flex-1 text-center md:text-left">
+                                    <h3 class="text-xl font-semibold">
+                                        <%= cart[i].productId.brand.name %>
+                                            <%= cart[i].productId.model %>
+                                                <%= cart[i].variantName %>
+
+                                    </h3>
+                                    <p class="text-gray-600">Price ₹
+                                        <span class="item-price" data-price="<%= cart[i].price %>">
+                                            <%= cart[i].price %>
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center border border-gray-300 rounded">
+                                        <button onclick="decrementQuantity(<%=i%>)"
+                                            class="px-4 py-2 hover:bg-gray-100">−</button>
+                                        <input type="number" value="<%= cart[i].quantity %>" min="1" readonly
+                                            class="w-16 text-center border-x border-gray-300 py-2" id="qty-<%= i %>">
+                                        <button onclick="incrementQuantity(<%= i %>)"
+                                            class="px-4 py-2 bg-black text-white hover:bg-gray-800">+</button>
+                                    </div>
+
+                                    <button onclick="removeItem(<%= i %>)"
+                                        class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+                </div>
+
+                <!-- Subtotal -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex justify-between items-center text-xl font-semibold mb-2">
+                        <span>SUBTOTAL</span>
+                        <div>
+                            <span class="line-through text-gray-400 mr-2">INR <span
+                                    id="original-total">138</span></span>
+                            <span>INR <span id="final-total">
+                                    <%= cart[0].totalCartValue %>
+                                </span></span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm">Shipping, taxes, and discount codes calculated at checkout.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="checkout()"
+                        class="flex-1 bg-black text-white py-3 rounded hover:bg-gray-800 transition font-semibold">
+                        Proceed to checkout
+                    </button>
+                    <a href="/shop"
+                        class="flex-1 bg-black text-white py-3 rounded hover:bg-gray-800 transition font-semibold text-center">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+            <%}%>
+                <%if(cart.length===0){%>
+                    <div id="empty-cart-message"
+                        class="items-center justify-center flex h-[60vh] bg-white rounded-lg shadow p-12 mb-8 mx-5">
+                        <div class="text-center">
+                            <p class="text-2xl text-gray-600 mb-6">No Products found</p>
+                            <a href="/shop"
+                                class="bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition font-semibold">
+                                Add Product to Cart
+                            </a>
+                        </div>
+                    </div>
+                    <%}%>
+
+                        <!-- Footer -->
+                        <%- include("../../views/partials/user/footer") %>
+
+                            <script>
+                                function incrementQuantity(id) {
+                                    const input = document.getElementById(`qty-${id}`);
+                                    input.value = parseInt(input.value) + 1;
+                                    updateTotal();
+                                }
+
+                                function decrementQuantity(id) {
+                                    const input = document.getElementById(`qty-${id}`);
+                                    if (parseInt(input.value) > 1) {
+                                        input.value = parseInt(input.value) - 1;
+                                        updateTotal();
+                                    }
+                                }
+
+                                function removeItem(id) {
+                                    const item = document.querySelector(`[data-id="${id}"]`);
+                                    item.style.opacity = '0';
+                                    item.style.transform = 'translateX(100px)';
+                                    item.style.transition = 'all 0.3s ease-out';
+                                    setTimeout(() => {
+                                        item.remove();
+                                        updateTotal();
+                                        updateCartCount();
+                                    }, 300);
+                                }
+
+                                function updateTotal() {
+                                    const items = document.querySelectorAll('.cart-item');
+                                    let total = 0;
+
+                                    items.forEach(item => {
+                                        const id = item.getAttribute('data-id');
+                                        const priceEl = item.querySelector('.item-price');
+                                        const price = parseFloat(priceEl.getAttribute('data-price'));
+                                        const qtyEl = document.getElementById(`qty-${id}`);
+                                        const qty = parseInt(qtyEl.value);
+                                        total += price * qty;
+                                    });
+
+                                    document.getElementById('final-total').textContent = total.toFixed(0);
+                                    document.getElementById('original-total').textContent = (total + 18).toFixed(0);
+                                }
+
+                                function updateCartCount() {
+                                    const items = document.querySelectorAll('.cart-item');
+                                    document.getElementById('cart-count').textContent = items.length;
+                                }
+
+                                async function emptyCart() {
+                                    // SweetAlert confirmation
+                                    const result = await Swal.fire({
+                                        title: "Are you sure?",
+                                        text: "Your entire cart will be emptied!",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                        confirmButtonColor: "#3085d6",
+                                        cancelButtonColor: "#d33",
+                                        confirmButtonText: "Yes, empty it!",
+                                        cancelButtonText: "Cancel",
+                                    });
+
+                                    if (result.isConfirmed) {
+                                        try {
+                                            const response = await fetch("/cart/empty", {
+                                                method: "DELETE",
+                                            });
+                                            const data = await response.json();
+                                            if (response.ok) {
+                                                Swal.fire({
+                                                    title: "Cart Emptied!",
+                                                    text: data.message || "Your cart has been successfully cleared.",
+                                                    icon: "success",
+                                                    confirmButtonColor: "#3085d6",
+                                                }).then(() => window.location.reload());
+                                            } else {
+                                                Swal.fire({
+                                                    title: "Error!",
+                                                    text: data.message || "Failed to empty your cart. Please try again.",
+                                                    icon: "error",
+                                                    confirmButtonColor: "#3085d6",
+                                                });
+                                            }
+                                        } catch (error) {
+                                            console.error("Error emptying cart:", error);
+                                            Swal.fire({
+                                                title: "Error!",
+                                                text: "Something went wrong while emptying your cart.",
+                                                icon: "error",
+                                                confirmButtonColor: "#3085d6",
+                                            });
+                                        }
+                                    }
+                                }
+
+
+
+                                function checkout() {
+                                    alert('Proceeding to checkout...');
+                                }
+
+
+                            </script>
+</body>
+
+</html>

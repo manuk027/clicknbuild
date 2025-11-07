@@ -11,6 +11,7 @@ const { Schema, model } = mongoose;
 // defining user schema
 const userSchema = new Schema({
     fullName: { type: String, required: true, },
+    profilePhoto: {type: String},
     email: { type: String, required: true, unique: true, },
     phoneNumber: { type: String, },
     googleId: { type: String,},

@@ -9,7 +9,7 @@ import getSortOption from "../../helpers/productSort.js";
 import bcrypt from "bcryptjs";
 import Address from "../../models/addressSchema.js";
 import mongoose from "mongoose";
-
+import Cart from "../../models/cartSchema.js"
 
 
 
@@ -299,6 +299,12 @@ const login = async (req, res) => {
                 message: "User has been blocked by the admin",
             });
         }
+        if (!findUser.password) {
+            return res.render("login", {
+                message: "User has Signed-In with google account.",
+            });
+        }
+        console.log(password);
         let comparePassword = await bcrypt.compare(password, findUser.password);
         if (!comparePassword) {
             return res.render("login", { message: "Incorrect Password" });
@@ -437,29 +443,79 @@ const loadAllProducts = async (req, res) => {
         const selectedCategories = req.query.category;
         const sort = req.query.sort;
         const sortOption = getSortOption(sort);
+
         const filter = { isListed: true };
+
         if (selectedBrands) {
-            filter["brand.name"] = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
+            filter["brand"] = Array.isArray(selectedBrands)
+                ? { $in: selectedBrands }
+                : selectedBrands;
         }
+
         if (selectedCategories) {
-            filter["category.name"] = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
+            filter["category"] = Array.isArray(selectedCategories)
+                ? { $in: selectedCategories }
+                : selectedCategories;
         }
-        const allProducts = await Product.find(filter).populate("brand", "name").populate("category", "name").sort(sortOption);
+
+        // ✅ Populate only listed brands/categories
+        const allProducts = (
+            await Product.find(filter)
+                .populate({ path: "brand", match: { isListed: true }, select: "name" })
+                .populate({ path: "category", match: { isListed: true }, select: "name" })
+                .sort(sortOption)
+        ).filter(p => p.brand && p.category); // ✅ Remove products with unlisted brand/category
+
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
+
         const distinctBrandIds = [...new Set(allProducts.map(p => p.brand?._id))].filter(Boolean);
         const distinctCategoryIds = [...new Set(allProducts.map(p => p.category?._id))].filter(Boolean);
+
         const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
         const filterBrand = brand.map(b => b.name);
+
         const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
         const filterCategory = categoryList.map(c => c.name);
-        const selectedBrandsArray = selectedBrands === undefined ? [] : Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
-        const selectedCategoriesArray = selectedCategories === undefined ? [] : Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories];
+
+        const selectedBrandsArray = selectedBrands
+            ? Array.isArray(selectedBrands)
+                ? selectedBrands
+                : [selectedBrands]
+            : [];
+
+        const selectedCategoriesArray = selectedCategories
+            ? Array.isArray(selectedCategories)
+                ? selectedCategories
+                : [selectedCategories]
+            : [];
+
         if (allProducts.length === 0) {
-            return res.render("noProductFound", { product: allProducts, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, });
+            return res.render("noProductFound", {
+                product: allProducts,
+                peripheral: peripherals,
+                component: components,
+                brand,
+                user: userData,
+                filterBrand,
+                filterCategory,
+                selectedBrands: selectedBrandsArray,
+                selectedCategories: selectedCategoriesArray,
+            });
         }
-        res.render("productPages", { product: allProducts, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, });
+
+        res.render("productPages", {
+            product: allProducts,
+            peripheral: peripherals,
+            component: components,
+            brand,
+            user: userData,
+            filterBrand,
+            filterCategory,
+            selectedBrands: selectedBrandsArray,
+            selectedCategories: selectedCategoriesArray,
+        });
     } catch (error) {
         console.error("Error loading all products:", error);
         return res.redirect("/pageNotFound");
@@ -468,27 +524,32 @@ const loadAllProducts = async (req, res) => {
 
 
 
+
 const loadProductDetails = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const variant = parseInt(req.query.variant) || 0;
         const userData = await User.findById(userId);
-
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
-        const brand = await Brand.find();
-        let prodId = req.query.id;
-        const product = await Product.findOne({ _id: prodId, isListed: true }).populate("category", "name").populate("brand", "name");
-        if (!product) {
-            return res.redirect('/pageNotFound')
+        const prodId = req.query.id;
+        console.log(prodId);
+        const product = await Product.findOne({ _id: prodId, isListed: true }).populate({ path: "category", match: { isListed: true }, select: "name isListed" }).populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
+        if (!product || !product.brand || !product.category) {
+            return res.redirect("/pageNotFound");
         }
-        const recommendedProducts = await Product.find({ category: product.category }).limit(4);
-        return res.render('productDetails', { product: product, peripheral: peripherals, component: components, brand: brand, user: userData, recommendedProducts, index: variant })
+        const recommendedProducts = await Product.find({ category: product.category._id, isListed: true, })
+            .populate({ path: "brand", match: { isListed: true }, select: "name" })
+            .populate({ path: "category", match: { isListed: true }, select: "name" })
+            .limit(4)
+            .then(prods => prods.filter(p => p.brand && p.category));
+        return res.render("productDetails", { product, peripheral: peripherals, component: components, user: userData, recommendedProducts, index: variant, });
     } catch (error) {
-        console.error("Error loading the product details page");
+        console.error("Error loading the product details page:", error);
         return res.redirect("/pageNotFound");
     }
-}
+};
+
 
 
 
@@ -598,8 +659,8 @@ const loadSearchedProducts = async (req, res) => {
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
         const allBrands = await Brand.find();
-        const matchedBrands = await Brand.find({ name: { $regex: searchQuery, $options: "i" } }).distinct("_id");
-        const matchedCategories = await Category.find({ name: { $regex: searchQuery, $options: "i" } }).distinct("_id");
+        const matchedBrands = await Brand.find({ name: { $regex: searchQuery, $options: "i" }, isListed: true }).distinct("_id");
+        const matchedCategories = await Category.find({ name: { $regex: searchQuery, $options: "i" }, isListed: true }).distinct("_id");
         let sortOption = getSortOption(sort);
         let productFilter = { $or: [{ model: { $regex: searchQuery, $options: "i" } }, { brand: { $in: matchedBrands } }, { category: { $in: matchedCategories } }] };
         if (selectedBrands) {
@@ -762,11 +823,11 @@ const loadEditProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
-        const { fullName, phoneNumber } = req.body;
+        const { fullName, phoneNumber, profileImage } = req.body;
         if (!userId) {
             return res.redirect('/login');
         }
-        let user = await User.findByIdAndUpdate(userId, { $set: { fullName: fullName, phoneNumber: phoneNumber } });
+        let user = await User.findByIdAndUpdate(userId, { $set: { fullName: fullName, phoneNumber: phoneNumber, profilePhoto: profileImage } });
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
@@ -984,4 +1045,126 @@ const deleteAddress = async (req, res) => {
 };
 
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress };
+const loadCart = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+        const cart = await Cart.find({ userId })
+            .populate({
+                path: "items.productId",
+                populate: { path: "brand", model: "Brand", select: "name" }
+            })
+            .exec();
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        return res.render('cart', { peripheral, component, user, breadcrumbs: "Cart", cart });
+    } catch (error) {
+        console.error("Error loading  the cart page:", error);
+        return res.redirect('/pageNotFound');
+    }
+};
+
+
+const loadWishlist = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session?.user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        return res.render('wishlist', { peripheral, component, user, breadcrumbs: "Wishlist" });
+    } catch (error) {
+        console.error("Error loading the wishlist:", error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+const addToWishlist = async(req, res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
+
+export const addToCart = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session.user;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "User not logged in" });
+        }
+        const { productId, variantId, quantity } = req.body;
+        if (!productId || !variantId || !quantity) {
+            return res.status(400).json({ success: false, message: "Invalid product." })
+        }
+        const product = await Product.findById(productId).populate("category").populate("brand");
+        if (!product) {
+            return res.status(400).json({ success: false, message: "Product not found." });
+        }
+        const variant = product.variants.id(variantId);
+        if (!variant) {
+            return res.status(400).json({ success: false, message: "Variant not found." })
+        }
+        if (!product.isListed || !product.category?.isListed || !product.brand?.isListed) {
+            return res.status(400).json({ success: false, message: "This product or its brand/category is unavailable for purchase." })
+        }
+        if (variant.quantity <= 0) {
+            return res.status(400).json({ success: false, message: "This product is currently out of stock." })
+        }
+        let cart = await Cart.findOne({ userId });
+        if (!cart) {
+            cart = new Cart({ userId, items: [], totalcartValue: 0 });
+        }
+        const existingItem = cart.items.find((item) => item.productId?.toString() === productId.toString() && item.variantId?.toString() === variantId.toString());
+        if (existingItem) {
+            const newQuantity = existingItem.quantity + Number(quantity);
+            if (newQuantity > variant.quantity) {
+                return res.status(400).json({ success: false, message: `Only ${variant.quantity} units available in stock.` });
+            }
+            if (existingItem.maxPerUser && newQuantity > existingItem.maxPerUser) {
+                return res.status(400).json({ success: false, message: `You can only buy ${existingItem.maxPerUser} units of this item.` })
+            }
+            existingItem.quantity = newQuantity;
+            existingItem.totalPrice = existingItem.price * existingItem.quantity;
+            existingItem.price = variant.offer
+            variant.quantity -= Number(quantity);
+        } else {
+            cart.items.push({
+                productId: new mongoose.Types.ObjectId(productId),
+                variantId: new mongoose.Types.ObjectId(variantId),
+                quantity: Number(quantity),
+                price: variant.offer,
+                totalPrice: variant.offer * quantity,
+            });
+            variant.quantity -= Number(quantity);
+        }
+        product.markModified('variants');
+        cart.totalCartValue = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+        await product.save();
+        await cart.save();
+        return res.status(200).json({ success: true, message: existingItem ? "Product quantitiy updated in cart" : "Product added to cart successfully", cart })
+    } catch (error) {
+        console.error("Error adding product to cart:", error);
+        return res.status(500).json({ success: false, message: "Internal server error while adding product to cart." })
+    }
+};
+
+
+
+const emptyCart = async (req, res) => {
+    try {
+
+    } catch (error) {
+        console.error("Error emptying the cart : ", error);
+    }
+}
+
+
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, loadCart, loadWishlist, addToWishlist, addToCart, emptyCart };

@@ -4,20 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>clickNbuild</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 
 <body class="bg-gray-50">
+
     <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
-        <!-- Mobile Sidebar Toggle Button (visible only on mobile) -->
+
+        <!-- Mobile Sidebar Toggle Button -->
         <div class="lg:hidden fixed top-4 left-4 z-50">
             <button id="mobileSidebarBtn" class="bg-white p-2 rounded-lg shadow-md">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
         </div>
@@ -27,149 +30,389 @@
 
         <div class="flex min-h-screen">
             <!-- Sidebar -->
-
             <%- include("../../views/partials/user/sidebar")%>
 
                 <!-- Main Content -->
                 <main class="flex-1 p-4 md:p-6 lg:p-8">
                     <!-- Breadcrumb -->
                     <div class="mb-6">
-                        <a href="/profile" class="text-gray-600 hover:text-black text-sm">Account </a>
-                        <a href="/profile" class="text-gray-600 hover:text-black text-sm"> &gt;<%=breadcrumbs%></a>
-                        <a href="/profile" class="text-gray-600 hover:text-black text-sm">Edit </a>
+                        <a href="/profile" class="text-gray-600 hover:text-black text-sm">Account</a>
+                        <a href="/profile" class="text-gray-600 hover:text-black text-sm">&gt; <%=breadcrumbs%></a>
+                        <a href="/editProfile" class="text-gray-600 hover:text-black text-sm">&gt; Edit</a>
                     </div>
 
                     <!-- Profile Card -->
-                    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-10 max-w-4xl">
-                        <!-- Welcome Header -->
-                        <h1 class="text-2xl md:text-3xl font-light text-center mb-8">Welcome <%=user.fullName%>
+                    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-10 max-w-4xl mx-auto">
+                        <h1 class="text-2xl md:text-3xl font-light text-center mb-8">
+                            Welcome <%=user.fullName%>
                         </h1>
 
+                        <!-- Profile Image Upload -->
+                        <div class="flex flex-col items-center mb-8">
+                            <div class="relative">
+                                <img id="profilePreview"
+                                    src="<%= user.profilePhoto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png' %>"
+                                    alt="Profile" class="w-32 h-32 rounded-full object-cover border border-gray-300" />
+                                <label for="profileImageInput"
+                                    class="absolute bottom-0 right-0 bg-black text-white text-xs py-1 px-2 rounded-full cursor-pointer hover:bg-gray-800">
+                                    Change
+                                </label>
+                            </div>
+                            <input type="file" id="profileImageInput" accept="image/*" class="hidden" />
+                            
+                        </div>
+
                         <!-- Profile Form -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Full name</label>
-                            <input id="fullName" type="text" value="<%=user.fullName%>"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
-                            <p id="nameWarning" class="text-red-500 text-sm mt-1"></p>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Full name <span
+                                        class="text-red-500">*</span></label>
+                                <input id="fullName" type="text" value="<%=user.fullName%>"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent" />
+                                <p id="nameWarning" class="text-red-500 text-sm mt-1"></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone <span
+                                        class="text-red-500">*</span></label>
+                                <input id="phoneNumber" type="tel" value="<%=user.phoneNumber%>"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent" />
+                                <p id="phoneWarning" class="text-red-500 text-sm mt-1"></p>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                                <button id="saveProfileBtn" type="button"
+                                    class="flex-1 bg-black text-white text-center py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                                    SAVE
+                                </button>
+                            </div>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                            <input id="phoneNumber" type="tel" value="+91 <%=user.phoneNumber%>"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
-                            <p id="phoneWarning" class="text-red-500 text-sm mt-1"></p>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row gap-4 pt-6">
-                            <button id="saveProfileBtn" type="button"
-                                class="flex-1 bg-black text-white text-center py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors">
-                                SAVE
-                            </button>
-                        </div>
-
-
                     </div>
                 </main>
+
+                <!-- Crop Modal -->
+                <div id="cropModal"
+                    class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4">
+                    <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                        <div class="flex flex-col h-full">
+                            <!-- Header -->
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Crop Profile Image</h3>
+                                <p class="text-sm text-gray-600 mt-1">Drag to move, scroll to zoom. Square crop will be
+                                    applied.</p>
+                            </div>
+
+                            <!-- Crop Area -->
+                            <div class="flex-1 p-4 overflow-auto">
+                                <div class="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded">
+                                    <img id="cropImage" class="max-w-full max-h-full" alt="Crop preview" />
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="p-4 border-t flex gap-3 justify-end">
+                                <button id="closeModal"
+                                    class="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                                    Cancel
+                                </button>
+                                <button id="cropSaveBtn"
+                                    class="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors">
+                                    Crop & Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
         </div>
-        <%- include("../../views/partials/user/footer")%>
 
-            <script>
-                // Mobile Sidebar Toggle
-                const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
-                const sidebarOverlay = document.getElementById('sidebarOverlay');
-                const userSidebar = document.getElementById('userSidebar');
+        <!-- JS Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-                mobileSidebarBtn.addEventListener('click', () => {
-                    userSidebar.classList.remove('hidden');
-                    userSidebar.classList.add('fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
-                    sidebarOverlay.classList.remove('hidden');
-                });
+        <script>
+            let cropper;
+            let uploadedImageUrl = "<%= user.profilePhoto || '' %>";
 
-                sidebarOverlay.addEventListener('click', () => {
-                    userSidebar.classList.add('hidden');
-                    userSidebar.classList.remove('fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
-                    sidebarOverlay.classList.add('hidden');
+            const input = document.getElementById("profileImageInput");
+            const cropModal = document.getElementById("cropModal");
+            const cropImage = document.getElementById("cropImage");
+            const previewImage = document.getElementById("profilePreview");
+            const cropSaveBtn = document.getElementById("cropSaveBtn");
+            const closeModal = document.getElementById("closeModal");
+            const saveProfileBtn = document.getElementById("saveProfileBtn");
+            const fullNameInput = document.getElementById("fullName");
+            const phoneNumberInput = document.getElementById("phoneNumber");
+            const nameWarning = document.getElementById("nameWarning");
+            const phoneWarning = document.getElementById("phoneWarning");
 
-                    // Restore desktop visibility
-                    if (window.innerWidth >= 1024) {
-                        userSidebar.classList.remove('hidden');
+            // Validation Functions
+            const validateFullName = (name) => {
+                nameWarning.textContent = "";
+
+                if (!name || name.trim().length === 0) {
+                    nameWarning.textContent = "Full name is required";
+                    return false;
+                }
+
+                if (name.trim().length < 2) {
+                    nameWarning.textContent = "Name must be at least 2 characters long";
+                    return false;
+                }
+
+                if (name.trim().length > 50) {
+                    nameWarning.textContent = "Name must not exceed 50 characters";
+                    return false;
+                }
+
+                if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
+                    nameWarning.textContent = "Name should only contain letters and spaces";
+                    return false;
+                }
+
+                return true;
+            };
+
+            const validatePhoneNumber = (phone) => {
+                phoneWarning.textContent = "";
+
+                if (!phone || phone.trim().length === 0) {
+                    phoneWarning.textContent = "Phone number is required";
+                    return false;
+                }
+
+                // Remove spaces and special characters for validation
+                const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+
+                if (!/^\d{10}$/.test(cleanPhone)) {
+                    phoneWarning.textContent = "Phone number must be exactly 10 digits";
+                    return false;
+                }
+
+                return true;
+            };
+
+            // Real-time validation
+            fullNameInput.addEventListener('blur', () => {
+                validateFullName(fullNameInput.value);
+            });
+
+            fullNameInput.addEventListener('input', () => {
+                if (nameWarning.textContent) {
+                    validateFullName(fullNameInput.value);
+                }
+            });
+
+            phoneNumberInput.addEventListener('blur', () => {
+                validatePhoneNumber(phoneNumberInput.value);
+            });
+
+            phoneNumberInput.addEventListener('input', () => {
+                if (phoneWarning.textContent) {
+                    validatePhoneNumber(phoneNumberInput.value);
+                }
+            });
+
+            // Modal functions
+            const openModal = () => {
+                cropModal.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+            };
+
+            const closeModalFn = () => {
+                cropModal.classList.add("hidden");
+                document.body.style.overflow = "";
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                cropImage.src = "";
+                input.value = ""; // Reset file input
+            };
+
+            // Image selection
+            input.addEventListener("change", (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire("Error", "Please select a valid image file", "error");
+                    return;
+                }
+
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire("Error", "Image size should not exceed 5MB", "error");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    cropImage.src = evt.target.result;
+                    openModal();
+
+                    // Wait for image to load before initializing cropper
+                    cropImage.onload = () => {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+
+                        cropper = new Cropper(cropImage, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            responsive: true,
+                            background: true,
+                            autoCropArea: 1,
+                            movable: true,
+                            zoomable: true,
+                            rotatable: false,
+                            scalable: true,
+                            cropBoxResizable: true,
+                            cropBoxMovable: true,
+                            dragMode: 'move',
+                            center: true,
+                            highlight: true,
+                            guides: true,
+                            minContainerWidth: 300,
+                            minContainerHeight: 300,
+                        });
+                    };
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Cancel button
+            closeModal.addEventListener("click", (e) => {
+                e.preventDefault();
+                closeModalFn();
+            });
+
+            // Crop & upload to Cloudinary
+            cropSaveBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                if (!cropper) return;
+
+                // Show loading
+                Swal.fire({
+                    title: 'Uploading...',
+                    text: 'Please wait while we upload your image',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
                 });
 
-                // Handle window resize
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth >= 1024) {
-                        userSidebar.classList.remove('hidden', 'fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
-                        sidebarOverlay.classList.add('hidden');
-                    }
-                });
-            </script>
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const saveBtn = document.getElementById("saveProfileBtn");
-
-                    saveBtn.addEventListener("click", async () => {
-                        const fullName = document.getElementById("fullName").value.trim();
-                        const phoneNumber = document.getElementById("phoneNumber").value.trim().split(' ')[1];
-                        document.getElementById("nameWarning").innerText = "";
-                        document.getElementById("phoneWarning").innerText = "";
-                        let isValid = true;
-                        if (!fullName) {
-                            document.getElementById("nameWarning").innerText = "Full Name cannot be left blank";
-                            isValid = false;
-                        } else if (!/^[A-Za-z\s]+$/.test(fullName)) {
-                            document.getElementById("nameWarning").innerText = "Full Name should contain only letters";
-                            isValid = false;
-                        }
-                        if (!phoneNumber) {
-                            document.getElementById("phoneWarning").innerText = "Phone number cannot be left blank";
-                            isValid = false;
-                        } else if (!/^[6-9]\d{9}$/.test(phoneNumber)) {
-                            document.getElementById("phoneWarning").innerText = "Enter a valid 10-digit phone number";
-                            isValid = false;
-                        }
-                        if (!isValid) return;
-                        const formData = { fullName, phoneNumber };
-                        try {
-                            const res = await fetch("/editProfile", {
-                                method: "PUT",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(formData),
-                            })
-                            const data = await res.json();
-
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Profile updated!",
-                                    text: "Your profile has been successfully updated.",
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "Ok",
-                                }).then(() => {
-                                    window.location.href = "/profile"; 
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: "warning",
-                                    title: "Profile not updated!",
-                                    text: data.message || "Your profile has been successfully updated.",
-                                    confirmButtonColor: "#3085d6",
-                                });
-                            }
-                        } catch (error) {
-                            console.error("Error updating the profile", error);
-                            Swal.fire({
-                                icon: "error",
-                                title: "Server Error.",
-                                text: "Unable to connect to the server. Please try again later.",
-                                confirmButtonColor: "#3085d6",
-                            });
-                        }
+                try {
+                    // Get cropped canvas (square)
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 800,
+                        height: 800,
+                        imageSmoothingQuality: 'high'
                     });
+
+                    // Convert to blob
+                    const blob = await new Promise((resolve) => {
+                        canvas.toBlob(resolve, "image/jpeg", 0.9);
+                    });
+
+                    // Upload to Cloudinary
+                    const formData = new FormData();
+                    formData.append("file", blob);
+                    formData.append("upload_preset", "product_upload");
+                    formData.append("cloud_name", "dmx7sia5q");
+
+                    const response = await fetch("https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Upload failed");
+                    }
+
+                    const data = await response.json();
+                    uploadedImageUrl = data.secure_url;
+                    previewImage.src = uploadedImageUrl;
+
+                    closeModalFn();
+                    Swal.fire("Success!", "Image uploaded successfully", "success");
+                } catch (err) {
+                    console.error("Cloudinary upload failed:", err);
+                    Swal.fire("Error", "Image upload failed. Please try again.", "error");
+                }
+            });
+
+            // Save profile
+            saveProfileBtn.addEventListener("click", async () => {
+                const fullName = fullNameInput.value.trim();
+                const phoneNumber = phoneNumberInput.value.trim();
+
+                // Validate all fields
+                const isNameValid = validateFullName(fullName);
+                const isPhoneValid = validatePhoneNumber(phoneNumber);
+
+                if (!isNameValid || !isPhoneValid) {
+                    Swal.fire("Validation Error", "Please fix the errors before saving", "warning");
+                    return;
+                }
+
+                // Show loading
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait while we update your profile',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
-            </script>
 
+                try {
+                    const response = await fetch("/editProfile", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            fullName,
+                            phoneNumber,
+                            profileImage: uploadedImageUrl || "<%= user.profileImage || '' %>",
+                        }),
+                    });
 
+                    const resData = await response.json();
+
+                    if (resData.success) {
+                        Swal.fire("Success", "Profile updated successfully!", "success").then(() => {
+                            location.reload();
+                        }).then(() => {
+                            window.location.href = '/profile';
+                        })
+                    } else {
+                        Swal.fire("Error", resData.message || "Profile update failed!", "error");
+                    }
+                } catch (err) {
+                    console.error("Error updating profile:", err);
+                    Swal.fire("Error", "An unexpected error occurred. Please try again.", "error");
+                }
+            });
+        </script>
+
+        <style>
+            .cropper-container {
+                max-width: 100% !important;
+                max-height: 100% !important;
+            }
+
+            .cropper-view-box,
+            .cropper-face {
+                border-radius: 0;
+            }
+
+            #cropImage {
+                max-width: 100%;
+                display: block;
+            }
+        </style>
 </body>
 
 </html>
