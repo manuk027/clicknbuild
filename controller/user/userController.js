@@ -533,7 +533,6 @@ const loadProductDetails = async (req, res) => {
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
         const prodId = req.query.id;
-        console.log(prodId);
         const product = await Product.findOne({ _id: prodId, isListed: true }).populate({ path: "category", match: { isListed: true }, select: "name isListed" }).populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
         if (!product || !product.brand || !product.category) {
             return res.redirect("/pageNotFound");
@@ -1045,53 +1044,9 @@ const deleteAddress = async (req, res) => {
 };
 
 
-const loadCart = async (req, res) => {
-    try {
-        const userId = req.user?._id || req.session?.user
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.redirect('/login');
-        }
-        const cart = await Cart.find({ userId })
-            .populate({
-                path: "items.productId",
-                populate: { path: "brand", model: "Brand", select: "name" }
-            })
-            .exec();
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        return res.render('cart', { peripheral, component, user, breadcrumbs: "Cart", cart });
-    } catch (error) {
-        console.error("Error loading  the cart page:", error);
-        return res.redirect('/pageNotFound');
-    }
-};
 
 
-const loadWishlist = async (req, res) => {
-    try {
-        const userId = req.user?._id || req.session?.user
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.redirect('/login');
-        }
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        return res.render('wishlist', { peripheral, component, user, breadcrumbs: "Wishlist" });
-    } catch (error) {
-        console.error("Error loading the wishlist:", error);
-        return res.redirect('/pageNotFound');
-    }
-}
 
-
-const addToWishlist = async(req, res)=>{
-    try {
-        
-    } catch (error) {
-        
-    }
-}
 
 
 export const addToCart = async (req, res) => {
@@ -1134,7 +1089,6 @@ export const addToCart = async (req, res) => {
             existingItem.quantity = newQuantity;
             existingItem.totalPrice = existingItem.price * existingItem.quantity;
             existingItem.price = variant.offer
-            variant.quantity -= Number(quantity);
         } else {
             cart.items.push({
                 productId: new mongoose.Types.ObjectId(productId),
@@ -1143,7 +1097,6 @@ export const addToCart = async (req, res) => {
                 price: variant.offer,
                 totalPrice: variant.offer * quantity,
             });
-            variant.quantity -= Number(quantity);
         }
         product.markModified('variants');
         cart.totalCartValue = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
@@ -1158,13 +1111,6 @@ export const addToCart = async (req, res) => {
 
 
 
-const emptyCart = async (req, res) => {
-    try {
-
-    } catch (error) {
-        console.error("Error emptying the cart : ", error);
-    }
-}
 
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, loadCart, loadWishlist, addToWishlist, addToCart, emptyCart };
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, addToCart,  };

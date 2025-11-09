@@ -36,8 +36,20 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.5.0"
-  }
+    "globals": "^16.5.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manuk027/clicknbuild.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/manuk027/clicknbuild/issues"
+  },
+  "homepage": "https://github.com/manuk027/clicknbuild#readme"
 }

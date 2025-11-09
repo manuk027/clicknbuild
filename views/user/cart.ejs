@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>clickNbuild</title>
-
+<link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/uplƒoad/v1761540715/logo_dtmtfn.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -73,15 +73,16 @@
 
                                 <div class="flex items-center gap-4">
                                     <div class="flex items-center border border-gray-300 rounded">
-                                        <button onclick="decrementQuantity(<%=i%>)"
+                                        <button onclick="decrement('<%=cart[i].variantId._id%>',  <%= i %>)"
                                             class="px-4 py-2 hover:bg-gray-100">−</button>
                                         <input type="number" value="<%= cart[i].quantity %>" min="1" readonly
-                                            class="w-16 text-center border-x border-gray-300 py-2" id="qty-<%= i %>">
-                                        <button onclick="incrementQuantity(<%= i %>)"
+                                            id="qty-<%= i %>" class="w-16 text-center border-x border-gray-300 py-2" />
+                                        <button onclick="increment('<%=cart[i].variantId._id%>',  <%= i %>)"
                                             class="px-4 py-2 bg-black text-white hover:bg-gray-800">+</button>
                                     </div>
 
-                                    <button onclick="removeItem(<%= i %>)"
+                                    <button
+                                        onclick="removeItem('<%=cart[i].productId._id%>', '<%=cart[i].variantId._id%>')"
                                         class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
                                         Remove
                                     </button>
@@ -151,17 +152,6 @@
                                     }
                                 }
 
-                                function removeItem(id) {
-                                    const item = document.querySelector(`[data-id="${id}"]`);
-                                    item.style.opacity = '0';
-                                    item.style.transform = 'translateX(100px)';
-                                    item.style.transition = 'all 0.3s ease-out';
-                                    setTimeout(() => {
-                                        item.remove();
-                                        updateTotal();
-                                        updateCartCount();
-                                    }, 300);
-                                }
 
                                 function updateTotal() {
                                     const items = document.querySelectorAll('.cart-item');
@@ -188,13 +178,13 @@
                                 async function emptyCart() {
                                     // SweetAlert confirmation
                                     const result = await Swal.fire({
-                                        title: "Are you sure?",
+                                        title: "Empty Cart!",
                                         text: "Your entire cart will be emptied!",
                                         icon: "warning",
                                         showCancelButton: true,
                                         confirmButtonColor: "#3085d6",
                                         cancelButtonColor: "#d33",
-                                        confirmButtonText: "Yes, empty it!",
+                                        confirmButtonText: "Empty cart",
                                         cancelButtonText: "Cancel",
                                     });
 
@@ -232,10 +222,101 @@
                                 }
 
 
+                                async function removeItem(productId, variantId) {
+                                   
+                                    const result = await Swal.fire({
+                                        title: "Remove!",
+                                        text: "Product wil be removed from the cart.",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                        confirmButtonColor: "#3085d6",
+                                        cancelButtonColor: "#d33",
+                                        confirmButtonText: "Remove",
+                                        cancelButtonText: "Cancel",
+                                    });
 
-                                function checkout() {
-                                    alert('Proceeding to checkout...');
+                                    if (result.isConfirmed) {
+                                        try {
+                                            const response = await fetch("/cart/remove", {
+                                                method: "DELETE",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                },
+                                                body: JSON.stringify({
+                                                    productId, variantId
+                                                })
+                                            });
+                                            const data = await response.json();
+                                            if (response.ok) {
+                                                Swal.fire({
+                                                    title: "Product Removed!",
+                                                    text: data.message || "Item has been removed.",
+                                                    icon: "success",
+                                                    confirmButtonColor: "#3085d6",
+                                                }).then(() => window.location.reload());
+                                            } else {
+                                                Swal.fire({
+                                                    title: "Error!",
+                                                    text: data.message || "Failed to remove item from the cart. Please try again.",
+                                                    icon: "error",
+                                                    confirmButtonColor: "#3085d6",
+                                                });
+                                            }
+                                        } catch (error) {
+                                            console.error("Error emptying cart:", error);
+                                            Swal.fire({
+                                                title: "Error!",
+                                                text: "Something went wrong while emptying your cart.",
+                                                icon: "error",
+                                                confirmButtonColor: "#3085d6",
+                                            });
+                                        }
+                                    }
                                 }
+
+                                async function increment(variantId, index) {
+                                    try {
+                                        const response = await fetch(`/cart/count/${variantId}`, {
+                                            method: "PATCH",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                                action: "inc"
+                                            })
+                                        });
+                                        const data = await response.json();
+                                        if (response.ok) {
+                                            document.querySelector(`#qty-${index}`).value = data.quantity;
+                                        }
+                                    } catch (error) {
+                                        console.error("Error incrementing product count:", error);
+                                    }
+                                };
+
+                                async function decrement(variantId, index) {
+                                    try {
+                                        const response = await fetch(`/cart/count/${variantId}`, {
+                                            method: "PATCH",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                                action: "dec"
+                                            })
+                                        });
+                                        const data = await response.json();
+                                        if (response.ok) {
+                                            if (data.removed) {
+                                                window.location.reload();
+                                            } else {
+                                                document.querySelector(`#qty-${index}`).value = data.quantity;
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error("Error incrementing product count:", error);
+                                    }
+                                };
 
 
                             </script>

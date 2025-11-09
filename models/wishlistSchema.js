@@ -6,7 +6,8 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 const itemSchema = new Schema({
-    productId: { type: Schema.Types.ObjectId, ref: "Product", required: true, },
+    productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    variantId: { type: Schema.Types.ObjectId, required: true, },
     addedAt: { type: Date, default: Date.now }
 })
 

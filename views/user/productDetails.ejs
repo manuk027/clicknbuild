@@ -178,7 +178,8 @@
                                         </button>
 
 
-                                        <button
+                                        <button id="wishlist-btn"
+                                            onclick="addToWishlist('<%=product._id%>', '<%=product.variants[index]._id%>')"
                                             class="sm:w-auto p-3 border-2 border-gray-300 rounded-full hover:border-red-500 hover:text-red-500 transition">
                                             <i class="far fa-heart text-lg"></i>
                                         </button>
@@ -468,7 +469,7 @@
                     document.addEventListener("DOMContentLoaded", () => {
                         const addToCartBtn = document.getElementById("add-to-cart-btn");
 
-                        if (!addToCartBtn) return; // Safety check
+                        if (!addToCartBtn) return;
 
                         addToCartBtn.addEventListener("click", async (event) => {
                             event.preventDefault();
@@ -482,12 +483,11 @@
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({ productId, variantId, quantity: 1 }),
-                                    credentials: "include", // ✅ always include cookies/session
+                                    credentials: "include",
                                 });
 
                                 const contentType = response.headers.get("content-type");
 
-                                // ⚠️ Handle non-JSON (e.g. login page HTML)
                                 if (!contentType || !contentType.includes("application/json")) {
                                     await Swal.fire({
                                         icon: "warning",
@@ -520,8 +520,6 @@
                                         confirmButtonColor: "#000000",
                                         confirmButtonText: "OK",
                                     });
-
-                                    // ✅ Redirect to homepage (or wherever you want)
                                     window.location.reload();
                                 } else {
                                     await Swal.fire({
@@ -533,7 +531,7 @@
                                 }
 
                             } catch (error) {
-                                console.error("❌ Error adding to cart:", error);
+                                console.error(" Error adding to cart:", error);
                                 await Swal.fire({
                                     icon: "error",
                                     title: "Server Error",
@@ -544,6 +542,92 @@
 
                         });
                     });
+                </script>
+                <script>
+                    async function addToWishlist(productId, variantId, index) {
+                        try {
+                            const response = await fetch("/wishlist/add", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ productId, variantId }),
+                                credentials: "include",
+                            });
+
+                            const contentType = response.headers.get("content-type");
+
+                            // If not logged in, backend likely returned HTML
+                            if (!contentType || !contentType.includes("application/json")) {
+                                await Swal.fire({
+                                    icon: "warning",
+                                    title: "Login Required",
+                                    text: "Please log in to add items to your wishlist.",
+                                    confirmButtonColor: "#000000",
+                                });
+                                window.location.href = "/login";
+                                return;
+                            }
+
+                            const data = await response.json();
+
+                            if (response.status === 401) {
+                                await Swal.fire({
+                                    icon: "warning",
+                                    title: "Login Required",
+                                    text: "Please log in to continue shopping.",
+                                    confirmButtonColor: "#000000",
+                                });
+                                window.location.href = "/login";
+                                return;
+                            }
+
+                            if (data.success) {
+                                if (data.added) {
+                                    await Swal.fire({
+                                        icon: "success",
+                                        title: "Added to wishlist!",
+                                        text: data.message || "Product added to wishlist successfully.",
+                                        confirmButtonColor: "#000000",
+                                    });
+                                    const button = document.getElementById('wishlist-btn');
+                                    button.classList.remove('border-2', 'border-gray-300', 'hover:border-red-500', 'hover:text-red-500');
+                                    button.classList.add('bg-red-500', 'text-white');
+                                    const icon = button.querySelector('i');
+                                    icon.classList.remove('far');
+                                    icon.classList.add('fas');
+                                } else {
+                                    await Swal.fire({
+                                        icon: "warning",
+                                        title: "Removed from wishlist!",
+                                        text: data.message || "Product removed from wishlist successfully.",
+                                        confirmButtonColor: "#000000",
+                                    });
+                                    const button = document.getElementById('wishlist-btn');
+                                    button.classList.remove('bg-red-500', 'text-white');
+                                    button.classList.add('border-2', 'border-gray-300', 'hover:border-red-500', 'hover:text-red-500');
+
+                                    const icon = button.querySelector('i');
+                                    icon.classList.remove('fas');
+                                    icon.classList.add('far');
+                                }
+                            } else {
+                                await Swal.fire({
+                                    icon: "warning",
+                                    title: "Could Not Add Product",
+                                    text: data.message || "Something went wrong. Please try again.",
+                                    confirmButtonColor: "#000000",
+                                });
+                            }
+
+                        } catch (error) {
+                            console.error(" Error adding to wishlist:", error);
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Server Error",
+                                text: "Unable to connect to the server. Please try again later.",
+                                confirmButtonColor: "#000000",
+                            });
+                        }
+                    };
                 </script>
 
 
