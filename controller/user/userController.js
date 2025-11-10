@@ -10,7 +10,7 @@ import bcrypt from "bcryptjs";
 import Address from "../../models/addressSchema.js";
 import mongoose from "mongoose";
 import Cart from "../../models/cartSchema.js"
-
+import Wishlist from '../../models/wishlistSchema.js';
 
 
 
@@ -385,7 +385,6 @@ const loadPeripheral = async (req, res) => {
 
 
 
-
 const loadComponent = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
@@ -435,7 +434,6 @@ const loadComponent = async (req, res) => {
 
 
 
-
 const loadAllProducts = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
@@ -443,7 +441,8 @@ const loadAllProducts = async (req, res) => {
         const selectedCategories = req.query.category;
         const sort = req.query.sort;
         const sortOption = getSortOption(sort);
-
+        const wishlist = await Wishlist.findOne({ userId });
+        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
         const filter = { isListed: true };
 
         if (selectedBrands) {
@@ -458,13 +457,12 @@ const loadAllProducts = async (req, res) => {
                 : selectedCategories;
         }
 
-        // ✅ Populate only listed brands/categories
         const allProducts = (
             await Product.find(filter)
                 .populate({ path: "brand", match: { isListed: true }, select: "name" })
                 .populate({ path: "category", match: { isListed: true }, select: "name" })
                 .sort(sortOption)
-        ).filter(p => p.brand && p.category); // ✅ Remove products with unlisted brand/category
+        ).filter(p => p.brand && p.category);
 
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
@@ -504,7 +502,7 @@ const loadAllProducts = async (req, res) => {
                 selectedCategories: selectedCategoriesArray,
             });
         }
-
+        console.log(wish);
         res.render("productPages", {
             product: allProducts,
             peripheral: peripherals,
@@ -515,13 +513,13 @@ const loadAllProducts = async (req, res) => {
             filterCategory,
             selectedBrands: selectedBrandsArray,
             selectedCategories: selectedCategoriesArray,
+            wish,
         });
     } catch (error) {
         console.error("Error loading all products:", error);
         return res.redirect("/pageNotFound");
     }
 };
-
 
 
 
@@ -532,6 +530,8 @@ const loadProductDetails = async (req, res) => {
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
+        const wishlist = await Wishlist.findOne({ userId });
+        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
         const prodId = req.query.id;
         const product = await Product.findOne({ _id: prodId, isListed: true }).populate({ path: "category", match: { isListed: true }, select: "name isListed" }).populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
         if (!product || !product.brand || !product.category) {
@@ -542,13 +542,13 @@ const loadProductDetails = async (req, res) => {
             .populate({ path: "category", match: { isListed: true }, select: "name" })
             .limit(4)
             .then(prods => prods.filter(p => p.brand && p.category));
-        return res.render("productDetails", { product, peripheral: peripherals, component: components, user: userData, recommendedProducts, index: variant, });
+        console.log(wish);
+        return res.render("productDetails", { product, peripheral: peripherals, component: components, user: userData, recommendedProducts, index: variant, wish });
     } catch (error) {
         console.error("Error loading the product details page:", error);
         return res.redirect("/pageNotFound");
     }
 };
-
 
 
 
@@ -705,7 +705,7 @@ const loadForgotPassword = async (req, res) => {
         console.error("Error loading the forgot password page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -727,7 +727,7 @@ const sendOtp = async (req, res) => {
         console.error("Error sending the otp for password change: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -749,7 +749,7 @@ const verify = async (req, res) => {
         console.error("Error verifying the otp for password change: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -762,7 +762,7 @@ const loadUpdatePassword = async (req, res) => {
         console.error("Error loading the otp change page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -785,6 +785,7 @@ const updatePassword = async (req, res) => {
 };
 
 
+
 const loadProfilePage = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
@@ -800,7 +801,9 @@ const loadProfilePage = async (req, res) => {
         console.error("Error loading the profile page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
+
+
 
 const loadEditProfile = async (req, res) => {
     try {
@@ -817,7 +820,9 @@ const loadEditProfile = async (req, res) => {
         console.error("Error loading the edit profile page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
+
+
 
 const updateProfile = async (req, res) => {
     try {
@@ -837,6 +842,8 @@ const updateProfile = async (req, res) => {
     }
 };
 
+
+
 const loadEditPassword = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
@@ -851,7 +858,9 @@ const loadEditPassword = async (req, res) => {
         console.error("Error loading the editpassword page.");
         return res.render('/pageNotFound');
     }
-}
+};
+
+
 
 const editPassword = async (req, res) => {
     try {
@@ -875,7 +884,9 @@ const editPassword = async (req, res) => {
         console.error("Error updating the profile:", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
+
+
 
 const loadAdresses = async (req, res) => {
     try {
@@ -893,7 +904,9 @@ const loadAdresses = async (req, res) => {
         console.error("Error loading the address page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
+
+
 
 const loadAddAdresses = async (req, res) => {
     try {
@@ -910,7 +923,7 @@ const loadAddAdresses = async (req, res) => {
         console.error("Error loading the address adding page: ", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -961,6 +974,8 @@ const addAddress = async (req, res) => {
     }
 };
 
+
+
 const loadEditAddress = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
@@ -978,7 +993,9 @@ const loadEditAddress = async (req, res) => {
         console.error("Error loading  the address editing page:", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
+
+
 
 const editAddress = async (req, res) => {
     try {
@@ -1046,71 +1063,101 @@ const deleteAddress = async (req, res) => {
 
 
 
-
-
-
 export const addToCart = async (req, res) => {
-    try {
-        const userId = req.user?._id || req.session.user;
-        if (!userId) {
-            return res.status(401).json({ success: false, message: "User not logged in" });
-        }
-        const { productId, variantId, quantity } = req.body;
-        if (!productId || !variantId || !quantity) {
-            return res.status(400).json({ success: false, message: "Invalid product." })
-        }
-        const product = await Product.findById(productId).populate("category").populate("brand");
-        if (!product) {
-            return res.status(400).json({ success: false, message: "Product not found." });
-        }
-        const variant = product.variants.id(variantId);
-        if (!variant) {
-            return res.status(400).json({ success: false, message: "Variant not found." })
-        }
-        if (!product.isListed || !product.category?.isListed || !product.brand?.isListed) {
-            return res.status(400).json({ success: false, message: "This product or its brand/category is unavailable for purchase." })
-        }
-        if (variant.quantity <= 0) {
-            return res.status(400).json({ success: false, message: "This product is currently out of stock." })
-        }
-        let cart = await Cart.findOne({ userId });
-        if (!cart) {
-            cart = new Cart({ userId, items: [], totalcartValue: 0 });
-        }
-        const existingItem = cart.items.find((item) => item.productId?.toString() === productId.toString() && item.variantId?.toString() === variantId.toString());
-        if (existingItem) {
-            const newQuantity = existingItem.quantity + Number(quantity);
-            if (newQuantity > variant.quantity) {
-                return res.status(400).json({ success: false, message: `Only ${variant.quantity} units available in stock.` });
-            }
-            if (existingItem.maxPerUser && newQuantity > existingItem.maxPerUser) {
-                return res.status(400).json({ success: false, message: `You can only buy ${existingItem.maxPerUser} units of this item.` })
-            }
-            existingItem.quantity = newQuantity;
-            existingItem.totalPrice = existingItem.price * existingItem.quantity;
-            existingItem.price = variant.offer
-        } else {
-            cart.items.push({
-                productId: new mongoose.Types.ObjectId(productId),
-                variantId: new mongoose.Types.ObjectId(variantId),
-                quantity: Number(quantity),
-                price: variant.offer,
-                totalPrice: variant.offer * quantity,
-            });
-        }
-        product.markModified('variants');
-        cart.totalCartValue = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-        await product.save();
-        await cart.save();
-        return res.status(200).json({ success: true, message: existingItem ? "Product quantitiy updated in cart" : "Product added to cart successfully", cart })
-    } catch (error) {
-        console.error("Error adding product to cart:", error);
-        return res.status(500).json({ success: false, message: "Internal server error while adding product to cart." })
+  try {
+    const userId = req.user?._id || req.session.user;
+    if (!userId) return errorResponse(res, 401, "User not logged in.");
+
+    const { productId, variantId, quantity } = req.body;
+    if (!productId || !variantId || !quantity)
+      return errorResponse(res, 400, "Invalid product details.");
+
+    if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId))
+      return errorResponse(res, 400, "Invalid ID format.");
+
+    const product = await Product.findById(productId)
+      .populate("category")
+      .populate("brand");
+
+    if (!product) return errorResponse(res, 404, "Product not found.");
+
+    const variant = product.variants.id(variantId);
+    if (!variant) return errorResponse(res, 404, "Variant not found.");
+
+    if (!product.isListed || !product.category?.isListed || !product.brand?.isListed)
+      return errorResponse(res, 400, "This product or its brand/category is unavailable.");
+
+    if (variant.quantity <= 0)
+      return errorResponse(res, 400, "This product is currently out of stock.");
+
+    let cart = await Cart.findOne({ userId }) || new Cart({ userId, items: [], totalCartValue: 0 });
+
+    const existingItem = cart.items.find(
+      (item) =>
+        item.productId?.toString() === productId.toString() &&
+        item.variantId?.toString() === variantId.toString()
+    );
+
+    const addedQuantity = Number(quantity);
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + addedQuantity;
+
+      // ✅ Check against available stock
+      if (newQuantity > variant.quantity)
+        return errorResponse(res, 400, `Only ${variant.quantity} units available in stock.`);
+
+      // ✅ Check against max limit in cart item
+      if (newQuantity > existingItem.max)
+        return errorResponse(
+          res,
+          400,
+          `You can only add up to ${existingItem.max} units of this product.`
+        );
+
+      existingItem.quantity = newQuantity;
+      existingItem.subTotal = variant.offer * newQuantity;
+    } else {
+      // ✅ New item addition
+      const newItem = {
+        productId,
+        variantId,
+        quantity: addedQuantity,
+        subTotal: variant.offer * addedQuantity,
+        max: 5, // default limit per item (can adjust per product logic if needed)
+      };
+
+      if (addedQuantity > variant.quantity)
+        return errorResponse(res, 400, `Only ${variant.quantity} units available in stock.`);
+
+      if (addedQuantity > newItem.max)
+        return errorResponse(
+          res,
+          400,
+          `You can only add up to ${newItem.max} units of this product.`
+        );
+
+      cart.items.push(newItem);
     }
+
+    // ✅ Recalculate total
+    cart.totalCartValue = cart.items.reduce((sum, item) => sum + item.subTotal, 0);
+    await cart.save();
+
+    return res.status(200).json({
+      success: true,
+      message: existingItem
+        ? "Product quantity updated in cart."
+        : "Product added to cart successfully.",
+      cart,
+    });
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    return errorResponse(res, 500, "Internal server error while adding product to cart.");
+  }
 };
 
 
 
 
-
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, addToCart,  };
+export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, addToCart, };

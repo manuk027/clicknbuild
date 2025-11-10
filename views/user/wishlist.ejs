@@ -32,10 +32,10 @@
                         </span>)
                     </h1>
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <button id="move-all-btn"
+                        <!-- <button id="move-all-btn"
                             class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-400 hover:text-white hover:border transition text-sm sm:text-base">
                             Move all to cart
-                        </button>
+                        </button> -->
                         <button id="empty-wishlist-btn" onclick="emptyWishlist()"
                             class="px-4 py-2 bg-black text-white hover:border  hover:text-black rounded hover:bg-white transition text-sm sm:text-base">
                             Empty my Wishlist
@@ -60,8 +60,10 @@
                                 </div>
 
                                 <!-- Product Title -->
-                                <p class="text-base sm:text-lg md:text-xl font-semibold mb-2 text-center text-gray-800 truncate w-full px-2">
-                                     <%=wishlist.items[i].productId.brand.name%> <%=wishlist.items[i].productId.model%>
+                                <p
+                                    class="text-base sm:text-lg md:text-xl font-semibold mb-2 text-center text-gray-800 truncate w-full px-2">
+                                    <%=wishlist.items[i].productId.brand.name%>
+                                        <%=wishlist.items[i].productId.model%>
                                 </p>
 
                                 <!-- Spacer to push buttons to bottom -->
@@ -70,11 +72,13 @@
                                 <!-- Buttons -->
                                 <div class="w-full space-y-2 mt-auto">
                                     <button
-                                        class="w-full py-2 sm:py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 transition text-sm sm:text-base md:text-lg font-medium">
+                                        class="add-to-cart-btn w-full py-2 sm:py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 transition text-sm sm:text-base md:text-lg font-medium"
+                                        data-product-id="<%= wishlist.items[i].productId._id %>"
+                                        data-variant-id="<%= wishlist.items[i].variantId %>">
                                         Add to Cart
                                     </button>
 
-                                    <button 
+                                    <button
                                         onclick="addToWishlist('<%= wishlist.items[i].productId._id %>', '<%=wishlist.items[i].variantId%>')"
                                         class="w-full py-2 sm:py-2.5 bg-[#2E2E2E] text-white rounded-xl hover:bg-white hover:text-black border border-transparent hover:border-gray-400 transition text-sm sm:text-base md:text-lg font-medium">
                                         Remove
@@ -233,6 +237,87 @@
                                         }
                                     }
                                 }
+                            </script>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    // Select all buttons with the class
+                                    const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+
+                                    // Loop through each button and attach click event
+                                    addToCartButtons.forEach((button) => {
+                                        button.addEventListener("click", async (event) => {
+                                            event.preventDefault();
+
+                                            const productId = button.dataset.productId;
+                                            const variantId = button.dataset.variantId;
+
+                                            console.log("🛒 Sending to backend:", { productId, variantId });
+
+                                            try {
+                                                const response = await fetch("/cart/add", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ productId, variantId, quantity: 1 }),
+                                                    credentials: "include",
+                                                });
+
+                                                const contentType = response.headers.get("content-type");
+
+                                                // If not logged in, backend likely returned HTML
+                                                if (!contentType || !contentType.includes("application/json")) {
+                                                    await Swal.fire({
+                                                        icon: "warning",
+                                                        title: "Login Required",
+                                                        text: "Please log in to add items to your cart.",
+                                                        confirmButtonColor: "#000000",
+                                                    });
+                                                    window.location.href = "/login";
+                                                    return;
+                                                }
+
+                                                const data = await response.json();
+
+                                                if (response.status === 401) {
+                                                    await Swal.fire({
+                                                        icon: "warning",
+                                                        title: "Login Required",
+                                                        text: "Please log in to continue shopping.",
+                                                        confirmButtonColor: "#000000",
+                                                    });
+                                                    window.location.href = "/login";
+                                                    return;
+                                                }
+
+                                                if (data.success) {
+                                                    await Swal.fire({
+                                                        icon: "success",
+                                                        title: "Added to Cart!",
+                                                        text: data.message || "Product added to cart successfully.",
+                                                        confirmButtonColor: "#000000",
+                                                    });
+                                                    // Reload to show updated cart count, etc.
+                                                    window.location.reload();
+                                                } else {
+                                                    await Swal.fire({
+                                                        icon: "warning",
+                                                        title: "Could Not Add Product",
+                                                        text: data.message || "Something went wrong. Please try again.",
+                                                        confirmButtonColor: "#000000",
+                                                    });
+                                                }
+
+                                            } catch (error) {
+                                                console.error(" Error adding to cart:", error);
+                                                await Swal.fire({
+                                                    icon: "error",
+                                                    title: "Server Error",
+                                                    text: "Unable to connect to the server. Please try again later.",
+                                                    confirmButtonColor: "#000000",
+                                                });
+                                            }
+                                        });
+                                    });
+                                });
                             </script>
 </body>
 

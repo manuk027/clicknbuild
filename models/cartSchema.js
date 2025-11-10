@@ -10,6 +10,7 @@ const itemSchema = new Schema({
     productId: { type: Schema.Types.ObjectId, ref: "Product", required: true, },
     variantId: { type: Schema.Types.ObjectId, required: true, },
     // SKU: { type: String, required: true, },
+    max: { type: Number, default: 5 },
     quantity: { type: Number, default: 1, },
     subTotal: { type: Number, default: 0, },
     addedAt: { type: Date, default: Date.now, }

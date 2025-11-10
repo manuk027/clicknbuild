@@ -95,14 +95,23 @@ export const updateCountService = async (req, res) => {
         if (action === "inc") {
             for (const item of cart.items) {
                 if (item.variantId.toString() === variantId) {
-                    item.quantity++;
-                    count = item.quantity;
-                    await cart.save();
-                    return res.status(200).json({
-                        message: "Quantity updated",
-                        quantity: count,
-                        variantId
-                    });
+                    if (item.quantity < 5) {
+                        item.quantity++;
+                        count = item.quantity;
+                        await cart.save();
+                        return res.status(200).json({
+                            message: "Quantity updated",
+                            quantity: count,
+                            variantId
+                        });
+                    } else {
+                        item.quantity=item.quantity;
+                        return res.status(200).json({
+                            message: "No more units of this product cannot be added.",
+                            quantity: item.quantity,
+                            variantId
+                        });
+                    }
                 }
             }
         }
