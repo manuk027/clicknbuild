@@ -153,6 +153,11 @@
                                         class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium">
                                         APPLY
                                     </button>
+
+                                    <a href="<%=baseRoute%>"
+                                        class="block w-full text-center bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium mt-4">
+                                        CLEAR FILTERS
+                                    </a>
                 </form>
 
                 <!-- Products Section -->
@@ -203,7 +208,6 @@
                                                 class="w-full h-full object-contain transition-transform product-img"
                                                 data-images='<%- JSON.stringify(product[i].images) %>'>
                                         </a>
-                                        <script>console.log(product[i]?.variants[0]?._id.toString());</script>
                                         <button
                                             onclick="addToWishlist('<%= product[i]._id %>', '<%= product[i].variants[0]._id %>', <%= i %>)"
                                             class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition bg-white hover:bg-gray-100">
@@ -305,43 +309,205 @@
                 </div>
             </div>
         </main>
+        <% if (product.length> 0) { %>
+            <div class="flex justify-center m-6">
+                <nav aria-label="Dashboard Pagination">
+                    <ul class="flex items-center space-x-2">
 
-        <%- include("../../views/partials/user/footer") %>
+                        <!-- First Page -->
+                        <% if (current==1) { %>
+                            <li>
+                                <span
+                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                    First
+                                </span>
+                            </li>
+                            <% } else { %>
+                                <li>
+                                    <a href="/shop/?page=1"
+                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                        First
+                                    </a>
+                                </li>
+                                <% } %>
 
-            <script>
-                document.querySelectorAll('button').forEach(btn => {
-                    if (btn.textContent.includes('Add to Cart')) {
-                        btn.addEventListener('click', e => e.preventDefault());
-                    }
-                });
-            </script>
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    // Select all buttons with the class
-                    const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+                                    <!-- Ellipsis before -->
+                                    <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                        <% if (i !==1) { %>
+                                            <li>
+                                                <span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                            </li>
+                                            <% } %>
 
-                    // Loop through each button and attach click event
-                    addToCartButtons.forEach((button) => {
-                        button.addEventListener("click", async (event) => {
-                            event.preventDefault();
+                                                <!-- Page Numbers -->
+                                                <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                                    <% if (i==current) { %>
+                                                        <li>
+                                                            <span
+                                                                class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                                <%= i %>
+                                                            </span>
+                                                        </li>
+                                                        <% } else { %>
+                                                            <li>
+                                                                <a href="/shop/?page=<%= i %>"
+                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                    <%= i %>
+                                                                </a>
+                                                            </li>
+                                                            <% } %>
 
-                            const productId = button.dataset.productId;
-                            const variantId = button.dataset.variantId;
+                                                                <% if (i==Number(current) + 4 && i < pages) { %>
+                                                                    <li>
+                                                                        <span
+                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% } %>
 
-                            console.log("🛒 Sending to backend:", { productId, variantId });
+                                                                            <!-- Last Page -->
+                                                                            <% if (current==pages) { %>
+                                                                                <li>
+                                                                                    <span
+                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                                                                        Last
+                                                                                    </span>
+                                                                                </li>
+                                                                                <% } else { %>
+                                                                                    <li>
+                                                                                        <a href="/shop/?page=<%= pages %>"
+                                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                            Last
+                                                                                        </a>
+                                                                                    </li>
+                                                                                    <% } %>
 
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
+
+
+                <%- include("../../views/partials/user/footer") %>
+
+                    <script>
+                        document.querySelectorAll('button').forEach(btn => {
+                            if (btn.textContent.includes('Add to Cart')) {
+                                btn.addEventListener('click', e => e.preventDefault());
+                            }
+                        });
+                    </script>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            // Select all buttons with the class
+                            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+
+                            // Loop through each button and attach click event
+                            addToCartButtons.forEach((button) => {
+                                button.addEventListener("click", async (event) => {
+                                    event.preventDefault();
+
+                                    const productId = button.dataset.productId;
+                                    const variantId = button.dataset.variantId;
+
+
+                                    try {
+                                        const response = await fetch("/cart/add", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ productId, variantId, quantity: 1 }),
+                                            credentials: "include",
+                                        });
+
+                                        const data = await response.json().catch(() => null); // prevent crash if backend returns HTML
+
+                                        // 🧩 Check login by status, not content-type
+                                        if (response.status === 401 || (data && data.message === "User not logged in.")) {
+                                            await Swal.fire({
+                                                icon: "warning",
+                                                title: "Login Required",
+                                                text: "Please log in to continue shopping.",
+                                                confirmButtonColor: "#000000",
+                                            });
+                                            window.location.href = "/login";
+                                            return;
+                                        }
+
+                                        // ✅ Handle success
+                                        if (response.ok && data?.success) {
+                                            await Swal.fire({
+                                                icon: "success",
+                                                title: "Added to Cart!",
+                                                text: data.message || "Product added to cart successfully.",
+                                                confirmButtonColor: "#000000",
+                                            });
+                                            window.location.reload();
+                                            return;
+                                        }
+
+                                        // ⚠️ Expected user errors (validation, out of stock, etc.)
+                                        if (response.status === 400 || response.status === 404) {
+                                            await Swal.fire({
+                                                icon: "warning",
+                                                title: "Could Not Add Product",
+                                                text: data?.message || "Please check product availability or quantity.",
+                                                confirmButtonColor: "#000000",
+                                            });
+                                            return;
+                                        }
+
+                                        // ❌ Unexpected or server errors
+                                        if (response.status === 500 || !data?.success) {
+                                            await Swal.fire({
+                                                icon: "error",
+                                                title: "Server Error",
+                                                text: data?.message || "Something went wrong while adding to cart.",
+                                                confirmButtonColor: "#000000",
+                                            });
+                                            return;
+                                        }
+                                    } catch (error) {
+                                        console.error("Error adding to cart:", error);
+                                        await Swal.fire({
+                                            icon: "error",
+                                            title: "Network Error",
+                                            text: "Unable to connect to the server. Please try again later.",
+                                            confirmButtonColor: "#000000",
+                                        });
+                                    }
+
+
+                                });
+                            });
+                        });
+                    </script>
+                    <script>
+                        async function addToWishlist(productId, variantId, index) {
                             try {
-                                const response = await fetch("/cart/add", {
+                                const response = await fetch("/wishlist/add", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ productId, variantId, quantity: 1 }),
+                                    body: JSON.stringify({ productId, variantId }),
                                     credentials: "include",
                                 });
 
-                                const data = await response.json().catch(() => null); // prevent crash if backend returns HTML
+                                const contentType = response.headers.get("content-type");
 
-                                // 🧩 Check login by status, not content-type
-                                if (response.status === 401 || (data && data.message === "User not logged in.")) {
+                                // If not logged in, backend likely returned HTML
+                                if (!contentType || !contentType.includes("application/json")) {
+                                    await Swal.fire({
+                                        icon: "warning",
+                                        title: "Login Required",
+                                        text: "Please log in to add items to your wishlist.",
+                                        confirmButtonColor: "#000000",
+                                    });
+                                    window.location.href = "/login";
+                                    return;
+                                }
+
+                                const data = await response.json();
+
+                                if (response.status === 401) {
                                     await Swal.fire({
                                         icon: "warning",
                                         title: "Login Required",
@@ -352,138 +518,53 @@
                                     return;
                                 }
 
-                                // ✅ Handle success
-                                if (response.ok && data?.success) {
-                                    await Swal.fire({
-                                        icon: "success",
-                                        title: "Added to Cart!",
-                                        text: data.message || "Product added to cart successfully.",
-                                        confirmButtonColor: "#000000",
-                                    });
-                                    window.location.reload();
-                                    return;
-                                }
+                                if (data.success) {
+                                    if (data.added) {
+                                        await Swal.fire({
+                                            icon: "success",
+                                            title: "Added to wishlist!",
+                                            text: data.message || "Product added to wishlist successfully.",
+                                            confirmButtonColor: "#000000",
+                                        });
 
-                                // ⚠️ Expected user errors (validation, out of stock, etc.)
-                                if (response.status === 400 || response.status === 404) {
+                                        const heart = document.querySelector(`#qty-${index}`);
+                                        heart.style.fill = "red";
+                                        heart.style.stroke = "none"; // no border when red
+
+                                    } else {
+                                        await Swal.fire({
+                                            icon: "warning",
+                                            title: "Removed from wishlist!",
+                                            text: data.message || "Product removed from wishlist successfully.",
+                                            confirmButtonColor: "#000000",
+                                        });
+
+                                        const heart = document.querySelector(`#qty-${index}`);
+                                        heart.style.fill = "white"; // white heart
+                                        heart.style.stroke = "black"; // black border
+                                    }
+
+
+                                } else {
                                     await Swal.fire({
                                         icon: "warning",
                                         title: "Could Not Add Product",
-                                        text: data?.message || "Please check product availability or quantity.",
+                                        text: data.message || "Something went wrong. Please try again.",
                                         confirmButtonColor: "#000000",
                                     });
-                                    return;
                                 }
 
-                                // ❌ Unexpected or server errors
-                                if (response.status === 500 || !data?.success) {
-                                    await Swal.fire({
-                                        icon: "error",
-                                        title: "Server Error",
-                                        text: data?.message || "Something went wrong while adding to cart.",
-                                        confirmButtonColor: "#000000",
-                                    });
-                                    return;
-                                }
                             } catch (error) {
-                                console.error("Error adding to cart:", error);
+                                console.error(" Error adding to wishlist:", error);
                                 await Swal.fire({
                                     icon: "error",
-                                    title: "Network Error",
+                                    title: "Server Error",
                                     text: "Unable to connect to the server. Please try again later.",
                                     confirmButtonColor: "#000000",
                                 });
                             }
-
-
-                        });
-                    });
-                });
-            </script>
-            <script>
-                async function addToWishlist(productId, variantId, index) {
-                    try {
-                        const response = await fetch("/wishlist/add", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ productId, variantId }),
-                            credentials: "include",
-                        });
-
-                        const contentType = response.headers.get("content-type");
-
-                        // If not logged in, backend likely returned HTML
-                        if (!contentType || !contentType.includes("application/json")) {
-                            await Swal.fire({
-                                icon: "warning",
-                                title: "Login Required",
-                                text: "Please log in to add items to your wishlist.",
-                                confirmButtonColor: "#000000",
-                            });
-                            window.location.href = "/login";
-                            return;
-                        }
-
-                        const data = await response.json();
-
-                        if (response.status === 401) {
-                            await Swal.fire({
-                                icon: "warning",
-                                title: "Login Required",
-                                text: "Please log in to continue shopping.",
-                                confirmButtonColor: "#000000",
-                            });
-                            window.location.href = "/login";
-                            return;
-                        }
-
-                        if (data.success) {
-                            if (data.added) {
-                                await Swal.fire({
-                                    icon: "success",
-                                    title: "Added to wishlist!",
-                                    text: data.message || "Product added to wishlist successfully.",
-                                    confirmButtonColor: "#000000",
-                                });
-
-                                const heart = document.querySelector(`#qty-${index}`);
-                                heart.style.fill = "red";
-                                heart.style.stroke = "none"; // no border when red
-
-                            } else {
-                                await Swal.fire({
-                                    icon: "warning",
-                                    title: "Removed from wishlist!",
-                                    text: data.message || "Product removed from wishlist successfully.",
-                                    confirmButtonColor: "#000000",
-                                });
-
-                                const heart = document.querySelector(`#qty-${index}`);
-                                heart.style.fill = "white"; // white heart
-                                heart.style.stroke = "black"; // black border
-                            }
-
-
-                        } else {
-                            await Swal.fire({
-                                icon: "warning",
-                                title: "Could Not Add Product",
-                                text: data.message || "Something went wrong. Please try again.",
-                                confirmButtonColor: "#000000",
-                            });
-                        }
-
-                    } catch (error) {
-                        console.error(" Error adding to wishlist:", error);
-                        await Swal.fire({
-                            icon: "error",
-                            title: "Server Error",
-                            text: "Unable to connect to the server. Please try again later.",
-                            confirmButtonColor: "#000000",
-                        });
-                    }
-                };
-            </script>
+                        };
+                    </script>
 
 </body>
 

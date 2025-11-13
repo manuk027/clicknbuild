@@ -2,6 +2,8 @@ import User from "../../models/userSchema.js"
 import Category from "../../models/categorySchema.js";
 import Wishlist from '../../models/wishlistSchema.js'
 
+
+
 export const loadWishlistService = async (req, res) => {
     const userId = req.user?._id || req.session.user;
     try {
@@ -20,6 +22,7 @@ export const loadWishlistService = async (req, res) => {
         console.error("Error loading eh wishlist:", error);
     }
 }
+
 
 
 export const addToWishlistService = async (req, res) => {

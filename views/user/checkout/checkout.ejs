@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clickNbuild</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
+
+        <div class="max-w-7xl mx-auto p-4 md:p-8">
+            <!-- Order Summary and Address Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Left: Order Summary -->
+                <div class="bg-white rounded-3xl shadow-lg p-6">
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+                                    alt="Product" class="w-10 h-10 rounded-lg">
+                                <span class="text-sm text-gray-600">Order summary • <%= cart.length %> items</span>
+                            </div>
+                            <span class="text-lg font-semibold">₹<%= totalAmount + deliveryCharge %></span>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full bg-black text-white py-4 rounded-xl font-medium flex items-center justify-between px-6 hover:bg-gray-800 transition">
+                        <span>View all coupons</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Right: Address Selection -->
+                <div class="bg-white rounded-3xl shadow-lg p-6">
+                    <h2 class="text-center font-semibold text-lg mb-6">CHOOSE DELIVERY POINT</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <% for (let i=0; i < address.length; i++) { %>
+                            <div class="address-card border border-gray-200 rounded-2xl p-4 mb-3 relative"
+                                data-index="<%= i %>">
+                                <h3 class="font-semibold mb-1">
+                                    <%= address[i].fullName %>
+                                </h3>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].phoneNumber %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].address %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].district %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].city %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].state %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].pincode %>
+                                </p>
+                                <p class="text-xs text-gray-600 mb-1">
+                                    <%= address[i].landmark %>
+                                </p>
+
+                                <button
+                                    class="deliver-btn w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition">DELIVER
+                                    HERE</button>
+                                <div
+                                    class="selected-indicator hidden absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                    Selected</div>
+                            </div>
+                            <% } %>
+
+                                <!-- Add new Address -->
+                                <div id="openAddressForm"
+                                    class="deliver-btn w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-center text-sm font-medium text-gray-600 cursor-pointer bg-white hover:border-gray-400 transition flex items-center justify-center">
+                                    <span>Add new Address</span>
+                                </div>
+
+                                <!-- Address Selection Script -->
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        const addressCards = document.querySelectorAll(".address-card");
+                                        if (addressCards.length > 0) selectAddress(addressCards[0]);
+
+                                        addressCards.forEach(card => {
+                                            const button = card.querySelector(".deliver-btn");
+                                            button.addEventListener("click", () => selectAddress(card));
+                                        });
+
+                                        function selectAddress(selectedCard) {
+                                            addressCards.forEach(card => {
+                                                card.classList.remove("border-green-500");
+                                                card.querySelector(".deliver-btn").classList.remove("hidden");
+                                                card.querySelector(".selected-indicator").classList.add("hidden");
+                                            });
+                                            selectedCard.classList.add("border-green-500");
+                                            selectedCard.querySelector(".deliver-btn").classList.add("hidden");
+                                            selectedCard.querySelector(".selected-indicator").classList.remove("hidden");
+                                        }
+                                    });
+                                </script>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment & Product Summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-3xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Payment Methods</h2>
+                    <p class="text-sm text-gray-600 mb-6">Select any payment method</p>
+                    <div class="space-y-4">
+                        <label
+                            class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="payment" class="w-5 h-5 text-black">
+                            <span class="ml-3 font-medium">Cash on Delivery</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="bg-white rounded-3xl shadow-lg p-6">
+                    <% for(let i=0; i<cart.length; i++){ %>
+                        <div class="flex items-start justify-between mb-4 pb-4 border-b"
+                            data-product-id="<%= cart[i].productId._id %>"
+                            data-variant-id="<%= cart[i].productId.selectedVariant._id %>"
+                            data-image="<%= cart[i].productId.images[0] %>"
+                            data-name="<%= cart[i].productId.brand?.name %> <%= cart[i].productId.model %> <%= cart[i].productId.selectedVariant.variant %>">
+                            <div class="flex items-center gap-3">
+                                <img src="<%= cart[i].productId.images[0] %>" alt="Product Image"
+                                    class="w-16 h-16 rounded-lg object-cover">
+                                <div>
+                                    <h4 class="font-medium">
+                                        <%= cart[i].productId.brand?.name %>
+                                            <%= cart[i].productId?.model %>
+                                                <%= cart[i].productId?.selectedVariant.variant %>
+                                    </h4>
+                                    <p class="text-sm text-gray-600">Quantity : <%= cart[i].quantity %>
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="font-semibold">₹<%= cart[i].subTotal %></span>
+                        </div>
+                        <% } %>
+
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between text-gray-700">
+                                    <span>Price:</span>
+                                    <span>
+                                        <%= totalprice %>
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-green-600">
+                                    <span>Discount:</span>
+                                    <span>-<%= totalprice - totalAmount %></span>
+                                </div>
+                                <div class="flex justify-between text-gray-700">
+                                    <p>Delivery charge: </p>
+                                    <span class="text-green-600">
+                                        <p>
+                                            <%= deliveryCharge===0 ? "Free" : "₹" + deliveryCharge %>
+                                        </p>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Total -->
+                            <div class="flex justify-between text-lg font-semibold mb-6 pt-4 border-t">
+                                <span>Total Amount:</span>
+                                <span>₹ <%= totalAmount + deliveryCharge %></span>
+                            </div>
+
+                            <!-- Place Order Button -->
+                            <button id="placeOrderBtn"
+                                class="w-full bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-800 transition">
+                                Place Order
+                            </button>
+
+                            <!-- ✅ Script: Send Product ID, Variant ID, Image, and Single Name -->
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+                                    placeOrderBtn.addEventListener("click", async () => {
+                                        const selectedCard = document.querySelector(".address-card.border-green-500");
+                                        if (!selectedCard) {
+                                            return Swal.fire({
+                                                icon: "warning",
+                                                title: "No Address Selected",
+                                                text: "Please select a delivery address before placing the order.",
+                                                confirmButtonColor: "#000000"
+                                            });
+                                        }
+
+                                        const address = {
+                                            fullName: selectedCard.querySelector("h3")?.textContent.trim(),
+                                            phoneNumber: selectedCard.querySelectorAll("p")[0]?.textContent.trim(),
+                                            address: selectedCard.querySelectorAll("p")[1]?.textContent.trim(),
+                                            district: selectedCard.querySelectorAll("p")[2]?.textContent.trim(),
+                                            city: selectedCard.querySelectorAll("p")[3]?.textContent.trim(),
+                                            state: selectedCard.querySelectorAll("p")[4]?.textContent.trim(),
+                                            pincode: selectedCard.querySelectorAll("p")[5]?.textContent.trim(),
+                                            landmark: selectedCard.querySelectorAll("p")[6]?.textContent.trim() || ""
+                                        };
+
+                                        const productCards = document.querySelectorAll(".border-b");
+                                        const products = Array.from(productCards).map(card => {
+                                            const quantityText = card.querySelector("p")?.textContent.trim();
+                                            const quantity = parseInt(quantityText?.split(":")[1]) || 1;
+                                            const priceText = card.querySelector("span.font-semibold")?.textContent.replace(/[₹,\s]/g, "");
+                                            const subTotal = parseFloat(priceText) || 0;
+                                            const productId = card.dataset.productId || null;
+                                            const variantId = card.dataset.variantId || null;
+                                            const image = card.dataset.image || null;
+                                            const name = card.dataset.name?.trim() || "Unknown Product";
+                                            return { productId, variantId, name, quantity, subTotal, image };
+                                        });
+
+                                        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+                                        if (!selectedPayment) {
+                                            return Swal.fire({
+                                                icon: "warning",
+                                                title: "Select Payment Method",
+                                                text: "Please choose a payment option before proceeding.",
+                                                confirmButtonColor: "#000000"
+                                            });
+                                        }
+                                        // Extract delivery fee (if it's shown as "Free", set 0)
+                                        const deliveryFeeText = document.querySelector(
+                                            "div.flex.justify-between.text-gray-700 span.text-green-600 p"
+                                        )?.textContent.trim();
+
+                                        const deliveryFee = deliveryFeeText === "Free"
+                                            ? 0
+                                            : parseFloat(deliveryFeeText.replace(/[₹,\s]/g, "")) || 0;
+
+                                        const paymentMethod = selectedPayment.nextElementSibling.textContent.trim();
+                                        const totalText = document.querySelector("div.flex.justify-between.text-lg.font-semibold span:last-child")?.textContent;
+                                        const totalAmount = parseFloat(totalText?.replace(/[₹,\s]/g, "")) || 0;
+
+                                        const orderData = { address, products, paymentMethod, totalAmount, deliveryFee };
+
+
+                                        try {
+                                            placeOrderBtn.disabled = true;
+                                            placeOrderBtn.textContent = "Placing Order...";
+
+                                            const response = await fetch("/checkout/place-order", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify(orderData)
+                                            });
+
+                                            const result = await response.json();
+                                            if (response.ok && result.success) {
+                                                Swal.fire({
+                                                    icon: "success",
+                                                    title: "Order Placed!",
+                                                    text: result.message || "Your order has been placed successfully.",
+                                                    confirmButtonColor: "#000000"
+                                                }).then(() => window.location.href = `/order/summary/${result.received.orderId}`);
+                                            } else {
+                                                Swal.fire({
+                                                    icon: "error",
+                                                    title: "Order Failed",
+                                                    text: result.message || "Something went wrong while placing your order.",
+                                                    confirmButtonColor: "#000000"
+                                                });
+                                            }
+                                        } catch (err) {
+                                            console.error("Error placing order:", err);
+                                            Swal.fire({
+                                                icon: "error",
+                                                title: "Network Error",
+                                                text: "Could not connect to the server. Please try again.",
+                                                confirmButtonColor: "#000000"
+                                            });
+                                        } finally {
+                                            placeOrderBtn.disabled = false;
+                                            placeOrderBtn.textContent = "Place Order";
+                                        }
+                                    });
+                                });
+                            </script>
+                </div>
+            </div>
+        </div>
+        <!-- Floating Add Address Form -->
+        <div id="addressFormOverlay"
+            class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+
+            <div class="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-xl relative">
+
+                <!-- Close Button -->
+                <button id="closeAddressForm"
+                    class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">✕</button>
+
+                <h2 class="text-2xl font-semibold mb-6 flex justify-between items-center">
+                    <span>Add New Address</span>
+                    <span class="text-gray-500 text-xl">Personal Information</span>
+                </h2>
+
+                <form id="addAddressForm" class="space-y-6">
+
+                    <!-- TWO COLUMN: Name + Phone -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div>
+                            <label class="text-sm font-medium">Full name</label>
+                            <input type="text" name="fullName" placeholder="Manu Krishna"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="fullName"></p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium">Mobile Number</label>
+                            <input type="text" name="phoneNumber" maxlength="10" placeholder="+91 000-000-000"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none"
+                                oninput="this.value = this.value.replace(/[^0-9]/g,'')">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="phoneNumber"></p>
+                        </div>
+
+                    </div>
+
+                    <!-- ADDRESS FULL WIDTH -->
+                    <div>
+                        <label class="text-sm font-medium">Address</label>
+                        <textarea name="address" placeholder="House Name , House Number, Locality"
+                            class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none h-20"></textarea>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error="address"></p>
+                    </div>
+
+                    <!-- DISTRICT + PINCODE -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-sm font-medium">District</label>
+                            <input type="text" name="district" placeholder="eg : Ernakulam"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="district"></p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium">Pin Code</label>
+                            <input type="text" name="pincode" maxlength="6" placeholder="eg : 689230"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none"
+                                oninput="this.value = this.value.replace(/[^0-9]/g,'')">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="pincode"></p>
+                        </div>
+                    </div>
+
+                    <!-- CITY + STATE -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-sm font-medium">City</label>
+                            <input type="text" name="city" placeholder="eg : Vytilla"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="city"></p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium">State</label>
+                            <input type="text" name="state" placeholder="eg : Kerala"
+                                class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
+                            <p class="text-red-500 text-xs mt-1 hidden" data-error="state"></p>
+                        </div>
+                    </div>
+
+                    <!-- LANDMARK OPTIONAL -->
+                    <div>
+                        <label class="text-sm font-medium">Landmark ( optional )</label>
+                        <input type="text" name="landmark" placeholder="eg : Hospital"
+                            class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button" id="closeAddressForm2"
+                            class="px-6 py-3 bg-gray-300 text-black rounded-xl hover:bg-gray-400">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-900">
+                            Add Address
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+
+                const overlay = document.getElementById("addressFormOverlay");
+                const openBtn = document.getElementById("openAddressForm");
+                const closeBtn = document.getElementById("closeAddressForm");
+                const closeBtn2 = document.getElementById("closeAddressForm2");
+                const addForm = document.getElementById("addAddressForm");
+
+                /* OPEN POPUP */
+                openBtn.addEventListener("click", () => overlay.classList.remove("hidden"));
+
+                /* CLOSE POPUP */
+                closeBtn.addEventListener("click", () => overlay.classList.add("hidden"));
+                closeBtn2.addEventListener("click", () => overlay.classList.add("hidden"));
+
+                /* ERROR HELPERS */
+                function showError(field, message) {
+                    const el = document.querySelector(`[data-error="${field}"]`);
+                    el.textContent = message;
+                    el.classList.remove("hidden");
+                }
+
+                function clearError(field) {
+                    const el = document.querySelector(`[data-error="${field}"]`);
+                    el.classList.add("hidden");
+                }
+
+                document.querySelectorAll("#addAddressForm input, #addAddressForm textarea")
+                    .forEach(inp => inp.addEventListener("input", () => clearError(inp.name)));
+
+                /* SUBMIT FORM */
+                addForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+
+                    const data = Object.fromEntries(new FormData(addForm).entries());
+                    let hasError = false;
+
+                    const required = ["fullName", "phoneNumber", "address", "district", "city", "state", "pincode"];
+
+                    required.forEach(f => {
+                        if (!data[f] || data[f].trim() === "") {
+                            showError(f, "This field is required");
+                            hasError = true;
+                        }
+                    });
+
+                    if (data.phoneNumber && !/^\d{10}$/.test(data.phoneNumber)) {
+                        showError("phoneNumber", "Phone must be 10 digits");
+                        hasError = true;
+                    }
+
+                    if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
+                        showError("pincode", "Pincode must be 6 digits");
+                        hasError = true;
+                    }
+
+                    if (hasError) return;
+
+                    /* SEND TO BACKEND */
+                    const res = await fetch("/checkout/addAddress", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await res.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Address Added!",
+                            text: result.message,
+                            confirmButtonColor: "#000"
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", result.message, "error");
+                    }
+                });
+
+            });
+        </script>
+
+
+
+
+        <!-- Footer -->
+        <%- include("../../views/partials/user/footer") %>
+</body>
+
+</html>

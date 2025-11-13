@@ -251,7 +251,6 @@
                                             const productId = button.dataset.productId;
                                             const variantId = button.dataset.variantId;
 
-                                            console.log("🛒 Sending to backend:", { productId, variantId });
 
                                             try {
                                                 const response = await fetch("/cart/add", {

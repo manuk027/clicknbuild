@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>clickNbuild</title>
-<link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/uplƒoad/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/uplƒoad/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         .cart-item-enter {
             animation: slideIn 0.3s ease-out;
@@ -65,8 +69,8 @@
 
                                     </h3>
                                     <p class="text-gray-600">Price ₹
-                                        <span class="item-price" data-price="<%= cart[i].price %>">
-                                            <%= cart[i].price %>
+                                        <span class="item-price" data-price="<%= cart[i].price %>" id="sub-<%= i %>">
+                                            <%= cart[i].subTotal %>
                                         </span>
                                     </p>
                                 </div>
@@ -98,10 +102,8 @@
                     <div class="flex justify-between items-center text-xl font-semibold mb-2">
                         <span>SUBTOTAL</span>
                         <div>
-                            <span class="line-through text-gray-400 mr-2">INR <span
-                                    id="original-total">138</span></span>
                             <span>INR <span id="final-total">
-                                    <%= cart[0].totalCartValue %>
+                                    <%=total%>
                                 </span></span>
                         </div>
                     </div>
@@ -109,16 +111,19 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="checkout()"
-                        class="flex-1 bg-black text-white py-3 rounded hover:bg-gray-800 transition font-semibold">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button id="proceedCheckoutBtn"
+                        class="flex-1 sm:flex-none bg-black text-white py-3 px-8 rounded hover:bg-gray-800 transition font-semibold text-center inline-block">
                         Proceed to checkout
                     </button>
+
+
                     <a href="/shop"
-                        class="flex-1 bg-black text-white py-3 rounded hover:bg-gray-800 transition font-semibold text-center">
+                        class="flex-1 sm:flex-none bg-black text-white py-3 px-8 rounded hover:bg-gray-800 transition font-semibold text-center">
                         Continue Shopping
                     </a>
                 </div>
+
             </div>
             <%}%>
                 <%if(cart.length===0){%>
@@ -176,7 +181,6 @@
                                 }
 
                                 async function emptyCart() {
-                                    // SweetAlert confirmation
                                     const result = await Swal.fire({
                                         title: "Empty Cart!",
                                         text: "Your entire cart will be emptied!",
@@ -223,7 +227,7 @@
 
 
                                 async function removeItem(productId, variantId) {
-                                   
+
                                     const result = await Swal.fire({
                                         title: "Remove!",
                                         text: "Product wil be removed from the cart.",
@@ -288,6 +292,27 @@
                                         const data = await response.json();
                                         if (response.ok) {
                                             document.querySelector(`#qty-${index}`).value = data.quantity;
+                                            const totalEl = document.getElementById("final-total");
+                                            if (totalEl && data.total !== undefined) {
+                                                totalEl.textContent = data.total.toLocaleString("en-IN");
+                                            }
+                                            await Swal.fire({
+                                                icon: "success",
+                                                title: "Quantity Updated!",
+                                                text: data.message || "Cart updated successfully.",
+                                                confirmButtonColor: "#000000",
+                                                timer: 1000,
+                                                showConfirmButton: false,
+                                            });
+                                        } else {
+                                            await Swal.fire({
+                                                icon: "warning",
+                                                title: 'Products Not available.',
+                                                text: data.message || "Cart updated successfully.",
+                                                confirmButtonColor: "#000000",
+                                                timer: 1000,
+                                                showConfirmButton: false,
+                                            });
                                         }
                                     } catch (error) {
                                         console.error("Error incrementing product count:", error);
@@ -318,8 +343,42 @@
                                     }
                                 };
 
-
                             </script>
+                            <script>
+                                document.getElementById("proceedCheckoutBtn").addEventListener("click", async () => {
+
+                                    try {
+                                        const response = await fetch("/checkout", {
+                                            method: "GET",
+                                            headers: {
+                                                "X-Requested-With": "XMLHttpRequest"
+                                            }
+                                        });
+
+                                        let contentType = response.headers.get("content-type");
+                                        if (contentType && contentType.includes("application/json")) {
+                                            const result = await response.json();
+
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Out of Stock",
+                                                text: result.message,
+                                                confirmButtonColor: "#000"
+                                            });
+
+                                            return;
+                                        }
+                                        if (response.ok) {
+                                            window.location.href = "/checkout";
+                                        }
+
+                                    } catch (err) {
+                                        console.error(err);
+                                        Swal.fire("Error", "Failed to reach the server!", "error");
+                                    }
+                                });
+                            </script>
+
 </body>
 
 </html>

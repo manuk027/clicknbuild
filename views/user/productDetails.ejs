@@ -481,7 +481,6 @@
 
                             const productId = "<%= product._id %>";
                             const variantId = "<%= product.variants[index]._id %>";
-                            console.log(variantId, productId);
 
                             try {
                                 const response = await fetch("/cart/add", {
