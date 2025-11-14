@@ -10,22 +10,54 @@
     </div>
 
     <!-- Search bar -->
-    <div class="bg-white rounded-md flex items-center px-2 w-1/2 md:w-1/3">
-      <input id="searchInput" type="text" placeholder="Search"
-        class="p-2 w-full text-black border-none outline-none text-sm rounded-md">
+    <div class="bg-white rounded-md flex items-center px-2 w-1/2 md:w-1/3 border border-gray-300">
+      <input id="searchInput" type="text"
+        pplaceholder="<%= typeof searchQuery !== 'undefined' && searchQuery ? searchQuery : 'Search' %>"
+value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+
+        class="p-2 w-full text-black border-none outline-none text-sm rounded-md" />
+
+      <!-- Clear (X) button -->
+      <button id="clearSearchBtn" class="text-gray-400 hover:text-gray-600 hidden">
+        ✕
+      </button>
     </div>
+
 
     <script>
       const searchInput = document.getElementById("searchInput");
+      const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+      // Show X button only when input has text
+      function toggleClearButton() {
+        if (searchInput.value.trim().length > 0) {
+          clearSearchBtn.classList.remove("hidden");
+        } else {
+          clearSearchBtn.classList.add("hidden");
+        }
+      }
+
+      searchInput.addEventListener("input", toggleClearButton);
+      toggleClearButton(); // run once on load
+
+      // Enter → Search
       searchInput.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
           const query = searchInput.value.trim();
-          if (query) {
-            window.location.href = `/products?search=${encodeURIComponent(query)}`;
-          }
+          window.location.href = query
+            ? `/products?search=${encodeURIComponent(query)}`
+            : `/products`;
         }
       });
+
+      // Clear search (X button)
+      clearSearchBtn.addEventListener("click", function () {
+        searchInput.value = "";
+        toggleClearButton();
+        window.location.href = "/products";
+      });
     </script>
+
 
 
 

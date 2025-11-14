@@ -56,10 +56,11 @@ const orderSchema = new Schema({
     taxAmount: { type: Number, },
     deliveryFee: { type: Number, },
     totalAmount: { type: Number, },
+    returnReason: { type: String },
     paymentMethod: { type: String, enum: ["COD", "Razorpay", "Wallet"], required: true, },
     paymentStatus: { type: String, enum: ["pending", "paid", "completed", "refunded", "failed"], default: "pending" },
     // transactions: [transactionsSchema,],
-    orderStatus: { type: String, enum: ["Pending", "Processing", "Out for delivery", "cancelled", "Returned", "Return requested", "delivered"], defualt: "Pending", },
+    orderStatus: { type: String, enum: ["Pending", "Processing", "Out for delivery", "cancelled", "Returned", "return-requested", "delivered"], defualt: "Pending", },
     orderDate: { type: Date, default: Date.now, },
     deliveryDate: { type: Date }
 }, { timestamps: true });

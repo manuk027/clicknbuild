@@ -128,3 +128,76 @@ export const cancelProductService = async (req, res) => {
         console.error('Error canceling the product : ', error);
     }
 }
+
+
+
+export const returnItemService = async (req, res) => {
+    try {
+        const { orderId, itemId, reason } = req.body;
+        if (!orderId || !itemId || !reason) {
+            return res.json({ success: false, message: "Missing required fields." });
+        }
+        const order = await Order.findOne({ orderId });
+        if (!order) {
+            return res.json({ success: false, message: "Order not found." });
+        }
+        const item = order.items.id(itemId);
+        if (!item) {
+            return res.json({ success: false, message: "Item not found." });
+        }
+        const product = await Product.findById(item.productId);
+        if (!product) {
+            return res.json({ success: false, message: "Product not found." });
+        }
+        const variant = product.variants.find(v => v._id.toString() === item.variantId);
+        if (!variant) {
+            return res.json({ success: false, message: "Variant not found." });
+        }
+        variant.quantity += item.quantity;
+        await product.save();
+        item.status = "return-requested";
+        item.returnReason = reason;
+        const allRequested = order.items.every(i => i.status === "return-requested");
+        if (allRequested) {
+            order.orderStatus = "return-requested";
+            order.returnReason = reason;
+        }
+        await order.save();
+        return res.json({ success: true, message: "Return request submitted!" });
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+
+export const returnOrderService = async (req, res) => {
+    try {
+        const { orderId, reason } = req.body;
+        if (!orderId || !reason) {
+            return res.json({ success: false, message: "Missing required fields." });
+        }
+        const order = await Order.findOne({ orderId });
+        if (!order) {
+            return res.json({ success: false, message: "Order not found." });
+        }
+        for (let item of order.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) continue;
+            const variant = product.variants.find(v => v._id.toString() === item.variantId);
+            if (!variant) continue;
+            variant.quantity += item.quantity;
+            await product.save();
+            item.status = "return-requested";
+            item.returnReason = reason;
+        }
+        order.orderStatus = "return-requested";
+        order.returnReason = reason;
+        await order.save();
+        return res.json({ success: true, message: "Entire order return-requested." });
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}

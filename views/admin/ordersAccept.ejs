@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin-Orders</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+
+    <div class="flex min-h-screen">
+        <aside id="sidebar"
+            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
+            <%- include("../../views/partials/admin/sidebar") %>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-h-screen">
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <%- include("../../views/partials/admin/header") %>
+            </header>
+
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center w-full">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                            ORDER LIST
+                        </h1>
+
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <span><a href="/admin">Dashboard</a></span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900">Orders</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div class="flex items-center justify-between mb-6 w-full">
+                        <form id="searchForm" action="/admin/orders" method="GET" class="flex w-full max-w-md">
+                            <div class="flex-1 relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
+                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
+               focus:outline-none focus:ring-2 focus:ring-black" />
+                                <% if (search) { %>
+                                    <button type="button" id="clearSearch"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <% } %>
+                            </div>
+                            <button type="submit"
+                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
+                                Search
+                            </button>
+                        </form>
+                    </div>
+                    <script>
+                        // ✅ Optional: clear search button
+                        const clearSearch = document.getElementById("clearSearch");
+                        if (clearSearch) {
+                            clearSearch.addEventListener("click", () => {
+                                window.location.href = "/admin/orders"; // Reset to full list
+                            });
+                        }
+
+                        // ✅ Trigger search on pressing Enter
+                        const searchInput = document.getElementById("searchInput");
+                        const searchForm = document.getElementById("searchForm");
+                        if (searchInput && searchForm) {
+                            searchInput.addEventListener("keypress", function (event) {
+                                if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    searchForm.submit();
+                                }
+                            });
+                        }
+                    </script>
+                    <div class="flex gap-4">
+                        <div class="relative">
+                            <button id="filtersBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-sliders-h"></i>
+                                <span>Filters</span>
+                                <i class="fas fa-chevron-down text-sm ml-1"></i>
+                            </button>
+                            <div id="filtersDropdown"
+                                class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <a onclick="applyFilter('Delivered')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Delivered</a>
+                                     <a onclick="applyFilter('return-requested')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Return-requested</a>
+                                <a onclick="applyFilter('Pending')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Pending</a>
+                                <a onclick="applyFilter('Cancelled')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Cancelled</a>
+                                <a onclick="applyFilter('All')" class="block px-4 py-2 hover:bg-gray-100">All</a>
+
+                            </div>
+
+                        </div>
+                        <script>
+                            // Toggle filter dropdown open/close
+                            document.getElementById("filtersBtn").addEventListener("click", () => {
+                                document.getElementById("filtersDropdown").classList.toggle("hidden");
+                            });
+
+                            // Close dropdown when clicking outside
+                            document.addEventListener("click", (e) => {
+                                const btn = document.getElementById("filtersBtn");
+                                const dropdown = document.getElementById("filtersDropdown");
+
+                                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add("hidden");
+                                }
+                            });
+
+                            // Apply filter
+                            function applyFilter(status) {
+                                const url = new URL(window.location.href);
+
+                                if (status === "All") {
+                                    url.searchParams.delete("status");
+                                } else {
+                                    url.searchParams.set("status", status);
+                                }
+
+                                window.location.href = url.toString();
+                            }
+                        </script>
+
+                        <div class="relative">
+                            <button id="sortBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-sort"></i>
+                                <span>SORT</span>
+                                <i class="fas fa-chevron-down text-sm ml-1"></i>
+                            </button>
+
+                            <div id="sortDropdown"
+                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
+                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
+                            </div>
+                        </div>
+
+                        <script>
+                            document.getElementById("sortBtn").addEventListener("click", () => {
+                                document.getElementById("sortDropdown").classList.toggle("hidden");
+                            });
+
+                            document.addEventListener("click", (e) => {
+                                if (!document.getElementById("sortBtn").contains(e.target) &&
+                                    !document.getElementById("sortDropdown").contains(e.target)) {
+                                    document.getElementById("sortDropdown").classList.add("hidden");
+                                }
+                            });
+
+                            function applySort(sortType) {
+                                const url = new URL(window.location.href);
+                                url.searchParams.set("sort", sortType);
+                                window.location.href = url.toString();
+                            }
+                        </script>
+
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[800px] ">
+                            <thead class="bg-black text-white text-center">
+                                <tr>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        OrderId
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Image
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Product
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        SKU
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Date
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Customer
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Subtotal
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Method
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Status
+                                    </th>
+                                    <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-200">
+                                <%for(let i=0; i<product.length; i++){%>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i].orderId%>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="w-10 h-10 flex-shrink-0 mx-auto">
+                                                <img src="<%=product[i].coverImage%>" alt="<%= product[i].name %>"
+                                                    class="rounded-full w-full h-full object-cover">
+                                            </div>
+                                        </td>
+
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i].name%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.sku%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.orderDate.toLocaleDateString("en-CA")%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.address.fullName%>
+                                                <%=product[i]?.address.phoneNumber%>
+                                                    <%=product[i]?.address.address%>
+                                                        <%=product[i]?.address.district%>
+                                                            <%=product[i]?.address.state%>
+                                                                <%=product[i]?.address.city%>-
+                                                                    <%=product[i]?.address.pincode%>
+                                                                        <%=product[i]?.address.landmark%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.subtotal%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.method%>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                            <%=product[i]?.status%>
+                                        </td>
+
+                                        <td class="px-4 py-4 text-gray-700 relative">
+                                            <button class="orderActionBtn p-2 text-gray-600 hover:bg-gray-100 rounded"
+                                                data-id="<%= product[i].orderId %>"
+                                                data-sku="<%= product[i].sku %>"
+                                                data-status="<%= product[i].status %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+
+
+
+                                    </tr>
+                                    <%}%>
+                            </tbody>
+                        </table>
+                        <div id="statusModal"
+                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+
+                            <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl">
+
+                                <h2 class="text-xl font-semibold mb-4 text-gray-800">Change Order Status</h2>
+
+                                <select id="statusSelect"
+                                    class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-black mb-4">
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="out-for-delivery">Out for delivery</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="returned">Returned</option>
+                                </select>
+
+                                <div class="flex justify-end gap-3 mt-4">
+                                    <button id="cancelModal"
+                                        class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300">
+                                        Cancel
+                                    </button>
+
+                                    <button id="confirmStatus"
+                                        class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900">
+                                        Change Status
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <script>
+const modal = document.getElementById("statusModal");
+const statusSelect = document.getElementById("statusSelect");
+const cancelBtn = document.getElementById("cancelModal");
+const confirmBtn = document.getElementById("confirmStatus");
+
+let activeOrderId = null;
+let activeSku = null;
+
+// Open modal when clicking Action button
+document.querySelectorAll(".orderActionBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        activeOrderId = btn.dataset.id;
+        activeSku = btn.dataset.sku;
+        statusSelect.value = btn.dataset.status || "pending";
+
+        modal.classList.remove("hidden");
+    });
+});
+
+// Close modal
+cancelBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+});
+
+// Close modal when clicking outside card
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+        modal.classList.add("hidden");
+    }
+});
+
+// Change status
+confirmBtn.addEventListener("click", async () => {
+    const newStatus = statusSelect.value;
+
+    const res = await fetch("/admin/orders/updateStatus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            orderId: activeOrderId,
+            sku: activeSku,           // ✅ SEND SKU
+            status: newStatus
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        Swal.fire("Updated!", data.message, "success")
+            .then(() => location.reload());
+    } else {
+        Swal.fire("Error", data.message, "error");
+    }
+
+    modal.classList.add("hidden");
+});
+</script>
+
+                    </div>
+                </div>
+
+                <% if (product.length > 0) { %>
+<div class="flex justify-center m-6">
+    <nav aria-label="Dashboard Pagination">
+        <ul class="flex items-center space-x-2">
+
+            <% 
+                // Build base URL with existing filters
+                let baseUrl = `/admin/orders?sort=${sort || ""}&search=${search || ""}&status=${statusFilter || ""}`;
+            %>
+
+            <!-- First Page -->
+            <% if (current == 1) { %>
+                <li>
+                    <span class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                        First
+                    </span>
+                </li>
+            <% } else { %>
+                <li>
+                    <a href="<%= baseUrl %>&page=1"
+                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                        First
+                    </a>
+                </li>
+            <% } %>
+
+            <!-- Ellipsis Before -->
+            <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
+            <% if (i !== 1) { %>
+                <li><span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span></li>
+            <% } %>
+
+            <!-- Page Numbers -->
+            <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+                <% if (i == current) { %>
+                    <li>
+                        <span class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                            <%= i %>
+                        </span>
+                    </li>
+                <% } else { %>
+                    <li>
+                        <a href="<%= baseUrl %>&page=<%= i %>"
+                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                            <%= i %>
+                        </a>
+                    </li>
+                <% } %>
+
+                <% if (i == Number(current) + 4 && i < pages) { %>
+                    <li><span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span></li>
+                <% } %>
+            <% } %>
+
+            <!-- Last Page -->
+            <% if (current == pages) { %>
+                <li>
+                    <span class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                        Last
+                    </span>
+                </li>
+            <% } else { %>
+                <li>
+                    <a href="<%= baseUrl %>&page=<%= pages %>"
+                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                        Last
+                    </a>
+                </li>
+            <% } %>
+
+        </ul>
+    </nav>
+</div>
+<% } %>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/admin/categoryList.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll(".showVariantsBtn").forEach(button => {
+            button.addEventListener("click", async () => {
+                const productId = button.dataset.id;
+
+                try {
+                    const res = await fetch(`/admin/ptoducts/viewVariants?id=${productId}`);
+                    const data = await res.json();
+                    if (!data.success) {
+                        return Swal.fire("Error", data.message, "error");
+                    }
+                    const product = data.product;
+
+                    if (!product || !product.variants || product.variants.length === 0) {
+                        return Swal.fire("Info", "No variants found for this product.", "info");
+                    }
+
+                    // Build variants table HTML
+                    let variantsHTML = `
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #ccc; padding:8px;">Variant</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Quantity</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Price</th>
+                    <th style="border:1px solid #ccc; padding:8px;">Offer</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+                    product.variants.forEach(v => {
+                        variantsHTML += `
+            <tr>
+                <td style="border:1px solid #ccc; padding:8px;">${v.variant}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.quantity}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.price}</td>
+                <td style="border:1px solid #ccc; padding:8px;">${v.offer}</td>
+            </tr>
+        `;
+                    });
+
+                    variantsHTML += '</tbody></table>';
+
+                    // Show popup
+                    Swal.fire({
+                        title: `Variants of ${product.model}`,
+                        html: variantsHTML,
+                        width: '700px',
+                        showCloseButton: true,
+                        confirmButtonText: 'Close'
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire("Error", "Failed to fetch product variants.", "error");
+                }
+
+            });
+        });
+    </script>
+
+</body>
+
+</html>

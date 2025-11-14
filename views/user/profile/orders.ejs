@@ -109,9 +109,13 @@
                                                                 <div class="flex flex-wrap gap-2 justify-end">
                                                                     <%if(allOrders[i].items[j].status==="delivered" ){%>
                                                                         <button
-                                                                            class="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition">
+                                                                            class="returnItemBtn bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
+                                                                            data-orderid="<%= allOrders[i].orderId %>"
+                                                                            data-itemid="<%= allOrders[i].items[j]._id %>">
                                                                             Return
                                                                         </button>
+
+
                                                                         <%}%>
                                                                             <%if(allOrders[i].items[j].status!=="cancelled"
                                                                                 &&
@@ -170,9 +174,11 @@
                                                             <div class="flex flex-wrap gap-2 justify-end">
                                                                 <%if(allOrders[i].orderStatus==="delivered" ){%>
                                                                     <button
-                                                                        class="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition">
+                                                                        class="returnOrderBtn bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
+                                                                        data-orderid="<%= allOrders[i].orderId %>">
                                                                         Return All
                                                                     </button>
+
                                                                     <%}%>
                                                                         <% if (allOrders[i].items.some(s=> s.status
                                                                             ===
@@ -183,7 +189,7 @@
                                                                                 Invoice
                                                                             </a>
                                                                             <% } %>
-                                                                                <%if(allOrders[i].orderStatus!=="cancelled"
+                                                                                <%if(allOrders[i].orderStatus=="cancelled"
                                                                                     &&
                                                                                     allOrders[i].orderStatus!=="delivered"
                                                                                     ){%>
@@ -226,6 +232,32 @@
                                         </div>
 
                                     </div>
+                                    <div id="returnModal"
+                                        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+
+                                        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl">
+
+                                            <h2 class="text-xl font-semibold mb-4 text-gray-800">Return Reason</h2>
+
+                                            <textarea id="returnReasonInput"
+                                                class="w-full border border-gray-300 rounded-lg p-2 h-28 focus:outline-none focus:ring-2 focus:ring-black mb-4"
+                                                placeholder="Enter the reason for return..."></textarea>
+
+                                            <div class="flex justify-end gap-3 mt-4">
+                                                <button id="cancelReturn"
+                                                    class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300">
+                                                    Cancel
+                                                </button>
+
+                                                <button id="confirmReturn"
+                                                    class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900">
+                                                    Return
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
 
 
                                     <%}%>
@@ -431,6 +463,89 @@
                     });
                 }
             </script>
+            <script>
+                let returnOrderId = null;
+                let returnItemId = null;
+                let isReturnAll = false;
+
+                const returnModal = document.getElementById("returnModal");
+                const returnReasonInput = document.getElementById("returnReasonInput");
+                const cancelReturn = document.getElementById("cancelReturn");
+                const confirmReturn = document.getElementById("confirmReturn");
+
+                // OPEN: Return single item
+                document.querySelectorAll(".returnItemBtn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        returnOrderId = btn.dataset.orderid;
+                        returnItemId = btn.dataset.itemid;
+                        isReturnAll = false;
+
+                        returnReasonInput.value = "";
+                        returnModal.classList.remove("hidden");
+                    });
+                });
+
+                // OPEN: Return entire order
+                document.querySelectorAll(".returnOrderBtn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        returnOrderId = btn.dataset.orderid;
+                        returnItemId = null;
+                        isReturnAll = true;
+
+                        returnReasonInput.value = "";
+                        returnModal.classList.remove("hidden");
+                    });
+                });
+
+                // CLOSE modal
+                cancelReturn.addEventListener("click", () => {
+                    returnModal.classList.add("hidden");
+                });
+
+                // CLOSE modal when clicking outside
+                returnModal.addEventListener("click", (e) => {
+                    if (e.target === returnModal) {
+                        returnModal.classList.add("hidden");
+                    }
+                });
+
+                // CONFIRM RETURN
+                confirmReturn.addEventListener("click", async () => {
+                    const reason = returnReasonInput.value.trim();
+
+                    if (!reason) {
+                        return Swal.fire("Error", "Please enter a reason.", "error");
+                    }
+
+                    const bodyData = { orderId: returnOrderId, reason };
+
+                    if (!isReturnAll) {
+                        bodyData.itemId = returnItemId; // ⭐ USE itemId
+                    }
+
+                    const endpoint = isReturnAll
+                        ? "/orders/returnOrder"
+                        : "/orders/returnItem";
+
+                    const res = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(bodyData)
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        Swal.fire("Success!", data.message, "success")
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+
+                    returnModal.classList.add("hidden");
+                });
+            </script>
+
 
 </body>
 

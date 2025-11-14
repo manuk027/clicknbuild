@@ -5,6 +5,7 @@ import customerController from "../controller/admin/customerController.js";
 import categoryController from '../controller/admin/categoryController.js';
 import productController from '../controller/admin/productController.js';
 import brandController from '../controller/admin/brandController.js';
+import orderController from '../controller/admin/orderController.js';
 import auth from '../middleware/auth.js'
 import multer from 'multer';
 import uploads from '../helpers/multer.js';
@@ -58,6 +59,10 @@ router.get('/products/listProduct', auth.adminAuth, productController.listProduc
 router.get('/ptoducts/viewVariants', auth.adminAuth, productController.viewVariants)
 router.get('/products/editProduct/', auth.adminAuth, productController.loadEditProduct);
 router.put("/products/editProduct/:id", upload.array("images", 4), productController.editProduct);
+
+//order management
+router.get('/orders', auth.adminAuth, orderController.loadOrders);
+router.post('/orders/updateStatus', auth.adminAuth, orderController.changeStatus);
 
 
 

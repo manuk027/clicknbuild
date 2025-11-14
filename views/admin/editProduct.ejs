@@ -95,12 +95,12 @@
                                 <div class="flex items-center gap-8">
                                     <label class="flex items-center gap-2">
                                         <input type="radio" name="status" value="listed" class="text-blue-600"
-                                            <%=product.status==='listed' ? 'checked' : '' %>>
+                                            <%=product.isListed===true ? 'checked' : '' %>>
                                         <span>Listed</span>
                                     </label>
                                     <label class="flex items-center gap-2">
                                         <input type="radio" name="status" value="unlisted" class="text-blue-600"
-                                            <%=product.status==='unlisted' ? 'checked' : '' %>>
+                                            <%=product.isListed===false ? 'checked' : '' %>>
                                         <span>Unlisted</span>
                                     </label>
                                 </div>
@@ -111,12 +111,12 @@
                                 <div class="flex items-center gap-8">
                                     <label class="flex items-center gap-2">
                                         <input type="radio" name="categoryType" value="component" class="text-blue-600"
-                                            <%=product.categoryType==='component' ? 'checked' : '' %>>
+                                            <%=product.isComponent===true ? 'checked' : '' %>>
                                         <span>Component</span>
                                     </label>
                                     <label class="flex items-center gap-2">
                                         <input type="radio" name="categoryType" value="peripheral" class="text-blue-600"
-                                            <%=product.categoryType==='peripheral' ? 'checked' : '' %>>
+                                            <%=product.isPeripheral===true ? 'checked' : '' %>>
                                         <span>Peripheral</span>
                                     </label>
                                 </div>
