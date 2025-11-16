@@ -84,9 +84,9 @@
                             </div>
 
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-600">Payment Time</span>
+                                <span class="text-gray-600">Order Date</span>
                                 <span class="font-semibold text-gray-900">
-                                    <%=order.orderDate%>
+                                    <%=order.orderDate.toLocaleDateString("en-CA")%>
                                 </span>
                             </div>
 

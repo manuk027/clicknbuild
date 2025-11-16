@@ -11,6 +11,7 @@ import Address from "../../models/addressSchema.js";
 import mongoose from "mongoose";
 import Cart from "../../models/cartSchema.js"
 import Wishlist from '../../models/wishlistSchema.js';
+import { generateUniqueReferralCode } from '../../helpers/referalCode.js'
 
 
 
@@ -216,10 +217,12 @@ const verifyEmailOtp = async (req, res) => {
         }
         if (String(otp) === String(otpDoc.otp)) {
             const user = req.session.userData;
+            const referralCode = await generateUniqueReferralCode();
             const saveUserData = new User({
                 fullName: user.fullName,
                 email: user.email,
                 password: user.password,
+                referralCode,
             });
             await saveUserData.save();
             req.session.user = saveUserData._id;
@@ -878,14 +881,18 @@ const editPassword = async (req, res) => {
 const loadAdresses = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user
+        const page = parseInt(req.query.page) || 1;
+        const limit = 1;
+        const skip = (page - 1) * limit;
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        const address = await Address.find({ userId: userId });
+        const address = await Address.findOne({ userId: userId }).skip(skip).limit(limit);
+        const totalPages = Math.ceil(address.address.length / limit);
         if (!user) {
             return res.redirect('/login');
         } else {
-            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address });
+            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address, current: page, pages: totalPages });
         }
     } catch (error) {
         console.error("Error loading the address page: ", error);

@@ -1,4 +1,4 @@
-import { loadOrdersService, cancelOrderService, cancelProductService, returnItemService, returnOrderService } from '../../services/User/ordersService.js';
+import { loadOrdersService, cancelOrderService, cancelProductService, returnItemService, returnOrderService, loadReferAndEarnService } from '../../services/User/ordersService.js';
 
 
 
@@ -21,4 +21,8 @@ export const returnItem = async (req, res) => {
 
 export const returnOrder = async (req, res) => {
     await returnOrderService(req, res);
+}
+
+export const loadReferAndEarn = async (req, res) => {
+    await loadReferAndEarnService(req, res);
 }

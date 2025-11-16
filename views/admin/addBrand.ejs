@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Brand</title>
-  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+    type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -14,18 +15,14 @@
 
 <body class="bg-gray-50">
   <div class="flex min-h-screen">
-    <!-- Sidebar -->
     <aside id="sidebar"
       class="w-full sm:w-64 bg-white shadow-lg fixed lg:static left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 -translate-x-full overflow-y-auto">
       <%- include("../../views/partials/admin/sidebar") %>
     </aside>
-
-    <!-- Main Layout -->
     <div class="flex-1 flex flex-col min-h-screen">
       <header class="bg-white shadow-sm sticky top-0 z-30">
         <%- include("../../views/partials/admin/header") %>
       </header>
-
       <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">ADD A BRAND</h1>
         <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -35,9 +32,7 @@
           <i class="fas fa-chevron-right text-xs"></i>
           <span class="text-gray-700">Add</span>
         </nav>
-
         <form id="brandForm" action="/admin/brands/addBrand" method="post" enctype="multipart/form-data">
-          <!-- Brand Name -->
           <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Brand Name</h2>
             <div class="space-y-4">
@@ -49,22 +44,18 @@
               </div>
             </div>
           </section>
-
-          <!-- Brand Image -->
           <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Add Brand Image</h2>
             <input type="file" name="brandImage" id="brandImageInput" accept="image/*" class="hidden">
-
             <div id="uploadContainer"
               class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50 hover:border-blue-400 transition cursor-pointer">
               <i class="fas fa-image text-4xl text-blue-400 mb-2"></i>
               <p class="text-sm text-gray-500 mb-3">Drag and drop or click to upload</p>
               <button type="button" id="uploadBtn"
-                class="px-6 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm hover:bg-blue-200 transition">Add Image</button>
+                class="px-6 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm hover:bg-blue-200 transition">Add Image
+              </button>
               <p id="brandImageError" class="text-red-500 text-sm mt-2 hidden">Brand image is required</p>
             </div>
-
-            <!-- Preview -->
             <div id="previewContainer" class="mt-4 hidden relative w-40 h-40">
               <img id="previewImage" class="w-full h-full object-cover rounded-lg border border-gray-300" />
               <button type="button" id="removeImageBtn"
@@ -73,10 +64,7 @@
               </button>
             </div>
           </section>
-
-          <!-- Cropper Modal -->
-          <div id="cropModal"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+          <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
             <div class="bg-white p-4 rounded-lg w-96 h-96 relative flex flex-col">
               <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
               <div class="flex-1 overflow-hidden">
@@ -90,8 +78,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-4">
             <button type="submit"
               class="flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition">Add
@@ -103,7 +89,6 @@
       </main>
     </div>
   </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
     const form = document.getElementById('brandForm');
@@ -120,26 +105,19 @@
     const cropModalCancel = document.getElementById("cropModalCancel");
     const brandNameError = document.getElementById("brandNameError");
     const brandImageError = document.getElementById("brandImageError");
-
     let cropper;
-
-    // Open file picker
     uploadBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       brandImageInput.click();
     });
     uploadContainer.addEventListener("click", () => brandImageInput.click());
-
-    // Handle image selection
     brandImageInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = () => {
         cropperImage.src = reader.result;
         cropModal.classList.remove("hidden");
-
         if (cropper) cropper.destroy();
         cropper = new Cropper(cropperImage, {
           aspectRatio: 1,
@@ -150,8 +128,6 @@
       };
       reader.readAsDataURL(file);
     });
-
-    // Crop confirm
     cropModalConfirm.addEventListener("click", () => {
       if (!cropper) return;
       cropper.getCroppedCanvas().toBlob((blob) => {
@@ -159,32 +135,24 @@
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         brandImageInput.files = dataTransfer.files;
-
         previewImage.src = URL.createObjectURL(file);
         previewContainer.classList.remove("hidden");
         uploadContainer.classList.add("hidden");
-
         cropper.destroy();
         cropModal.classList.add("hidden");
       });
     });
-
-    // Crop cancel
     cropModalCancel.addEventListener("click", () => {
       if (cropper) cropper.destroy();
       cropModal.classList.add("hidden");
       brandImageInput.value = "";
     });
-
-    // Remove image
     removeImageBtn.addEventListener("click", () => {
       brandImageInput.value = "";
       previewImage.src = "";
       previewContainer.classList.add("hidden");
       uploadContainer.classList.remove("hidden");
     });
-
-    // Drag & Drop support
     uploadContainer.addEventListener("dragover", (e) => {
       e.preventDefault();
       uploadContainer.classList.add("border-blue-400");
@@ -199,12 +167,10 @@
       const file = e.dataTransfer.files[0];
       if (!file) return;
       brandImageInput.files = e.dataTransfer.files;
-
       const reader = new FileReader();
       reader.onload = () => {
         cropperImage.src = reader.result;
         cropModal.classList.remove("hidden");
-
         if (cropper) cropper.destroy();
         cropper = new Cropper(cropperImage, {
           aspectRatio: 1,
@@ -215,11 +181,8 @@
       };
       reader.readAsDataURL(file);
     });
-
-    // Form submission validation
     form.addEventListener("submit", (e) => {
       let valid = true;
-
       if (brandNameInput.value.trim() === "") {
         brandNameError.classList.remove("hidden");
         brandNameInput.focus();
@@ -227,27 +190,24 @@
       } else {
         brandNameError.classList.add("hidden");
       }
-
       if (!brandImageInput.files || brandImageInput.files.length === 0) {
         brandImageError.classList.remove("hidden");
         valid = false;
       } else {
         brandImageError.classList.add("hidden");
       }
-
       if (!valid) e.preventDefault();
     });
   </script>
-
-  <% if (typeof successMessage !== 'undefined') { %>
-  <script>
-    Swal.fire({
-      icon: 'success',
-      title: 'Brand Added',
-      text: '<%= successMessage %>'
-    });
-  </script>
-  <% } %>
+  <% if (typeof successMessage !=='undefined' ) { %>
+    <script>
+      Swal.fire({
+        icon: 'success',
+        title: 'Brand Added',
+        text: '<%= successMessage %>'
+      });
+    </script>
+    <% } %>
 </body>
 
 </html>

@@ -85,8 +85,6 @@ export const removeItemService = async (req, res) => {
 }
 
 
-
-
 export const updateCountService = async (req, res) => {
     const userId = req.user?._id || req.session.user;
 
@@ -94,82 +92,89 @@ export const updateCountService = async (req, res) => {
         const { action } = req.body;
         const { variantId } = req.params;
 
-        if (!userId) {
+        if (!userId)
             return res.status(401).json({ success: false, message: "User not logged in." });
-        }
 
-        if (!variantId || !["inc", "dec"].includes(action)) {
+        if (!variantId || !["inc", "dec"].includes(action))
             return res.status(400).json({ success: false, message: "Invalid request." });
-        }
 
         const cart = await Cart.findOne({ userId });
-        if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
+        if (!cart)
+            return res.status(404).json({ success: false, message: "Cart not found." });
 
         const item = cart.items.find(i => i.variantId.toString() === variantId);
-        if (!item) return res.status(404).json({ success: false, message: "Item not found in cart." });
+        if (!item)
+            return res.status(404).json({ success: false, message: "Item not found." });
 
-
-        const product = await Product.findById(item.productId);
-        if (!product) return res.status(404).json({ success: false, message: "Product not found." });
-
+        const product = await Product.findById(item.productId).populate("category");
         const variant = product.variants.id(variantId);
-        if (!variant)
-            return res.status(404).json({ success: false, message: "Variant not found for this product." });
 
-        let count = item.quantity;
+        if (!variant)
+            return res.status(404).json({ success: false, message: "Variant not found." });
+
+        // HANDLE QUANTITY UPDATE
         if (action === "inc") {
             if (item.quantity >= variant.quantity) {
                 return res.status(400).json({
                     success: false,
-                    message: "No more items available.",
-                    quantity: item.quantity,
-                    variantId,
+                    message: "No more stock available.",
                 });
             }
             if (item.quantity >= item.max) {
                 return res.status(400).json({
                     success: false,
-                    message: `You can only add up to ${item.max} units of this product.`,
-                    quantity: item.quantity,
-                    variantId,
+                    message: `You can only add up to ${item.max}`,
                 });
             }
             item.quantity++;
-            count = item.quantity;
         }
+
         if (action === "dec") {
-            if (item.quantity > 1) {
-                item.quantity--;
-                count = item.quantity;
-            } else {
+            if (item.quantity === 1) {
                 cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
                 await cart.save();
-                return res.status(200).json({
-                    success: true,
-                    removed: true,
-                    message: "Item removed from cart.",
-                    variantId,
-                });
+                return res.json({ success: true, removed: true });
             }
+            item.quantity--;
         }
-        item.subTotal = variant.offer * item.quantity;
 
+        // =============================
+        // OFFER CALCULATION — SAME AS CHECKOUT
+        // =============================
+        const variantMRP = variant.offer;
+
+        let finalVariantPrice = variantMRP;
+        if (variant.offerPrice && variant.offerPrice < variantMRP)
+            finalVariantPrice = variant.offerPrice;
+
+        if (variant.offerPercentage) {
+            const percentPrice = variantMRP - (variantMRP * variant.offerPercentage / 100);
+            if (percentPrice < finalVariantPrice) finalVariantPrice = percentPrice;
+        }
+
+        let finalCategoryPrice = variantMRP;
+        if (product.category?.offerPercentage) {
+            finalCategoryPrice =
+                variantMRP - (variantMRP * product.category.offerPercentage / 100);
+        }
+
+        const salePrice =
+            Math.min(finalVariantPrice, finalCategoryPrice);
+        item.subTotal = salePrice * item.quantity;
         cart.totalAmount = cart.items.reduce((sum, i) => sum + i.subTotal, 0);
 
         await cart.save();
 
-        return res.status(200).json({
+        return res.json({
             success: true,
-            message: "Quantity updated successfully.",
-            quantity: count,
-            variantId,
+            quantity: item.quantity,
             total: cart.totalAmount,
+            subTotal: item.subTotal,
         });
+
     } catch (error) {
-        console.error("Error updating count of product:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error while updating cart.",
-        });
+        console.error("Error updating count:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+

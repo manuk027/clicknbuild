@@ -51,6 +51,7 @@ export const loadCheckoutService = async (req, res) => {
             0
         );
         const deliveryCharge = totalAmount >= 50000 ? 0 : 199;
+        console.log(filteredItem, totalAmount);
         return res.render("checkout", { user, peripheral, component, cart: filteredItem, address: address || [], totalAmount, deliveryCharge, totalprice, });
     } catch (error) {
         console.error("Error loading the checkout service:", error);
@@ -92,7 +93,7 @@ export const addAddressService = async (req, res) => {
 export const loadSummaryService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
     try {
-        const { address, products, paymentMethod, totalAmount, deliveryFee } = req.body;
+        const { address, products, paymentMethod, deliveryFee } = req.body;
         const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
         const lastOrder = await Order.findOne({ orderId: { $regex: `^ORD${datePart}` } }).sort({ createdAt: -1 }).lean();
         let nextSequence = 1;
@@ -119,16 +120,39 @@ export const loadSummaryService = async (req, res) => {
             }
             const variantName = variantData.variant;
             const sku = generateSKU(brand, model, variantName, category);
+            const variantPrice = variantData.price;
+            const variantOfferPrice = variantData.offer || null;
+            let finalVariantPrice = variantPrice;
+            if (variantOfferPrice && variantOfferPrice < variantPrice) {
+                finalVariantPrice = variantOfferPrice;
+            }
+            const variantDiscount = variantPrice - finalVariantPrice;
+            let categoryDiscount = 0;
+            let finalCategoryPrice = variantPrice;
+            if (productDoc.category?.maxOffer) {
+                const catOffer = productDoc.category.maxOffer;
+                categoryDiscount = (variantPrice * catOffer) / 100;
+                finalCategoryPrice = variantPrice - categoryDiscount;
+            }
+            let finalPrice = variantPrice;
+            let appliedOffer = "None";
+            if (variantDiscount > categoryDiscount) {
+                finalPrice = finalVariantPrice;
+                appliedOffer = "Product Offer"
+            } else if (categoryDiscount > variantDiscount) {
+                finalPrice = finalCategoryPrice;
+                appliedOffer = "Category Offer"
+            }
             items.push({
                 productId: new mongoose.Types.ObjectId(prod.productId),
                 variantId: prod.variantId,
                 name: prod.name,
                 sku,
-                price: prod.subTotal / prod.quantity,
-                salePrice: prod.subTotal / prod.quantity,
+                price: variantPrice,
+                salePrice: finalPrice,
                 quantity: prod.quantity,
-                subTotal: prod.subTotal,
-                appliedOffer: "",
+                subTotal: finalPrice * prod.quantity,
+                appliedOffer: appliedOffer,
                 category: category,
                 coverImage: prod.image,
                 status: "pending",
@@ -142,6 +166,8 @@ export const loadSummaryService = async (req, res) => {
         const deliveryDate = new Date(today);
         deliveryDate.setDate(today.getDate() + 7);
         const formattedDeliveryDate = deliveryDate.toLocaleDateString("en-CA");
+        let totalAmount = items.reduce((sum, i) =>  sum += i.subTotal , 0);
+        console.log(totalAmount);
         const newOrder = new Order({
             userId,
             orderId,

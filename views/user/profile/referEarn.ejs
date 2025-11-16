@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clickNbuild</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+    <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
+        <!-- Mobile Sidebar Toggle Button (visible only on mobile) -->
+        <div class="lg:hidden fixed top-4 left-4 z-50">
+            <button id="mobileSidebarBtn" class="bg-white p-2 rounded-lg shadow-md">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay (mobile only) -->
+        <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+
+        <div class="flex min-h-screen">
+            <!-- Sidebar -->
+
+            <%- include("../../views/partials/user/sidebar")%>
+
+                <!-- Main Content -->
+                <main class="flex-1 p-4 md:p-6 lg:p-8">
+                    <!-- Breadcrumb -->
+                    <div class="mb-6">
+                        <a href="/profile" class="text-gray-600 hover:text-black text-sm">Account </a>
+                        <a href="/profile" class="text-gray-600 hover:text-black text-sm"> &gt; Refer & Earn</a>
+                    </div>
+
+                    <!-- Referral Card -->
+                    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-10 max-w-4xl mx-auto">
+                        <!-- Animation -->
+                        <div class="flex justify-center mb-6">
+                            <div
+                                class="w-24 h-24 bg-gradient-to-r from-black to-grey rounded-full animate-bounce shadow-xl flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="white" class="w-12 h-12">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 8.25h9m-9 3h9m-9 3h5.25M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9Z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Header -->
+                        <h1 class="text-2xl md:text-3xl font-light text-center mb-8">Refer & Earn Rewards</h1>
+
+                        <!-- Description -->
+                        <p class="text-center text-gray-600 max-w-xl mx-auto mb-10">
+                            Invite your friends and earn exciting rewards! Share your referral link or code, and
+                            get benefits when they successfully sign up.
+                        </p>
+
+                        <!-- Referral Link Section -->
+                        <div class="space-y-6">
+                            <!-- Link -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Referral Link</label>
+                                <div class="flex gap-3">
+                                    <input type="text" value="https://yourapp.com/register?ref=<%= user.referralCode %>"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none"
+                                        readonly>
+                                    <button
+                                        class="px-5 py-3 bg-black text-white rounded-lg hover:bg-gray-800">Copy</button>
+                                </div>
+                            </div>
+
+                            <!-- Code -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Referral Code</label>
+                                <div class="flex gap-3">
+                                    <input type="text" value="<%= user.referralCode %>"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none"
+                                        readonly>
+                                    <button
+                                        class="px-5 py-3 bg-black text-white rounded-lg hover:bg-gray-800">Copy</button>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+                    </div>
+                </main>
+
+        </div>
+        <%- include("../../views/partials/user/footer")%>
+
+            <script>
+                // Mobile Sidebar Toggle
+                const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                const userSidebar = document.getElementById('userSidebar');
+
+                mobileSidebarBtn.addEventListener('click', () => {
+                    userSidebar.classList.remove('hidden');
+                    userSidebar.classList.add('fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
+                    sidebarOverlay.classList.remove('hidden');
+                });
+
+                sidebarOverlay.addEventListener('click', () => {
+                    userSidebar.classList.add('hidden');
+                    userSidebar.classList.remove('fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
+                    sidebarOverlay.classList.add('hidden');
+
+                    // Restore desktop visibility
+                    if (window.innerWidth >= 1024) {
+                        userSidebar.classList.remove('hidden');
+                    }
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 1024) {
+                        userSidebar.classList.remove('hidden', 'fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-80');
+                        sidebarOverlay.classList.add('hidden');
+                    }
+                });
+            </script>
+</body>
+
+</html>

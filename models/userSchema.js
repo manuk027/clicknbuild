@@ -17,7 +17,7 @@ const userSchema = new Schema({
     googleId: { type: String,},
     password: { type: String, default: null, },
     referedBy: { type: String, default: null, },
-    referalCode: { type: String, default: null, },
+    referralCode: { type: String, default: null, },
     isBlocked: { type: Boolean, default: false, },
     isAdmin: { type: Boolean, default: false, },
     cart: [{ type: Schema.Types.ObjectId, ref: "Cart", }],

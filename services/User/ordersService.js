@@ -7,7 +7,6 @@ import Product from '../../models/productSchema.js';
 
 export const loadOrdersService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
-
     try {
         const user = await User.findById(userId);
         const page = parseInt(req.query.page) || 1;
@@ -198,6 +197,20 @@ export const returnOrderService = async (req, res) => {
         return res.json({ success: true, message: "Entire order return-requested." });
     } catch (error) {
         console.error(error);
+        return res.redirect('/pageNotFound');
+    }
+}
+
+
+export const loadReferAndEarnService = async (req, res) => {
+    const userId = req.user?._id || req.session?.user;
+    try {
+        const user = await User.findOne({ _id: userId });
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const component = await Category.find({ isComponent: true, isListed: true });
+        return res.render('referEarn', {peripheral, component, user});
+    } catch (error) {
+        console.error("Error loading Refer and earn page : ", error);
         return res.redirect('/pageNotFound');
     }
 }
