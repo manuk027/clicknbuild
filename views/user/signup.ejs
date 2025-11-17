@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>clickNbuild</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -47,10 +48,16 @@
             <p class="text-red-500"><%-message%></p>
 
             <!-- Referral -->
-            <p class="text-xs text-gray-600 mt-3">Anyone has referred you? Claim the reward</p>
-            <button type="button"
-                class="w-full border border-gray-300 rounded-md py-2 mt-1 font-medium hover:bg-gray-50">REFERRAL
-                CODE</button>
+            <div class="mt-2">
+                <label for="referralCode" class="block text-xs text-gray-600 mb-1">
+                    Referral Code (optional)
+                </label>
+
+                <input value="<%=referralCode%>" id="referralCode" name="referralCode" type="text" placeholder="Enter referral code" class="w-full border border-gray-300 rounded-md p-2 text-sm
+               focus:ring-indigo-500 focus:border-indigo-500
+               placeholder-gray-400" />
+            </div>
+
 
             <!-- Login Link -->
             <p class="text-xs text-gray-500 mt-2">Already have an account? <a href="/login"
@@ -86,6 +93,7 @@
         const passwordError = document.getElementById("passwordError");
         const confirmPasswordError = document.getElementById("confirmPasswordError");
         const signup = document.getElementById("signup");
+        const referralCode = document.getElementById("referralCode");
 
         //fullName validation
         function nameValidation(e) {
@@ -157,7 +165,7 @@
                 emailValidation();
                 passwordValidation();
                 confirmPasswordValidation();
-                if (fullNameError.innerHTML || emailError.innerHTML || passwordError.innerHTML || confirmPasswordError.innerHTML) {
+                if (fullNameError.innerHTML || emailError.innerHTML || passwordError.innerHTML || confirmPasswordError.innerHTML || referralCode.innerHTML) {
                     e.preventDefault();
                 }
             })

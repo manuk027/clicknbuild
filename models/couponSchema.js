@@ -1,5 +1,5 @@
 //importing necessary modules and functions
-import mongoose from 'mongoose';
+import mongoose, { disconnect } from 'mongoose';
 
 
 
@@ -8,14 +8,14 @@ const { Schema, model } = mongoose;
 
 
 //defining coupon schema 
-const couponSchema = new Coupon({
-    name: { type: String, unique: true, required: true, },
-    code: { type: String, unique: true, required: true, },
-    offerPrice: { type: Number, required: true, default: 0 },
-    expiryDate: { type: Date, required: true, },
+const couponSchema = new Schema({
+    name: { type: String, required: true, },
+    code: { type: String, required: true, },
+    discount: { type: Number, required: true, default: 0 },
+    expiresAt: { type: Date, required: true, default: () => Date.now() + 30 * 24 * 60 * 60 * 1000 },
     minimumPurchase: { type: Number, required: true, },
     isListed: { type: Boolean, default: true, },
-    userId: { type: Schema.Types.ObjectId, required: true, },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 });
 
 

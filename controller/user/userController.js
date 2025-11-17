@@ -1,7 +1,8 @@
 import User from "../../models/userSchema.js";
 import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js";
-import Brand from "../../models/brandSchema.js"
+import Brand from "../../models/brandSchema.js";
+import CouponUsage from '../../models/couponUsage.js';
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import emailOtp from "../../models/otp.js";
@@ -12,6 +13,8 @@ import mongoose from "mongoose";
 import Cart from "../../models/cartSchema.js"
 import Wishlist from '../../models/wishlistSchema.js';
 import { generateUniqueReferralCode } from '../../helpers/referalCode.js'
+import Coupon from '../../models/couponSchema.js';
+import { generateCouponCode } from '../../helpers/coupon.js'
 
 
 
@@ -77,7 +80,8 @@ const loadSignup = async (req, res) => {
         if (req.user?._id || req.session?.user) {
             return res.redirect('/')
         }
-        return res.render("signup", { message: null });
+        const referralCode = req.query.refToken || '';
+        return res.render("signup", { message: null, referralCode, });
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
@@ -182,7 +186,7 @@ async function sendEmail(email, otp, userName) {
 
 const signup = async (req, res) => {
     try {
-        const { fullName, email, password, confirmPassword } = req.body;
+        const { fullName, email, password, confirmPassword, referralCode } = req.body;
         if (password !== confirmPassword) {
             return res.render("signup", { message: "Password do not match." });
         }
@@ -198,7 +202,7 @@ const signup = async (req, res) => {
             return res.json("email-error");
         }
         req.session.userOtp = otp;
-        req.session.userData = { fullName, email, password };
+        req.session.userData = { fullName, email, password, referralCode };
         res.render("emailOTPVerification", { email: email });
     } catch (err) {
         console.error("Signup Error", err);
@@ -210,20 +214,50 @@ const signup = async (req, res) => {
 
 const verifyEmailOtp = async (req, res) => {
     try {
-        const { otp, email } = req.body;
+        const { otp, email, } = req.body;
         let otpDoc = await emailOtp.findOne({ email: email });
         if (!otpDoc) {
             return res.status(400).json({ success: false, message: "OTP expired." });
         }
         if (String(otp) === String(otpDoc.otp)) {
             const user = req.session.userData;
-            const referralCode = await generateUniqueReferralCode();
+            console.log(user);
+            let referralCode = user.referralCode;
+            let referredUser = null;
+            if (referralCode && referralCode.trim() !== "") {
+                referredUser = await User.findOne({ referralCode: referralCode.trim() });
+            }
+            if (referredUser) {
+                const coupon = new Coupon({
+                    name: `REFERRAL`,
+                    code: generateCouponCode(),
+                    userId: referredUser._id,
+                    discount: 10,
+                    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                    minimumPurchase: 20000,
+                    isListed: true,
+                });
+
+                await coupon.save();
+                const usage = new CouponUsage({
+                    userId: referredUser._id,
+                    couponId: coupon._id,
+                    used: false,
+                })
+                await usage.save();
+            }
+
+            console.log(referredUser);
             const saveUserData = new User({
                 fullName: user.fullName,
                 email: user.email,
                 password: user.password,
-                referralCode,
+                referedBy: referredUser ? referredUser._id : null,
             });
+            await saveUserData.save();
+            console.log(saveUserData);
+            const refCode = await generateUniqueReferralCode(saveUserData._id.toString());
+            saveUserData.referralCode = refCode;
             await saveUserData.save();
             req.session.user = saveUserData._id;
             await emailOtp.deleteMany({ email });
@@ -888,11 +922,14 @@ const loadAdresses = async (req, res) => {
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
         const address = await Address.findOne({ userId: userId }).skip(skip).limit(limit);
+        if (!address) {
+            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address: [], current: page, pages: 1, });
+        }
         const totalPages = Math.ceil(address.address.length / limit);
         if (!user) {
             return res.redirect('/login');
         } else {
-            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address, current: page, pages: totalPages });
+            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address: address.address, current: page, pages: totalPages });
         }
     } catch (error) {
         console.error("Error loading the address page: ", error);

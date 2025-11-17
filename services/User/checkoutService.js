@@ -6,6 +6,8 @@ import Order from '../../models/ordersSchema.js';
 import mongoose from "mongoose";
 import { generateSKU } from "../../helpers/skugenerator.js";
 import Product from '../../models/productSchema.js';
+import Coupon from '../../models/couponSchema.js';
+import CouponUsage from '../../models/couponUsage.js';
 
 
 
@@ -20,8 +22,12 @@ export const loadCheckoutService = async (req, res) => {
         address = address ? address.address : [];
         const cart = await Cart.findOne({ userId }).populate({ path: "items.productId", model: "Product", populate: { path: "brand", model: "Brand", select: "name" } }).lean();
         if (!cart) {
-            return res.render("checkout", { user, peripheral, component, cart: [], address, totalAmount: 0, deliveryCharge: 0, totalprice: 0 });
+            return res.render("checkout", { user, peripheral, component, cart: [], coupons: [], address, totalAmount: 0, deliveryCharge: 0, totalprice: 0 });
         }
+        const coupons = await Coupon.find({ $or: [{ userId: userId }, { userId: null }] });
+        const unUsedCoupons = await CouponUsage.find({ userId: userId, used: false }).populate("couponId");
+        // console.log(coupons);
+        console.log(unUsedCoupons);
         const filteredItem = cart.items
             .map(item => {
                 const product = item.productId;
@@ -51,8 +57,7 @@ export const loadCheckoutService = async (req, res) => {
             0
         );
         const deliveryCharge = totalAmount >= 50000 ? 0 : 199;
-        console.log(filteredItem, totalAmount);
-        return res.render("checkout", { user, peripheral, component, cart: filteredItem, address: address || [], totalAmount, deliveryCharge, totalprice, });
+        return res.render("checkout", { user, peripheral, component, cart: filteredItem, address: address || [], totalAmount, deliveryCharge, totalprice, coupon: unUsedCoupons });
     } catch (error) {
         console.error("Error loading the checkout service:", error);
         return res.redirect("/pageNotFound");
@@ -93,7 +98,7 @@ export const addAddressService = async (req, res) => {
 export const loadSummaryService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
     try {
-        const { address, products, paymentMethod, deliveryFee } = req.body;
+        const { address, products, paymentMethod } = req.body;
         const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
         const lastOrder = await Order.findOne({ orderId: { $regex: `^ORD${datePart}` } }).sort({ createdAt: -1 }).lean();
         let nextSequence = 1;
@@ -166,7 +171,8 @@ export const loadSummaryService = async (req, res) => {
         const deliveryDate = new Date(today);
         deliveryDate.setDate(today.getDate() + 7);
         const formattedDeliveryDate = deliveryDate.toLocaleDateString("en-CA");
-        let totalAmount = items.reduce((sum, i) =>  sum += i.subTotal , 0);
+        let totalAmount = items.reduce((sum, i) => sum += i.subTotal, 0);
+        let deliveryFee = totalAmount > 50000 ? 0 : 199;
         console.log(totalAmount);
         const newOrder = new Order({
             userId,
@@ -183,7 +189,7 @@ export const loadSummaryService = async (req, res) => {
             },
             items,
             deliveryFee,
-            totalAmount,
+            totalAmount: totalAmount + deliveryFee,
             paymentMethod: paymentMethod === "Cash on Delivery" ? "COD" : "Wallet",
             deliveryDate: formattedDeliveryDate,
         });

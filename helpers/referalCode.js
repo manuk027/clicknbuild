@@ -1,13 +1,17 @@
 import User from '../models/userSchema.js';
-import crypto from 'crypto'
 
-export async function generateUniqueReferralCode() {
-    while (true) {
-        const code = crypto.randomBytes(8).toString("hex").toUpperCase();
-        const exists = await User.findOne({ referralCode: code });
-
-        if (!exists) {
-            return code;
-        }
-    }
+export const generateUniqueReferralCode = async (userId) => {
+  console.log(userId);
+  const user = await User.findById(userId);
+  console.log(user);
+  let name = user.fullName.split(' ').join('').toUpperCase().split('').splice(0, 5).join('');
+  const random = generateReferralCode();
+  return name.concat(random);
 }
+
+
+import crypto from "crypto";
+
+const generateReferralCode = () => {
+  return crypto.randomBytes(3).toString("hex").toUpperCase();
+};

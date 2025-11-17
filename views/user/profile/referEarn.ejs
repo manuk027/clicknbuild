@@ -67,7 +67,8 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Your Referral Link</label>
                                 <div class="flex gap-3">
-                                    <input type="text" value="https://yourapp.com/register?ref=<%= user.referralCode %>"
+                                    <input type="text"
+                                        value="http://localhost:3000/signup?refToken=<%= user.referralCode %>"
                                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none"
                                         readonly>
                                     <button
@@ -87,7 +88,7 @@
                                 </div>
                             </div>
 
-                            
+
                         </div>
                     </div>
                 </main>
@@ -126,6 +127,25 @@
                     }
                 });
             </script>
+            <script>
+                // Copy Referral Link
+                const copyButtons = document.querySelectorAll("button");
+
+                copyButtons.forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const input = btn.previousElementSibling; // the input field
+                        input.select();
+                        input.setSelectionRange(0, 99999);
+                        navigator.clipboard.writeText(input.value)
+                            .then(() => {
+                                btn.innerText = "Copied!";
+                                setTimeout(() => btn.innerText = "Copy", 1500);
+                            })
+                            .catch(err => console.error("Failed to copy", err));
+                    });
+                });
+            </script>
+
 </body>
 
 </html>

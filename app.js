@@ -9,9 +9,10 @@ import adminRouter from "./routes/adminRouter.js";
 import cartRouter from "./routes/User/cartRouter.js"
 import wishlistRouter from "./routes/User/wishlistRouter.js";
 import checkoutRouter from "./routes/User/chekoutRouter.js";
-import orderRouter from './routes/User/orderRouter.js'
-import profileRouter from './routes/User/profileRouter.js'
-import invoiceRouter from './routes/User/invoiceRouter.js'
+import orderRouter from './routes/User/orderRouter.js';
+import profileRouter from './routes/User/profileRouter.js';
+import invoiceRouter from './routes/User/invoiceRouter.js';
+import couponRouter from "./routes/admin/couponRouter.js";
 import session from "express-session";
 import nocache from "nocache";
 import passport from "./config/passport.js";
@@ -59,18 +60,20 @@ app.set("views", [
   path.join(__dirname, "views/user/order"),
   path.join(__dirname, "views/user/checkout"),
   path.join(__dirname, "views/user/profile"),
+  path.join(__dirname, 'views/admin/coupons'),
 ]);
 
-//defining routes for admin side and user side
 app.use(express.static(path.join(__dirname, "public")));
+
 app.use("/", userRouter);
+app.use("/admin", couponRouter);
 app.use("/admin", adminRouter);
-app.use("/cart", cartRouter)
-app.use("/wishlist", wishlistRouter)
-app.use("/checkout", checkoutRouter)
-app.use("/order", orderRouter),
-  app.use("/", profileRouter),
-  app.use('/', invoiceRouter);
+app.use("/cart", cartRouter);
+app.use("/wishlist", wishlistRouter);
+app.use("/checkout", checkoutRouter);
+app.use("/order", orderRouter);
+app.use("/", profileRouter);
+app.use("/", invoiceRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`http://localhost:${process.env.PORT}`);

@@ -21,23 +21,54 @@
                 <!-- Left: Order Summary -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <div class="space-y-4 mb-6">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-                                    alt="Product" class="w-10 h-10 rounded-lg">
-                                <span class="text-sm text-gray-600">Order summary • <%= cart.length %> items</span>
-                            </div>
-                            <span class="text-lg font-semibold">₹<%= totalAmount + deliveryCharge %></span>
-                        </div>
+                        <% for (let i=0; i < coupon.length; i++) { %>
+
+                            <label class="block cursor-pointer">
+
+                                <!-- Hidden radio button -->
+                                <input type="radio" name="selectedCoupon" value="<%= coupon[i].couponId._id %>"
+                                    class="peer hidden" />
+
+                                <!-- Coupon Card -->
+                                <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300
+                   peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
+
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+                                            alt="Coupon" class="w-10 h-10 rounded-lg">
+
+                                        <span class="text-sm text-gray-600">
+                                            <%= coupon[i].couponId.discount %>% off on products above ₹
+                                                <%=coupon[i].couponId.minimumPurchase %>
+                                        </span>
+                                    </div>
+
+                                    <span class="text-lg font-semibold">
+                                        <%= coupon[i].couponId.name %>
+                                    </span>
+
+                                </div>
+
+                            </label>
+
+                            <% } %>
                     </div>
-                    <button
-                        class="w-full bg-black text-white py-4 rounded-xl font-medium flex items-center justify-between px-6 hover:bg-gray-800 transition">
-                        <span>View all coupons</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </button>
+                    <div class="mt-4">
+                        <button type="submit"
+                            class="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
+                            Apply Coupon
+                        </button>
+                    </div>
+
+                    <!-- <button
+                                class="w-full bg-black text-white py-4 rounded-xl font-medium flex items-center justify-between px-6 hover:bg-gray-800 transition">
+                                <span>View all coupons</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
+                            </button> -->
                 </div>
 
                 <!-- Right: Address Selection -->
@@ -317,14 +348,14 @@
 
                         <div>
                             <label class="text-sm font-medium">Full name</label>
-                            <input type="text" name="fullName" placeholder="Manu Krishna"
+                            <input type="text" name="fullName"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="fullName"></p>
                         </div>
 
                         <div>
                             <label class="text-sm font-medium">Mobile Number</label>
-                            <input type="text" name="phoneNumber" maxlength="10" placeholder="+91 000-000-000"
+                            <input type="text" name="phoneNumber" maxlength="10"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g,'')">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="phoneNumber"></p>
@@ -344,7 +375,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="text-sm font-medium">District</label>
-                            <input type="text" name="district" placeholder="eg : Ernakulam"
+                            <input type="text" name="district"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="district"></p>
                         </div>
@@ -362,14 +393,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="text-sm font-medium">City</label>
-                            <input type="text" name="city" placeholder="eg : Vytilla"
+                            <input type="text" name="city"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="city"></p>
                         </div>
 
                         <div>
                             <label class="text-sm font-medium">State</label>
-                            <input type="text" name="state" placeholder="eg : Kerala"
+                            <input type="text" name="state"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="state"></p>
                         </div>
@@ -378,7 +409,7 @@
                     <!-- LANDMARK OPTIONAL -->
                     <div>
                         <label class="text-sm font-medium">Landmark ( optional )</label>
-                        <input type="text" name="landmark" placeholder="eg : Hospital"
+                        <input type="text" name="landmark" placeholder="eg : near hospital"
                             class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                     </div>
 
