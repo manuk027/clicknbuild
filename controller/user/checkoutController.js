@@ -1,4 +1,4 @@
-import { loadCheckoutService, addAddressService, loadSummaryService } from '../../services/User/checkoutService.js';
+import { loadCheckoutService, addAddressService, loadSummaryService, createOrderService, verifyPaymentService, getTransactionDetailsService } from '../../services/User/checkoutService.js';
 
 export const loadCheckout = async (req, res) => {
     await loadCheckoutService(req, res);
@@ -11,4 +11,16 @@ export const addAddress = async (req, res) => {
 
 export const loadSummary = async (req, res) => {
     await loadSummaryService(req, res);
+}
+
+export const createOrder = async (req, res) => {
+    await createOrderService(req, res);
+}
+
+export const verifyPayment = async (req, res) => {
+    await verifyPaymentService(req, res);
+}
+
+export const getTransactionDetails = async (req, res) => {
+    await getTransactionDetailsService(req, res);
 }

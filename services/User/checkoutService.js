@@ -8,6 +8,8 @@ import { generateSKU } from "../../helpers/skugenerator.js";
 import Product from '../../models/productSchema.js';
 import Coupon from '../../models/couponSchema.js';
 import CouponUsage from '../../models/couponUsage.js';
+import { razorpay } from "../../config/razorPay.js";
+import crypto from 'crypto';
 
 
 
@@ -16,6 +18,7 @@ export const loadCheckoutService = async (req, res) => {
 
     try {
         const user = await User.findById(userId);
+        let appliedCoupon = req.body?.couponId || '';
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
         let address = await Address.findOne({ userId });
@@ -26,8 +29,6 @@ export const loadCheckoutService = async (req, res) => {
         }
         const coupons = await Coupon.find({ $or: [{ userId: userId }, { userId: null }] });
         const unUsedCoupons = await CouponUsage.find({ userId: userId, used: false }).populate("couponId");
-        // console.log(coupons);
-        console.log(unUsedCoupons);
         const filteredItem = cart.items
             .map(item => {
                 const product = item.productId;
@@ -48,16 +49,29 @@ export const loadCheckoutService = async (req, res) => {
         if (filteredItem.length === 0) {
             return res.json({ success: true, message: "The product in the cart is out of stock." });
         }
-        const totalprice = filteredItem.reduce(
+        let totalprice = filteredItem.reduce(
             (sum, item) => sum + item.productId.selectedVariant.price * item.quantity,
             0
         );
-        const totalAmount = filteredItem.reduce(
+        let totalAmount = filteredItem.reduce(
             (sum, item) => sum + item.subTotal,
             0
         );
+        const noCPNAmount = totalAmount;
         const deliveryCharge = totalAmount >= 50000 ? 0 : 199;
-        return res.render("checkout", { user, peripheral, component, cart: filteredItem, address: address || [], totalAmount, deliveryCharge, totalprice, coupon: unUsedCoupons });
+        let coupon;
+        let couponOffer;
+        if (appliedCoupon) {
+            coupon = await Coupon.findById(appliedCoupon);
+            if (totalprice < coupon.minimumPurchase) {
+                return res.json({ success: false, message: "Cannot apply the coupon, the minimum amount is not met." });
+            } else {
+                couponOffer = (totalAmount * coupon.discount) / 100;
+                totalAmount -= (totalAmount * coupon.discount) / 100
+            }
+
+        }
+        return res.render("checkout", { user, peripheral, component, cart: filteredItem, address: address || [], totalAmount, deliveryCharge, totalprice, coupon: unUsedCoupons, appliedCoupon: coupon || null, couponOffer, noCPNAmount });
     } catch (error) {
         console.error("Error loading the checkout service:", error);
         return res.redirect("/pageNotFound");
@@ -71,10 +85,10 @@ export const addAddressService = async (req, res) => {
     try {
         const { fullName, phoneNumber, address, district, pincode, city, state, landmark } = req.body;
         if (!req.body || !userId) {
-            return res.json({ success: false, message: "Address was not added." })
+            return res.json({ success: false, message: "Address was not added." });
         }
-        const userAddress = await Address.findOne({ userId });
-        let newAddress = {
+        let userAddress = await Address.findOne({ userId });
+        const newAddress = {
             fullName,
             phoneNumber,
             address,
@@ -83,22 +97,29 @@ export const addAddressService = async (req, res) => {
             city,
             pincode,
             landmark,
+        };
+        if (!userAddress) {
+            userAddress = new Address({
+                userId,
+                address: [newAddress],
+            });
+        } else {
+            userAddress.address.push(newAddress);
         }
-        userAddress.address.push(newAddress);
         await userAddress.save();
-        return res.json({ success: true, message: "Address was added." })
+        return res.json({ success: true, message: "Address was added." });
     } catch (error) {
         console.error("Error adding address at checkout : ", error);
-        return res.redirect('/pageNotFound');
+        return res.json({ success: false, message: "Server error while adding address." });
     }
-}
+};
 
 
 
 export const loadSummaryService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
     try {
-        const { address, products, paymentMethod } = req.body;
+        const { address, products, paymentMethod, couponId, transaction } = req.body;
         const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
         const lastOrder = await Order.findOne({ orderId: { $regex: `^ORD${datePart}` } }).sort({ createdAt: -1 }).lean();
         let nextSequence = 1;
@@ -160,7 +181,7 @@ export const loadSummaryService = async (req, res) => {
                 appliedOffer: appliedOffer,
                 category: category,
                 coverImage: prod.image,
-                status: "pending",
+                status: "Pending",
                 refundAmount: 0,
                 cancelReason: "none",
                 returnReason: "none",
@@ -171,9 +192,34 @@ export const loadSummaryService = async (req, res) => {
         const deliveryDate = new Date(today);
         deliveryDate.setDate(today.getDate() + 7);
         const formattedDeliveryDate = deliveryDate.toLocaleDateString("en-CA");
-        let totalAmount = items.reduce((sum, i) => sum += i.subTotal, 0);
+        let totalAmount = items.reduce((sum, i) => sum + i.subTotal, 0);
+        const coupon = await Coupon.findById(couponId);
+        if (coupon) {
+            const discountAmount = (totalAmount * coupon.discount) / 100;
+            totalAmount = totalAmount - discountAmount;
+            const couponUsed = await CouponUsage.findOneAndUpdate({ userId, couponId }, { $set: { used: true } });
+        }
         let deliveryFee = totalAmount > 50000 ? 0 : 199;
-        console.log(totalAmount);
+        let transactionDetails;
+        if (paymentMethod === "Online") {
+            transactionDetails = {
+                amount: transaction.amount,
+                paymentMethod: transaction.paymentMethod,
+                paymentType: transaction.method,
+                status: "Paid",
+                transactionId: transaction.acquirer_data?.upi_transaction_id || transaction.acquirer_data?.rrn || transaction.id,
+                time: Date.now(),
+            }
+        } else if (paymentMethod === "COD") {
+            transactionDetails = {
+                amount: totalAmount,
+                paymentMethod: "COD",
+                paymentType: null,
+                status: "Pending",
+                transactionId: null,
+                time: Date.now(),
+            }
+        }
         const newOrder = new Order({
             userId,
             orderId,
@@ -190,8 +236,11 @@ export const loadSummaryService = async (req, res) => {
             items,
             deliveryFee,
             totalAmount: totalAmount + deliveryFee,
-            paymentMethod: paymentMethod === "Cash on Delivery" ? "COD" : "Wallet",
+            paymentMethod: paymentMethod,
             deliveryDate: formattedDeliveryDate,
+            appliedOffer: couponId,
+            transaction: transactionDetails,
+            orderStatus: "Pending",
         });
         await newOrder.save();
         for (const item of items) {
@@ -210,3 +259,65 @@ export const loadSummaryService = async (req, res) => {
         return res.redirect("/pageNotFound");
     }
 };
+
+
+
+export const createOrderService = async (req, res) => {
+    try {
+        const amount = Number(req.body.amount);
+        if (!amount || amount <= 0) {
+            return res.json({ success: false, message: "Invalid amount" });
+        }
+        const options = {
+            amount: amount * 100,
+            currency: "INR",
+            receipt: "order_" + Date.now()
+        };
+        const order = await razorpay.orders.create(options);
+        return res.json({ success: true, order });
+    } catch (error) {
+        console.error("Razorpay create order error:", error);
+        return res.json({ success: false, message: "Failed to create order" });
+    }
+}
+
+
+
+export const verifyPaymentService = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac("sha256", process.env.RZP_TEST_SECRET)
+            .update(sign)
+            .digest("hex");
+        if (expectedSignature === razorpay_signature) {
+            return res.json({ success: true });
+        } else {
+            return res.json({ success: false, message: "Signature mismatch" });
+        }
+    } catch (error) {
+        console.error("Payment verify error:", error);
+        return res.json({ success: false, message: "Something went wrong" });
+    }
+}
+
+
+
+export const getTransactionDetailsService = async (req, res) => {
+    try {
+        const { paymentId } = req.body;
+
+        if (!paymentId) {
+            return res.json({ success: false, message: "Payment ID missing" });
+        }
+
+        const payment = await razorpay.payments.fetch(paymentId);
+
+        res.json({ success: true, payment });
+    } catch (err) {
+        console.error("Transaction fetch error:", err);
+        res.json({ success: false, message: err.message });
+    }
+}
+

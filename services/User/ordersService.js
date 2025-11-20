@@ -89,9 +89,9 @@ export const cancelOrderService = async (req, res) => {
             );
         }
         order.items = order.items.map(item => ({
-            ...item, status: "cancelled",
+            ...item, status: "Cancelled",
         }))
-        order.orderStatus = "cancelled";
+        order.orderStatus = "Cancelled";
         await order.save();
         return res.json({ success: true, message: "Order Cancelled" });
     } catch (error) {
@@ -117,7 +117,7 @@ export const cancelProductService = async (req, res) => {
             { $inc: { "variants.$.quantity": item.quantity } }
         );
         item.status = "cancelled";
-        const allCancelled = order.items.every(i => i.status === "cancelled");
+        const allCancelled = order.items.every(i => i.status === "Cancelled");
         if (allCancelled) {
             order.orderStatus = "cancelled";
         }
@@ -154,11 +154,11 @@ export const returnItemService = async (req, res) => {
         }
         variant.quantity += item.quantity;
         await product.save();
-        item.status = "return-requested";
+        item.status = "Return requested";
         item.returnReason = reason;
-        const allRequested = order.items.every(i => i.status === "return-requested");
+        const allRequested = order.items.every(i => i.status === "Return requested");
         if (allRequested) {
-            order.orderStatus = "return-requested";
+            order.orderStatus = "Return requested";
             order.returnReason = reason;
         }
         await order.save();
@@ -188,10 +188,10 @@ export const returnOrderService = async (req, res) => {
             if (!variant) continue;
             variant.quantity += item.quantity;
             await product.save();
-            item.status = "return-requested";
+            item.status = "Return requested";
             item.returnReason = reason;
         }
-        order.orderStatus = "return-requested";
+        order.orderStatus = "Return requested";
         order.returnReason = reason;
         await order.save();
         return res.json({ success: true, message: "Entire order return-requested." });
@@ -208,7 +208,7 @@ export const loadReferAndEarnService = async (req, res) => {
         const user = await User.findOne({ _id: userId });
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        return res.render('referEarn', {peripheral, component, user});
+        return res.render('referEarn', { peripheral, component, user });
     } catch (error) {
         console.error("Error loading Refer and earn page : ", error);
         return res.redirect('/pageNotFound');

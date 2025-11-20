@@ -132,7 +132,7 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
           <div class="relative group">
             <button class="hover:text-gray-300 flex items-center gap-1">
 
-              <img src="<%=user.profilePhoto%>" alt="user" class="w-6 h-6 rounded-full">
+              <img src="<%=user.profilePhoto || "https://res.cloudinary.com/dmx7sia5q/image/upload/v1763480620/Untitled_design_h0wjcl.png"%>" alt="user" class="w-6 h-6 rounded-full">
               <span class="text-sm">
                 <%=locals.user.fullName%>
               </span>

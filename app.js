@@ -13,6 +13,7 @@ import orderRouter from './routes/User/orderRouter.js';
 import profileRouter from './routes/User/profileRouter.js';
 import invoiceRouter from './routes/User/invoiceRouter.js';
 import couponRouter from "./routes/admin/couponRouter.js";
+import walletRouter from './routes/User/walletRouter.js';
 import session from "express-session";
 import nocache from "nocache";
 import passport from "./config/passport.js";
@@ -72,6 +73,7 @@ app.use("/cart", cartRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/checkout", checkoutRouter);
 app.use("/order", orderRouter);
+app.use('/wallet', walletRouter);
 app.use("/", profileRouter);
 app.use("/", invoiceRouter);
 

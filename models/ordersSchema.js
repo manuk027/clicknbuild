@@ -1,6 +1,5 @@
 //importing necessary modules and functions
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -9,8 +8,9 @@ const { Schema, model } = mongoose;
 const transactionsSchema = new Schema({
     _id: false,
     amount: { type: Number },
-    paymentMethod: { type: String, enum: ["COD", "Razorpay", "Wallet"], },
-    status: { type: String, enum: ["pending", "paid", "completed", "refunded"], default: "pending" },
+    paymentMethod: { type: String, enum: ["COD", "Online", "Wallet"], },
+    paymentType: { type: String, },
+    status: { type: String, enum: ["Pending", "Paid", "Refunded"], default: "pending" },
     transactionId: { type: String, default: null },
     time: { type: Date, default: Date.now },
 });
@@ -27,7 +27,7 @@ const itemSchema = new Schema({
     appliedOffer: { type: String },
     category: { type: String, },
     coverImage: { type: String },
-    status: { type: String, enum: ["pending", "processing", "out-for-delivery", "delivered", "cancelled", "return-requested", "returned",], default: "pending", },
+    status: { type: String, enum: ["Pending", "Processing", "Out for delivery", "Delivered", "Cancelled", "Return requested", "Returned",], default: "pending", },
     refundAmount: { type: Number, default: 0 },
     cancelReason: { type: String, default: "none" },
     returnReason: { type: String, default: "none" },
@@ -57,11 +57,12 @@ const orderSchema = new Schema({
     deliveryFee: { type: Number, },
     totalAmount: { type: Number, },
     returnReason: { type: String },
-    paymentMethod: { type: String, enum: ["COD", "Razorpay", "Wallet"], required: true, },
+    paymentMethod: { type: String, enum: ["COD", "Online", "Wallet"], required: true, },
     paymentStatus: { type: String, enum: ["pending", "paid", "completed", "refunded", "failed"], default: "pending" },
-    // transactions: [transactionsSchema,],
-    orderStatus: { type: String, enum: ["Pending", "Processing", "Out for delivery", "cancelled", "Returned", "return-requested", "delivered"], defualt: "Pending", },
+    transaction: transactionsSchema,
+    orderStatus: { type: String, enum: ["Pending", "Processing", "Out for delivery", "Cancelled", "Returned", "Return requested", "Delivered"], defualt: "Pending", },
     orderDate: { type: Date, default: Date.now, },
+    appliedOffer: { type: Schema.Types.ObjectId, ref: "Coupon", default: null },
     deliveryDate: { type: Date }
 }, { timestamps: true });
 

@@ -21,7 +21,7 @@ const loadOrders = async (req, res) => {
 
 
         const orders = await Order.find().sort(sortOption);
-
+        console.log(orders);
 
         let rows = [];
 
@@ -30,6 +30,7 @@ const loadOrders = async (req, res) => {
                 rows.push({
                     orderId: order.orderId,
                     coverImage: item.coverImage,
+                    itemId: item._id,
                     name: item.name,
                     sku: item.sku,
                     orderDate: order.orderDate,
@@ -37,11 +38,19 @@ const loadOrders = async (req, res) => {
                     subtotal: item.subTotal,
                     quantity: item.quantity,
                     method: order.paymentMethod,
-                    status: item.status
+                    status: item.status,
+                    transaction: order.transaction,
+                    totalAmount: order.totalAmount,
+                    deliveryFee: order.deliveryFee,
+                    orderStatus: order.orderStatus,
+                    paymentMethod: order.paymentMethod,
+                    appliedOffer: order.appliedOffer,
+                    returnReason: item.returnReason,
                 });
             });
         });
 
+        // console.log(rows);
 
         if (searchTerm) {
             rows = rows.filter(row =>
@@ -86,50 +95,53 @@ const changeStatus = async (req, res) => {
             return res.json({ success: false, message: "Missing required fields." });
         }
         const order = await Order.findOneAndUpdate(
-            { orderId: orderId, "items.sku": sku },
+            { orderId, "items.sku": sku },
             { $set: { "items.$.status": status } },
             { new: true }
         );
         if (!order) {
             return res.json({ success: false, message: "Order or item not found." });
         }
-        const activeStates = ["pending", "processing", "out-for-delivery", "return-requested"];
-        const hasActiveItems = order.items.some(item =>
-            activeStates.includes(item.status)
-        );
-        if (!hasActiveItems) {
-            const finalStatuses = order.items.map(item => item.status);
-            if (finalStatuses.every(s => s === "delivered")) {
-                order.orderStatus = "delivered";
-            }
-            else if (finalStatuses.every(s => s === "cancelled")) {
-                order.orderStatus = "cancelled";
-            }
-            else if (finalStatuses.every(s => s === "returned" || s === "Returned")) {
-                order.orderStatus = "Returned"; 
-            }
-            else if (finalStatuses.every(s => s === "return-requested")) {
-                order.orderStatus = "return-requested";
-            }
-            else {
-                order.orderStatus = "delivered";
-            }
-
+        const statuses = order.items.map(item => item.status);
+        const uniqueStatuses = [...new Set(statuses)];
+        if (uniqueStatuses.length === 1) {
+            order.orderStatus = uniqueStatuses[0];
             await order.save();
         }
-
         return res.json({
             success: true,
             message: "Order item status updated successfully!"
         });
-
     } catch (error) {
         console.error(error);
         return res.json({ success: false, message: "Internal server error." });
     }
 };
 
+const loadOrderDetails = async (req, res) => {
+    try {
+        console.log(req.parms.id);
+    } catch (error) {
+
+    }
+}
 
 
 
-export default { loadOrders, changeStatus };
+
+export default { loadOrders, changeStatus, loadOrderDetails };
+
+
+
+
+// {
+//     _id: new ObjectId('691e0277febd7449d6d64ffd'),
+//     userId: new ObjectId('691a140741cda9393f9fd273'),
+//     items: [ [Object] ],
+//     deliveryDate: 2025-11-26T00:00:00.000Z,
+//     orderDate: 2025-11-19T17:46:31.844Z,
+//     createdAt: 2025-11-19T17:46:31.845Z,
+//     updatedAt: 2025-11-19T17:48:27.151Z,
+//     __v: 0,
+//     returnReason: 'Got damaged product'
+//   }

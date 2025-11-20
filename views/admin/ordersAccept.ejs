@@ -93,12 +93,18 @@
                                 class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                                 <a onclick="applyFilter('Delivered')"
                                     class="block px-4 py-2 hover:bg-gray-100">Delivered</a>
-                                     <a onclick="applyFilter('return-requested')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Return-requested</a>
+                                <a onclick="applyFilter('Return requested')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Return requested</a>
                                 <a onclick="applyFilter('Pending')"
                                     class="block px-4 py-2 hover:bg-gray-100">Pending</a>
                                 <a onclick="applyFilter('Cancelled')"
                                     class="block px-4 py-2 hover:bg-gray-100">Cancelled</a>
+                                <a onclick="applyFilter('Processing')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Processing</a>
+                                <a onclick="applyFilter('Out for delivery')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Out for delivery</a>
+                                <a onclick="applyFilter('Returned')"
+                                    class="block px-4 py-2 hover:bg-gray-100">Returned</a>
                                 <a onclick="applyFilter('All')" class="block px-4 py-2 hover:bg-gray-100">All</a>
 
                             </div>
@@ -155,8 +161,7 @@
                             });
 
                             document.addEventListener("click", (e) => {
-                                if (!document.getElementById("sortBtn").contains(e.target) &&
-                                    !document.getElementById("sortDropdown").contains(e.target)) {
+                                if (!document.getElementById("sortBtn").contains(e.target) && !document.getElementById("sortDropdown").contains(e.target)) {
                                     document.getElementById("sortDropdown").classList.add("hidden");
                                 }
                             });
@@ -182,31 +187,11 @@
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Image
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Product
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
                                         SKU
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
                                         Date
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Customer
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Subtotal
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Method
                                     </th>
                                     <th
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
@@ -216,66 +201,207 @@
                                         class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
                                         Action
                                     </th>
+                                     <th
+                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
+                                        Details
+                                    </th>
                                 </tr>
                             </thead>
 
                             <tbody class="divide-y divide-gray-200">
                                 <%for(let i=0; i<product.length; i++){%>
-                                    <tr class="hover:bg-gray-50 transition-colors">
+                                   <tr class="hover:bg-gray-50 transition-colors" data-order='<%- JSON.stringify(product[i]) %>'>
+
                                         <td class="px-4 py-4 text-gray-700">
                                             <%=product[i].orderId%>
                                         </td>
-                                        <td class="px-4 py-4">
-                                            <div class="w-10 h-10 flex-shrink-0 mx-auto">
-                                                <img src="<%=product[i].coverImage%>" alt="<%= product[i].name %>"
-                                                    class="rounded-full w-full h-full object-cover">
-                                            </div>
-                                        </td>
-
                                         <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].name%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.sku%>
+                                            <%=product[i].sku%>
                                         </td>
                                         <td class="px-4 py-4 text-gray-700">
                                             <%=product[i]?.orderDate.toLocaleDateString("en-CA")%>
                                         </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.address.fullName%>
-                                                <%=product[i]?.address.phoneNumber%>
-                                                    <%=product[i]?.address.address%>
-                                                        <%=product[i]?.address.district%>
-                                                            <%=product[i]?.address.state%>
-                                                                <%=product[i]?.address.city%>-
-                                                                    <%=product[i]?.address.pincode%>
-                                                                        <%=product[i]?.address.landmark%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.subtotal%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.method%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.status%>
-                                        </td>
+                                        <%
+function statusColor(status) {
+    switch (status) {
+        case "Delivered": return "bg-green-100 text-green-700";
+        case "Pending": return "bg-yellow-100 text-yellow-700";
+        case "Cancelled": return "bg-red-100 text-red-700";
+        case "Return requested": return "bg-blue-100 text-blue-700";
+        default: return "bg-gray-100 text-gray-700";
+    }
+}
+%>
+
+                                       <td class="px-4 py-4 text-gray-700">
+    <span class="<%= statusColor(product[i].status) %> px-3 py-1 rounded-full text-sm font-medium">
+        <%= product[i].status %>
+    </span>
+</td>
+
 
                                         <td class="px-4 py-4 text-gray-700 relative">
                                             <button class="orderActionBtn p-2 text-gray-600 hover:bg-gray-100 rounded"
-                                                data-id="<%= product[i].orderId %>"
-                                                data-sku="<%= product[i].sku %>"
-                                                data-status="<%= product[i].status %>">
+                                                data-id="<%= product[i].orderId %>" data-sku="<%= product[i].sku %>"
+                                                data-status="<%= product[i].orderId %>">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                         </td>
+                                        <td class="px-4 py-4 text-gray-700">
+                                           <button class="text-gray-600 hover:text-gray-900 transition-colors showVariantsBtn"
+    data-id="<%= product[i].itemId %>">
+    <i class="far fa-eye text-lg"></i>
+</button>
 
 
+                                        </td>
 
                                     </tr>
                                     <%}%>
+
+
                             </tbody>
                         </table>
+                        <!-- Modal -->
+<div id="orderModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-2xl p-6 relative 
+                max-h-[80vh] overflow-y-auto">
+
+        <!-- Close Button -->
+        <button id="closeOrderModal" class="absolute top-3 right-3 text-gray-500 text-xl">
+            ✕
+        </button>
+
+        <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+
+        <div id="orderDetailsContent" class="space-y-2 text-gray-700"></div>
+    </div>
+</div>
+
+
+                        <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const modal = document.getElementById("orderModal");
+    const closeModal = document.getElementById("closeOrderModal");
+    const contentBox = document.getElementById("orderDetailsContent");
+
+    const showButtons = document.querySelectorAll(".showVariantsBtn");
+
+    showButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            // Find parent row
+            const row = btn.closest("tr");
+
+            // Extract existing JSON data
+            const order = JSON.parse(row.dataset.order);
+
+            // Build modal HTML
+            contentBox.innerHTML = `
+    <div class="space-y-6">
+
+        <!-- ORDER SUMMARY -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Order Summary</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString("en-CA")}</p>
+
+                <p><strong>Status:</strong> ${order.status}</p>
+                <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+
+                <p><strong>Order Status:</strong> ${order.orderStatus || "-"}</p>
+                <p><strong>Applied Offer:</strong> ${order.appliedOffer || "No offers applied"}</p>
+            </div>
+        </div>
+
+        <!-- PRODUCT DETAILS -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Product Details</h3>
+
+            <div class="flex items-center gap-4">
+                <img src="${order.coverImage}" class="w-20 h-20 object-cover rounded-lg border" />
+
+                <div>
+                    <p><strong>${order.name}</strong></p>
+                    <p class="text-sm text-gray-600">SKU: ${order.sku}</p>
+                    <p class="text-sm text-gray-600">Quantity: ${order.quantity}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRICE BREAKDOWN -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Price Breakdown</h3>
+
+            <div class="space-y-2">
+                <p><strong>Subtotal:</strong> ₹${order.subtotal}</p>
+                <p><strong>Delivery Fee:</strong> ₹${order.deliveryFee}</p>
+                <p><strong>Total Amount:</strong> <span class="font-bold">₹${order.totalAmount}</span></p>
+            </div>
+        </div>
+
+        <!-- TRANSACTION DETAILS -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Transaction Details</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <p><strong>Amount:</strong> ₹${order.transaction.amount}</p>
+                <p><strong>Method:</strong> ${order.transaction.paymentMethod}</p>
+
+                <p><strong>Payment Type:</strong> ${order.transaction.paymentType || '-'}</p>
+                <p><strong>Status:</strong> ${order.transaction.status || '-'}</p>
+
+                <p><strong>Transaction ID:</strong> ${order.transaction.transactionId || '-'}</p>
+            </div>
+        </div>
+
+        <!-- CUSTOMER DETAILS -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Customer Details</h3>
+
+            <p><strong>Name:</strong> ${order.address.fullName}</p>
+            <p><strong>Phone:</strong> ${order.address.phoneNumber}</p>
+        </div>
+
+        <!-- SHIPPING ADDRESS -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Shipping Address</h3>
+
+            <p>${order.address.address}, ${order.address.city}</p>
+            <p>${order.address.district}, ${order.address.state}</p>
+            <p>${order.address.pincode}</p>
+            <p>${order.address.landmark}</p>
+        </div>
+
+        <!-- RETURN INFO -->
+        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+            <h3 class="font-semibold text-lg mb-3">Return Details</h3>
+            <p><strong>Reason:</strong> ${order.returnReason || "No return requested"}</p>
+        </div>
+
+    </div>
+`;
+
+
+            modal.classList.remove("hidden");
+        });
+    });
+
+    // Close Modal
+    closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+
+    modal.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.add("hidden");
+    });
+
+});
+</script>
+
                         <div id="statusModal"
                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
 
@@ -285,12 +411,13 @@
 
                                 <select id="statusSelect"
                                     class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-black mb-4">
-                                    <option value="pending">Pending</option>
-                                    <option value="processing">Processing</option>
-                                    <option value="out-for-delivery">Out for delivery</option>
-                                    <option value="delivered">Delivered</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="returned">Returned</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Out for delivery">Out for delivery</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Returned">Returned</option>
+                                    <option value="Return requested">Return requested</option>
                                 </select>
 
                                 <div class="flex justify-end gap-3 mt-4">
@@ -309,141 +436,148 @@
                         </div>
 
                         <script>
-const modal = document.getElementById("statusModal");
-const statusSelect = document.getElementById("statusSelect");
-const cancelBtn = document.getElementById("cancelModal");
-const confirmBtn = document.getElementById("confirmStatus");
+                            const modal = document.getElementById("statusModal");
+                            const statusSelect = document.getElementById("statusSelect");
+                            const cancelBtn = document.getElementById("cancelModal");
+                            const confirmBtn = document.getElementById("confirmStatus");
 
-let activeOrderId = null;
-let activeSku = null;
+                            let activeOrderId = null;
+                            let activeSku = null;
 
-// Open modal when clicking Action button
-document.querySelectorAll(".orderActionBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        activeOrderId = btn.dataset.id;
-        activeSku = btn.dataset.sku;
-        statusSelect.value = btn.dataset.status || "pending";
+                            // Open modal when clicking Action button
+                            document.querySelectorAll(".orderActionBtn").forEach(btn => {
+                                btn.addEventListener("click", () => {
+                                    activeOrderId = btn.dataset.id;
+                                    activeSku = btn.dataset.sku;
+                                    statusSelect.value = btn.dataset.status || "pending";
 
-        modal.classList.remove("hidden");
-    });
-});
+                                    modal.classList.remove("hidden");
+                                });
+                            });
 
-// Close modal
-cancelBtn.addEventListener("click", () => {
-    modal.classList.add("hidden");
-});
+                            // Close modal
+                            cancelBtn.addEventListener("click", () => {
+                                modal.classList.add("hidden");
+                            });
 
-// Close modal when clicking outside card
-modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-        modal.classList.add("hidden");
-    }
-});
+                            // Close modal when clicking outside card
+                            modal.addEventListener("click", (e) => {
+                                if (e.target === modal) {
+                                    modal.classList.add("hidden");
+                                }
+                            });
 
-// Change status
-confirmBtn.addEventListener("click", async () => {
-    const newStatus = statusSelect.value;
+                            // Change status
+                            confirmBtn.addEventListener("click", async () => {
+                                const newStatus = statusSelect.value;
 
-    const res = await fetch("/admin/orders/updateStatus", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            orderId: activeOrderId,
-            sku: activeSku,           // ✅ SEND SKU
-            status: newStatus
-        })
-    });
+                                const res = await fetch("/admin/orders/updateStatus", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        orderId: activeOrderId,
+                                        sku: activeSku,           // ✅ SEND SKU
+                                        status: newStatus
+                                    })
+                                });
 
-    const data = await res.json();
+                                const data = await res.json();
 
-    if (data.success) {
-        Swal.fire("Updated!", data.message, "success")
-            .then(() => location.reload());
-    } else {
-        Swal.fire("Error", data.message, "error");
-    }
+                                if (data.success) {
+                                    Swal.fire("Updated!", data.message, "success")
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire("Error", data.message, "error");
+                                }
 
-    modal.classList.add("hidden");
-});
-</script>
+                                modal.classList.add("hidden");
+                            });
+                        </script>
 
                     </div>
                 </div>
 
-                <% if (product.length > 0) { %>
-<div class="flex justify-center m-6">
-    <nav aria-label="Dashboard Pagination">
-        <ul class="flex items-center space-x-2">
+                <% if (product.length> 0) { %>
+                    <div class="flex justify-center m-6">
+                        <nav aria-label="Dashboard Pagination">
+                            <ul class="flex items-center space-x-2">
 
-            <% 
-                // Build base URL with existing filters
-                let baseUrl = `/admin/orders?sort=${sort || ""}&search=${search || ""}&status=${statusFilter || ""}`;
-            %>
+                                <% // Build base URL with existing filters 
+                                    let baseUrl=`/admin/orders?sort=${sort || ""}&search=${search || "" }&status=${statusFilter || "" }`; 
+                                    %>
 
-            <!-- First Page -->
-            <% if (current == 1) { %>
-                <li>
-                    <span class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                        First
-                    </span>
-                </li>
-            <% } else { %>
-                <li>
-                    <a href="<%= baseUrl %>&page=1"
-                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                        First
-                    </a>
-                </li>
-            <% } %>
+                                    <!-- First Page -->
+                                    <% if (current==1) { %>
+                                        <li>
+                                            <span
+                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                                First
+                                            </span>
+                                        </li>
+                                        <% } else { %>
+                                            <li>
+                                                <a href="<%= baseUrl %>&page=1"
+                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                    First
+                                                </a>
+                                            </li>
+                                            <% } %>
 
-            <!-- Ellipsis Before -->
-            <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
-            <% if (i !== 1) { %>
-                <li><span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span></li>
-            <% } %>
+                                                <!-- Ellipsis Before -->
+                                                <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                                    <% if (i !==1) { %>
+                                                        <li><span
+                                                                class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                        </li>
+                                                        <% } %>
 
-            <!-- Page Numbers -->
-            <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
-                <% if (i == current) { %>
-                    <li>
-                        <span class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                            <%= i %>
-                        </span>
-                    </li>
-                <% } else { %>
-                    <li>
-                        <a href="<%= baseUrl %>&page=<%= i %>"
-                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                            <%= i %>
-                        </a>
-                    </li>
-                <% } %>
+                                                            <!-- Page Numbers -->
+                                                            <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                                                <% if (i==current) { %>
+                                                                    <li>
+                                                                        <span
+                                                                            class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                                            <%= i %>
+                                                                        </span>
+                                                                    </li>
+                                                                    <% } else { %>
+                                                                        <li>
+                                                                            <a href="<%= baseUrl %>&page=<%= i %>"
+                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                <%= i %>
+                                                                            </a>
+                                                                        </li>
+                                                                        <% } %>
 
-                <% if (i == Number(current) + 4 && i < pages) { %>
-                    <li><span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span></li>
-                <% } %>
-            <% } %>
+                                                                            <% if (i==Number(current) + 4 && i < pages)
+                                                                                { %>
+                                                                                <li><span
+                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                                </li>
+                                                                                <% } %>
+                                                                                    <% } %>
 
-            <!-- Last Page -->
-            <% if (current == pages) { %>
-                <li>
-                    <span class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                        Last
-                    </span>
-                </li>
-            <% } else { %>
-                <li>
-                    <a href="<%= baseUrl %>&page=<%= pages %>"
-                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                        Last
-                    </a>
-                </li>
-            <% } %>
+                                                                                        <!-- Last Page -->
+                                                                                        <% if (current==pages) { %>
+                                                                                            <li>
+                                                                                                <span
+                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                                                                                    Last
+                                                                                                </span>
+                                                                                            </li>
+                                                                                            <% } else { %>
+                                                                                                <li>
+                                                                                                    <a href="<%= baseUrl %>&page=<%= pages %>"
+                                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                                        Last
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                                <% } %>
 
-        </ul>
-    </nav>
-</div>
-<% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    <% } %>
 
             </main>
         </div>
@@ -455,67 +589,6 @@ confirmBtn.addEventListener("click", async () => {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/admin/categoryList.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.querySelectorAll(".showVariantsBtn").forEach(button => {
-            button.addEventListener("click", async () => {
-                const productId = button.dataset.id;
-
-                try {
-                    const res = await fetch(`/admin/ptoducts/viewVariants?id=${productId}`);
-                    const data = await res.json();
-                    if (!data.success) {
-                        return Swal.fire("Error", data.message, "error");
-                    }
-                    const product = data.product;
-
-                    if (!product || !product.variants || product.variants.length === 0) {
-                        return Swal.fire("Info", "No variants found for this product.", "info");
-                    }
-
-                    // Build variants table HTML
-                    let variantsHTML = `
-        <table style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th style="border:1px solid #ccc; padding:8px;">Variant</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Quantity</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Price</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Offer</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-                    product.variants.forEach(v => {
-                        variantsHTML += `
-            <tr>
-                <td style="border:1px solid #ccc; padding:8px;">${v.variant}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.quantity}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.price}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.offer}</td>
-            </tr>
-        `;
-                    });
-
-                    variantsHTML += '</tbody></table>';
-
-                    // Show popup
-                    Swal.fire({
-                        title: `Variants of ${product.model}`,
-                        html: variantsHTML,
-                        width: '700px',
-                        showCloseButton: true,
-                        confirmButtonText: 'Close'
-                    });
-
-                } catch (error) {
-                    console.error(error);
-                    Swal.fire("Error", "Failed to fetch product variants.", "error");
-                }
-
-            });
-        });
-    </script>
 
 </body>
 

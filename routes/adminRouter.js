@@ -63,7 +63,7 @@ router.put("/products/editProduct/:id", upload.array("images", 4), productContro
 //order management
 router.get('/orders', auth.adminAuth, orderController.loadOrders);
 router.post('/orders/updateStatus', auth.adminAuth, orderController.changeStatus);
-
+router.get('/order/details/:id', auth.adminAuth, orderController.loadOrderDetails);
 
 
 router.get(/(.*)/, (req, res)=>{
