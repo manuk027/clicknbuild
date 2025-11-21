@@ -27,7 +27,7 @@ const itemSchema = new Schema({
     appliedOffer: { type: String },
     category: { type: String, },
     coverImage: { type: String },
-    status: { type: String, enum: ["Pending", "Processing", "Out for delivery", "Delivered", "Cancelled", "Return requested", "Returned",], default: "pending", },
+    status: { type: String, enum: ["Pending", "Processing", "Out for delivery", "Delivered", "Cancelled", "Return requested", "Returned",], default: "Pending", },
     refundAmount: { type: Number, default: 0 },
     cancelReason: { type: String, default: "none" },
     returnReason: { type: String, default: "none" },

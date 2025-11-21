@@ -245,6 +245,12 @@
                             <span class="ml-3 font-medium">Online Payment</span>
                         </label>
 
+                        <label
+                            class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition mt-4">
+                            <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black">
+                            <span class="ml-3 font-medium">Wallet</span>
+                        </label>
+
                     </div>
                 </div>
 
@@ -430,7 +436,6 @@
                                            6️⃣ COD → DIRECT ORDER
                                         ============================================================ */
                                         if (paymentMethod === "COD") {
-
                                             try {
                                                 placeOrderBtn.disabled = true;
                                                 placeOrderBtn.textContent = "Placing Order...";
@@ -459,6 +464,33 @@
                                                 Swal.fire("Error", "Network error", "error");
                                             }
 
+                                            placeOrderBtn.disabled = false;
+                                            placeOrderBtn.textContent = "Place Order";
+                                            return;
+                                        } else if (paymentMethod === 'Wallet') {
+                                            try {
+                                                placeOrderBtn.disabled = true;
+                                                placeOrderBtn.textContent = 'Placing Order...';
+                                                const response = await fetch('/checkout/place-order', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify(orderData)
+                                                });
+                                                const result = await response.json();
+                                                if (result.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Order Placed!",
+                                                        confirmButtonColor: '#000'
+                                                    }).then(() => {
+                                                        window.location.href = `/order/summary/${result.received.orderId}`;
+                                                    });
+                                                } else {
+                                                    Swal.fire("Out of blanace!", result.message, "error");
+                                                }
+                                            } catch (error) {
+                                                Swal.fire("Error", "Network error", "error")
+                                            }
                                             placeOrderBtn.disabled = false;
                                             placeOrderBtn.textContent = "Place Order";
                                             return;

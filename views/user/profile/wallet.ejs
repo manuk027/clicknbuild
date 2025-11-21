@@ -8,6 +8,8 @@
     <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
         type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body class="bg-gray-50">
@@ -59,69 +61,302 @@
                         <div
                             class="bg-gradient-to-r from-black to-gray-700 rounded-lg p-4 md:p-6 mb-6 md:mb-8 text-white text-center">
                             <p class="text-xs md:text-sm font-medium mb-2 opacity-90">Available wallet balance</p>
-                            <p class="text-2xl md:text-4xl font-light">₹4890.00</p>
+                            <p class="text-2xl md:text-4xl font-light">
+                                ₹<%=currentBalance%>
+                            </p>
                         </div>
 
                         <!-- Transactions Table -->
-                        <div class="mb-6 md:mb-8">
-                            <h2 class="text-base md:text-lg font-medium text-gray-700 mb-3 md:mb-4">Recent Transactions
-                            </h2>
+                        <%if(wallet.length>=1){%>
+                            <div class="mb-6 md:mb-8">
+                                <h2 class="text-base md:text-lg font-medium text-gray-700 mb-3 md:mb-4">Recent
+                                    Transactions
+                                </h2>
 
-                            <!-- Desktop Table -->
-                            <div class="hidden md:block overflow-x-auto">
-                                <table class="w-full">
-                                    <thead>
-                                        <tr class="bg-gray-100 border-b border-gray-200">
-                                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">
-                                                Transaction ID</th>
-                                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
-                                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount
-                                            </th>
-                                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">
-                                                Description</th>
-                                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-3 text-sm text-gray-600">#8374034804</td>
-                                            <td class="px-4 py-3 text-sm text-gray-600">25 - 07 - 2024</td>
-                                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">₹400</td>
-                                            <td class="px-4 py-3 text-sm text-gray-600">Prime blue</td>
-                                            <td class="px-4 py-3 text-sm text-red-600 font-medium">Amount Debited</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                <!-- Desktop Table -->
 
-                            <!-- Mobile Cards -->
-                            <div class="md:hidden space-y-4">
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <span class="text-xs text-gray-500">#8374034804</span>
-                                        <span class="text-xs text-red-600 font-medium">Amount Debited</span>
-                                    </div>
-                                    <div class="text-sm text-gray-600 mb-1">Prime blue</div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-xs text-gray-500">25 - 07 - 2024</span>
-                                        <span class="text-lg font-medium text-gray-900">₹400</span>
-                                    </div>
+                                <div class="hidden md:block overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr class="bg-gray-100 border-b border-gray-200">
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                                                    Transaction ID</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date
+                                                </th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount
+                                                </th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <%for(let i=0; i<wallet.length; i++){%>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-4 py-3 text-sm text-gray-600">
+                                                        <%=wallet[i].transactionId%>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-sm text-gray-600">
+                                                        <%=wallet[i].createdAt.toLocaleDateString("en-CA")%>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-sm text-gray-900 font-medium">₹
+                                                        <%=wallet[i].amount%>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-sm font-medium 
+    <%= wallet[i].type === 'CREDIT' ? 'text-green-600' : 'text-red-600' %>">
+                                                        <%= wallet[i].type %>
+                                                    </td>
+                                                </tr>
+                                                <%}%>
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Add Money Button -->
-                        <div class="flex justify-center">
-                            <button
-                                class="w-full sm:w-auto px-6 md:px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium text-sm md:text-base">
-                                ADD Money
-                            </button>
-                        </div>
+                                <!-- Mobile Cards -->
+
+                                <div class="md:hidden space-y-4">
+                                    <%for(let i=0; i<wallet.length; i++){%>
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="text-xs text-gray-500">
+                                                    <%=wallet[i].transactionId%>
+                                                </span>
+                                                <span class="text-xs <%= wallet[i].type === 'CREDIT' ? 'text-green-600' : 'text-red-600' %> font-medium">
+                                                    <%=wallet[i].type%>
+                                                </span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span
+                                                    class="text-xs text-gray-500"><%=wallet[i].createdAt.toLocaleDateString("en-CA")%></span>
+                                                <span class="text-lg font-medium text-gray-900">₹<%=wallet[i].amount%>
+                                                        </span>
+                                            </div>
+                                        </div>
+                                        <%}%>
+                                </div>
+
+                            </div>
+                            <%}%>
+
+                                <!-- Add Money Button -->
+                                <div class="flex justify-center">
+                                    <button id="addMoneyBtn"
+                                        class="w-full sm:w-auto px-6 md:px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium text-sm md:text-base">
+                                        ADD Money
+                                    </button>
+                                </div>
+
+                                <%if(wallet.length>0){%>
+                                    <div class=" flex justify-center mt-3">
+                                        <ul class="flex items-center space-x-2">
+
+                                            <% if (current==1) { %>
+                                                <li>
+                                                    <span
+                                                        class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                                        First
+                                                    </span>
+                                                </li>
+                                                <% } else { %>
+                                                    <li>
+                                                        <a href="/wallet/?page=1"
+                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                            First
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <!-- Ellipsis before -->
+                                                        <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                                            <% if (i !==1) { %>
+                                                                <li>
+                                                                    <span
+                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                </li>
+                                                                <% } %>
+
+                                                                    <!-- Page Numbers -->
+                                                                    <% for (; i <=(Number(current) + 4) && i <=pages;
+                                                                        i++) { %>
+                                                                        <% if (i==current) { %>
+                                                                            <li>
+                                                                                <span
+                                                                                    class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                                                    <%= i %>
+                                                                                </span>
+                                                                            </li>
+                                                                            <% } else { %>
+                                                                                <li>
+                                                                                    <a href="/wallet/?page=<%= i %>"
+                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                        <%= i %>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <% } %>
+
+                                                                                    <% if (i==Number(current) + 4 && i <
+                                                                                        pages) { %>
+                                                                                        <li>
+                                                                                            <span
+                                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                                        </li>
+                                                                                        <% } %>
+                                                                                            <% } %>
+
+                                                                                                <!-- Last Page -->
+                                                                                                <% if (current==pages) {
+                                                                                                    %>
+                                                                                                    <li>
+                                                                                                        <span
+                                                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
+                                                                                                            Last
+                                                                                                        </span>
+                                                                                                    </li>
+                                                                                                    <% } else { %>
+                                                                                                        <li>
+                                                                                                            <a href="/wallet/?page=<%= pages %>"
+                                                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                                                                                Last
+                                                                                                            </a>
+                                                                                                        </li>
+                                                                                                        <% } %>
+                                        </ul>
+                                    </div>
+                                    <%}%>
                     </div>
                 </main>
 
         </div>
+        <!-- Add Money Modal -->
+        <div id="addMoneyModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 flex">
+
+            <div class="bg-white p-6 rounded-lg w-80 shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 text-center">Add Money to Wallet</h2>
+
+                <input type="number" id="walletAmountInput" class="w-full border px-3 py-2 rounded mb-4"
+                    placeholder="Enter amount" />
+
+                <div class="flex justify-between">
+                    <button id="cancelAddMoney" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                        Cancel
+                    </button>
+
+                    <button id="confirmAddMoney" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-900">
+                        Add
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script>
+            const modal = document.getElementById('addMoneyModal');
+            const addMoneyBtn = document.getElementById('addMoneyBtn');
+            const confirmBtn = document.getElementById('confirmAddMoney');
+            const cancelBtn = document.getElementById('cancelAddMoney');
+            const amountInput = document.getElementById('walletAmountInput');
+            addMoneyBtn.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+            });
+            cancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+            confirmBtn.addEventListener('click', () => {
+                let amount = amountInput.value;
+                if (!amount || isNaN(amount) || amount < 1) {
+                    Swal.fire({
+                        title: "Transaction Cancelled",
+                        text: "Enter an amount gerater than 0.",
+                        icon: "warning",
+                        timer: 1500,
+                    });
+                    return
+                }
+                modal.classList.add('hidden');
+                createOrder(amount);
+            })
+            async function createOrder(amount) {
+                try {
+                    const res = await fetch('/wallet/create-order', {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": 'application/json',
+                        },
+                        body: JSON.stringify({ amount }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        openRazorpayCheckout(data);
+                    } else {
+                        Swal.fire({
+                            title: "Failed!",
+                            text: "Unable to add money. Please try again.",
+                            icon: "error",
+                            confirmButtonColor: "#000"
+                        })
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Something went wrong.",
+                        icon: "error",
+                        confirmButtonColor: "#000"
+                    });
+                }
+            }
+            function openRazorpayCheckout(orderData) {
+                var options = {
+                    key: "rzp_test_RhHusrM3lncUVO",
+                    amount: orderData.amount,
+                    currency: orderData.currency,
+                    name: "clickNbuild",
+                    description: "Add money to wallet",
+                    image: "https://res.cloudinary.com/dmx7sia5q/image/upload/v1762177534/do7hdqd5snvtmeqmnoa7.jpg",
+                    order_id: orderData.order_id,
+                    handler: function (response) {
+                        verifyPayment(response, orderData.amount);
+                    },
+                    theme: {
+                        color: "#000000",
+                    }
+                };
+                var rzp = new Razorpay(options);
+                rzp.open();
+            }
+            async function verifyPayment(paymentData, amount) {
+                try {
+                    const res = await fetch('/wallet/verify-payment', {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': "application/json",
+                        },
+                        body: JSON.stringify({
+                            paymentData, amount
+                        }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Money added!",
+                            text: "Money added to the wallet.",
+                            icon: "success"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Payment Failed",
+                            text: "Verification failed, Your money will be refunded if deducted.",
+                            icon: 'error',
+                        })
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        </script>
+
         <%- include("../../views/partials/user/footer")%>
 
             <script>
@@ -155,24 +390,7 @@
                     }
                 });
             </script>
-            <script>
-                // Copy Referral Link
-                const copyButtons = document.querySelectorAll("button");
 
-                copyButtons.forEach((btn) => {
-                    btn.addEventListener("click", () => {
-                        const input = btn.previousElementSibling; // the input field
-                        input.select();
-                        input.setSelectionRange(0, 99999);
-                        navigator.clipboard.writeText(input.value)
-                            .then(() => {
-                                btn.innerText = "Copied!";
-                                setTimeout(() => btn.innerText = "Copy", 1500);
-                            })
-                            .catch(err => console.error("Failed to copy", err));
-                    });
-                });
-            </script>
 
 </body>
 

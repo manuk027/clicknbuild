@@ -912,30 +912,29 @@ const editPassword = async (req, res) => {
 
 
 
-const loadAdresses = async (req, res) => {
+export const loadAdresses = async (req, res) => {
     try {
-        const userId = req.user?._id || req.session?.user
+        const userId = req.user?._id || req.session?.user;
         const page = parseInt(req.query.page) || 1;
-        const limit = 1;
+        const limit = 3; 
         const skip = (page - 1) * limit;
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        const address = await Address.findOne({ userId: userId }).skip(skip).limit(limit);
-        if (!address) {
-            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address: [], current: page, pages: 1, });
+        const addressDoc = await Address.findOne({ userId });
+        if (!addressDoc || addressDoc.address.length === 0) {
+            return res.render("addresses", { peripheral, component, user, breadcrumbs: "Address", address: [], current: 1, pages: 1, });
         }
-        const totalPages = Math.ceil(address.address.length / limit);
-        if (!user) {
-            return res.redirect('/login');
-        } else {
-            return res.render('addresses', { peripheral, component, user, breadcrumbs: "Address", address: address.address, current: page, pages: totalPages });
-        }
+        const totalAddresses = addressDoc.address.length;
+        const totalPages = Math.ceil(totalAddresses / limit);
+        const paginatedAddresses = addressDoc.address.slice(skip, skip + limit);
+        return res.render("addresses", { peripheral, component, user, breadcrumbs: "Address", address: paginatedAddresses, current: page, pages: totalPages, });
     } catch (error) {
-        console.error("Error loading the address page: ", error);
-        return res.redirect('/pageNotFound');
+        console.error("Error loading the address page:", error);
+        return res.redirect("/pageNotFound");
     }
 };
+
 
 
 
