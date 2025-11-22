@@ -12,6 +12,7 @@ import { razorpay } from "../../config/razorPay.js";
 import crypto from 'crypto';
 import Wallet from '../../models/walletSchema.js';
 import { v4 as uuidv4 } from "uuid";
+import { HttpStatus } from "../../helpers/statusCodes.js";
 
 
 
@@ -138,17 +139,17 @@ export const loadSummaryService = async (req, res) => {
         for (const prod of products) {
             const productDoc = await Product.findById(prod.productId).populate("brand category").lean();
             if (!productDoc) {
-                return res.status(404).json({ success: false, message: "Product not found" });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product not found" });
             }
             const brand = productDoc.brand?.name;
             const category = productDoc.category?.name;
             const model = productDoc.model;
             const variantData = productDoc.variants.find((v) => v._id.toString() === prod.variantId.toString());
             if (!variantData) {
-                return res.status(400).json({ success: false, message: "Invalid variant selected" });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid variant selected" });
             }
             if (variantData.quantity < prod.quantity) {
-                return res.status(400).json({ success: false, message: `Insufficient stock for ${prod.name}. Available: ${variantData.quantity}`, });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: `Insufficient stock for ${prod.name}. Available: ${variantData.quantity}`, });
             }
             const variantName = variantData.variant;
             const sku = generateSKU(brand, model, variantName, category);
@@ -209,7 +210,7 @@ export const loadSummaryService = async (req, res) => {
         let transactionDetails;
         if (paymentMethod === "Online") {
             transactionDetails = {
-                amount: transaction.amount,
+                amount: transaction.amount / 100,
                 paymentMethod: transaction.paymentMethod,
                 paymentType: transaction.method,
                 status: "Paid",
@@ -282,7 +283,7 @@ export const loadSummaryService = async (req, res) => {
         }
         const updatedCart = await Cart.findOneAndDelete({ userId });
         if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
-            return res.status(200).json({ success: true, message: "Order placed successfully!", received: newOrder, });
+            return res.status(HttpStatus.OK).json({ success: true, message: "Order placed successfully!", received: newOrder, });
         }
     } catch (error) {
         console.error("Error loading the order Summary:", error);

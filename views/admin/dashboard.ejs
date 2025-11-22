@@ -9,6 +9,11 @@
     type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
 
 <body class="bg-gray-50">
@@ -21,197 +26,280 @@
       <%- include("../../views/partials/admin/header") %>
         <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
 
-          <!-- Stats Cards Row - Responsive Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
 
-            <!-- Total Customers Card -->
-            <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Customers</p>
-                  <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">5,423</h3>
-                  <p class="text-green-600 text-xs font-medium mt-2">↑ 16% this month</p>
-                </div>
-                <div
-                  class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                  <i class="fas fa-users text-green-600 text-base sm:text-lg"></i>
-                </div>
-              </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+            <div class="bg-white p-4 rounded shadow text-center">
+              <h4 class="text-gray-500 text-sm">Total Orders</h4>
+              <p id="statOrders" class="text-xl font-bold">0</p>
             </div>
 
-            <!-- Total Orders Card -->
-            <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Orders</p>
-                  <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">1,893</h3>
-                  <p class="text-gray-500 text-xs font-medium mt-2">Orders placed</p>
-                </div>
-                <div
-                  class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                  <i class="fas fa-truck text-green-600 text-base sm:text-lg"></i>
-                </div>
-              </div>
+            <div class="bg-white p-4 rounded shadow text-center">
+              <h4 class="text-gray-500 text-sm">Total Sales</h4>
+              <p id="statSales" class="text-xl font-bold">₹0</p>
             </div>
 
-            <!-- Total Sales Card -->
-            <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Sales</p>
-                  <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">₹65,805</h3>
-                  <p class="text-gray-500 text-xs font-medium mt-2">Revenue</p>
-                </div>
-                <div
-                  class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                  <i class="fas fa-dollar-sign text-green-600 text-base sm:text-lg"></i>
-                </div>
-              </div>
+            <div class="bg-white p-4 rounded shadow text-center">
+              <h4 class="text-gray-500 text-sm">Total Discount</h4>
+              <p id="statDiscount" class="text-xl font-bold">₹0</p>
             </div>
 
-            <!-- Total Pending Card -->
-            <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <p class="text-gray-600 text-xs sm:text-sm font-medium mb-2">Total Pending</p>
-                  <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">189</h3>
-                  <p class="text-gray-500 text-xs font-medium mt-2">Pending orders</p>
-                </div>
-                <div
-                  class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
-                  <i class="fas fa-hourglass-half text-green-600 text-base sm:text-lg"></i>
-                </div>
+            <div class="bg-white p-4 rounded shadow text-center">
+              <h4 class="text-gray-500 text-sm">Net Revenue</h4>
+              <p id="statNet" class="text-xl font-bold">₹0</p>
+            </div>
+
+          </div>
+
+
+          <!-- STATS CARDS -->
+          <div class="mb-6 bg-white p-4 rounded shadow flex flex-wrap items-center justify-between gap-4">
+
+
+            <!-- LEFT SECTION (Dropdown + Date Inputs) -->
+            <div class="flex flex-wrap items-center gap-3">
+
+              <!-- RANGE DROPDOWN -->
+              <select id="range" class="border px-3 py-2 rounded">
+                <option value="daily">1 Day</option>
+                <option value="weekly">1 Week</option>
+                <option value="monthly" selected>1 Month</option>
+                <option value="yearly">1 Year</option>
+              </select>
+
+              <!-- FROM DATE -->
+              <div class="flex items-center gap-1">
+                <label class="text-sm text-gray-600">From:</label>
+                <input id="fromDate" type="date" class="border px-3 py-2 rounded">
               </div>
+
+              <!-- TO DATE -->
+              <div class="flex items-center gap-1">
+                <label class="text-sm text-gray-600">To:</label>
+                <input id="toDate" type="date" class="border px-3 py-2 rounded">
+              </div>
+
+              <!-- APPLY BUTTON -->
+              <button id="applyFilter" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
+                Apply
+              </button>
+            </div>
+
+            <!-- RIGHT SECTION (Downloads + Timestamp) -->
+            <div class="flex items-center gap-3">
+              <span id="lastUpdated" class="text-xs text-gray-500">Updated: —</span>
+              <a id="downloadPdf" class="border px-3 py-1 rounded bg-red-500 text-white">PDF</a>
+              <a id="downloadXlsx" class="border px-3 py-1 rounded bg-green-500 text-white">Excel</a>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- GRAPH SECTION -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+
+            <!-- DONUT CHART -->
+            <div class="bg-white p-6 rounded shadow">
+              <h3 class="font-semibold mb-2">Sales vs Discount</h3>
+              <canvas id="donutChart" class="w-full h-64"></canvas>
+            </div>
+
+            <!-- BAR CHART -->
+            <div class="lg:col-span-2 bg-white p-6 rounded shadow">
+              <div class="flex justify-between mb-3">
+                <h3 class="font-semibold">Activity</h3>
+              </div>
+              <canvas id="barChart" class="w-full h-64"></canvas>
             </div>
           </div>
 
-          <!-- Sales Details Section Header -->
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Sales Details</h2>
 
-          <!-- Sales Details Grid - Responsive Layout -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <!-- TABLE SECTION -->
+          <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-semibold mb-4">Sales Report</h3>
 
-            <!-- Sales Progress Card -->
-            <div class="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Sales Progress</h3>
-                <button class="text-gray-400 hover:text-gray-600 text-lg">
-                  <i class="fas fa-ellipsis-v"></i>
-                </button>
-              </div>
-              <p class="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">This Quarter</p>
-
-              <!-- Circular Progress -->
-              <div class="flex justify-center mb-4 sm:mb-6">
-                <div class="relative w-24 sm:w-32 h-24 sm:h-32">
-                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8" />
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="8"
-                      stroke-dasharray="235.619" stroke-dashoffset="57.14" stroke-linecap="round" />
-                  </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-lg sm:text-2xl font-bold text-gray-800">75.55%</span>
-                    <span class="text-xs sm:text-sm text-green-600 font-medium">+10%</span>
-                  </div>
-                </div>
-              </div>
-
-              <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">You succeed earn ₹28963 today, its higher than
-                yesterday</p>
-
-              <!-- Progress Stats -->
-              <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
-                <div class="text-center">
-                  <p class="text-xs text-gray-500 mb-1">Target</p>
-                  <p class="text-sm sm:text-lg font-bold text-gray-800">₹30k <span class="text-red-500 text-xs">↓</span>
-                  </p>
-                </div>
-                <div class="text-center">
-                  <p class="text-xs text-gray-500 mb-1">Revenue</p>
-                  <p class="text-sm sm:text-lg font-bold text-gray-800">₹16k <span
-                      class="text-green-500 text-xs">↑</span>
-                  </p>
-                </div>
-                <div class="text-center">
-                  <p class="text-xs text-gray-500 mb-1">Today</p>
-                  <p class="text-sm sm:text-lg font-bold text-gray-800">₹28k <span
-                      class="text-green-500 text-xs">↑</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Activity Chart Card -->
-            <div class="lg:col-span-2 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Activity</h3>
-                <select
-                  class="text-xs sm:text-sm text-gray-600 bg-transparent border border-gray-300 rounded px-2 sm:px-3 py-1 hover:border-gray-400 w-full sm:w-auto">
-                  <option>Month</option>
-                  <option>Week</option>
-                  <option>Year</option>
-                </select>
-              </div>
-
-              <!-- Responsive Bar Chart -->
-              <div class="overflow-x-auto">
-                <div class="flex items-end justify-between min-w-max sm:min-w-full h-48 sm:h-64 gap-1 sm:gap-2">
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 20%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">JAN</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 30%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">FEB</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 25%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAR</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 50%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">APR</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 60%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">MAY</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 45%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUN</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 55%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">JUL</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 15%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">AUG</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 65%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">SEP</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 75%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">OCT</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 85%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">NOV</p>
-                  </div>
-                  <div class="flex flex-col items-center flex-1">
-                    <div class="w-full bg-blue-500 rounded-t" style="height: 95%"></div>
-                    <p class="text-xs text-gray-500 mt-1 sm:mt-2">DEC</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="py-2 text-left">Order ID</th>
+                  <th class="py-2 text-left">Date</th>
+                  <th class="py-2 text-left">Subtotal</th>
+                  <th class="py-2 text-left">Discount</th>
+                  <th class="py-2 text-left">Coupon</th>
+                  <th class="py-2 text-left">Total</th>
+                </tr>
+              </thead>
+              <tbody id="reportTable"></tbody>
+            </table>
           </div>
+
         </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="/js/dashboard.js"></script>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            loadReport();  // auto-load report on dashboard load
+          });
+        </script>
+
+        <script>
+          let donutChart, barChart;
+
+          document.addEventListener("DOMContentLoaded", () => {
+            loadReport(); // Auto load report when /admin opens
+          });
+
+          // ----------------------- DOWNLOAD LINKS -----------------------
+          function updateDownloadLinks(range, from, to) {
+            let base = `/admin/report/download`;
+
+            if (from && to) range = "custom";
+
+            document.getElementById("downloadPdf").href =
+              `${base}.pdf?range=${range}&from=${from}&to=${to}`;
+
+            document.getElementById("downloadXlsx").href =
+              `${base}.xlsx?range=${range}&from=${from}&to=${to}`;
+          }
+
+
+          // ----------------------------- LOAD REPORT -----------------------------
+          async function loadReport() {
+            const range = document.getElementById("range").value;
+            const from = document.getElementById("fromDate").value;
+            const to = document.getElementById("toDate").value;
+
+            let url = `/admin/report?range=${range}`;
+
+            // If custom date selected
+            if (from && to) {
+              if (new Date(from) > new Date(to)) {
+                return Swal.fire("Invalid", "From date cannot be after To date", "error");
+              }
+              url = `/admin/report?range=custom&from=${from}&to=${to}`;
+            }
+
+            const response = await fetch(url, { headers: { "Accept": "application/json" } });
+            const data = await response.json();
+
+            if (!data.success) return;
+
+            updateStats(data.summary);
+            updateDonutChart(data.summary);
+            updateBarChart(data.orders);
+            renderTable(data.orders);
+            updateDownloadLinks(range, from, to);
+
+            document.getElementById("lastUpdated").innerText =
+              "Updated: " + new Date().toLocaleTimeString();
+          }
+
+          // ----------------------------- UPDATE STATS -----------------------------
+          function updateStats(summary) {
+            document.getElementById("statOrders").innerText = summary.orderCount;
+            document.getElementById("statSales").innerText = "₹" + summary.totalSales;
+            document.getElementById("statDiscount").innerText = "₹" + summary.totalDiscount;
+            document.getElementById("statNet").innerText =
+              "₹" + (summary.totalSales - summary.totalDiscount);
+          }
+
+          // ----------------------------- DONUT CHART -----------------------------
+          function updateDonutChart(summary) {
+            const ctx = document.getElementById("donutChart");
+            if (donutChart) donutChart.destroy();
+
+            donutChart = new Chart(ctx, {
+              type: "doughnut",
+              data: {
+                labels: ["Sales", "Discount"],
+                datasets: [{
+                  data: [summary.totalSales, summary.totalDiscount],
+                  backgroundColor: ["#3b82f6", "#ef4444"]
+                }]
+              }
+            });
+          }
+
+          // ----------------------------- BAR CHART -----------------------------
+          function updateBarChart(orders) {
+            const ctx = document.getElementById("barChart");
+
+            const months = Array(12).fill(0);
+
+            orders.forEach(o => {
+              const monthIndex = new Date(o.createdAt).getMonth();
+              months[monthIndex] += o.totalAmount || 0;
+            });
+
+            if (barChart) barChart.destroy();
+
+            barChart = new Chart(ctx, {
+              type: "bar",
+              data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                  label: "Sales",
+                  data: months,
+                  backgroundColor: "#3b82f6"
+                }]
+              }
+            });
+          }
+
+          // ----------------------------- TABLE RENDER -----------------------------
+          function renderTable(orders) {
+            const tbody = document.getElementById("reportTable");
+            tbody.innerHTML = "";
+
+            orders.forEach(o => {
+              let subTotal = 0;
+              let discount = 0;
+
+              // Calculate subtotal + discount from items[]
+              o.items.forEach(i => {
+                const itemPrice = i.price || 0;
+                const salePrice = i.salePrice || itemPrice;
+
+                subTotal += itemPrice * i.quantity;
+                discount += (itemPrice - salePrice) * i.quantity;
+              });
+
+              const couponUsed = o.appliedOffer ? o.appliedOffer : "-";
+
+              tbody.innerHTML += `
+        <tr class="border-b">
+          <td class="py-2">${o.orderId}</td>
+          <td class="py-2">${new Date(o.createdAt).toLocaleString()}</td>
+          <td class="py-2">₹${subTotal}</td>
+          <td class="py-2">₹${discount}</td>
+          <td class="py-2">
+  ${o.appliedOffer && o.appliedOffer.code
+                  ? o.appliedOffer.code
+                  : "-"}
+</td>
+
+          <td class="py-2">₹${o.totalAmount}</td>
+        </tr>
+      `;
+            });
+          }
+
+          // ----------------------------- FILTER BUTTON -----------------------------
+          document.getElementById("applyFilter").addEventListener("click", loadReport);
+        </script>
+
+
+
+
+
+
     </div>
   </div>
-  <script src="../../public/js/dashboard.js"></script>
+  <!-- <script src="../../public/js/dashboard.js"></script> -->
+
 </body>
 
 </html>

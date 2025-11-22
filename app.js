@@ -18,6 +18,7 @@ import session from "express-session";
 import nocache from "nocache";
 import passport from "./config/passport.js";
 import cors from 'cors';
+import { errorHandler } from "./middleware/errorHandler.js";
 
 
 
@@ -76,6 +77,8 @@ app.use("/order", orderRouter);
 app.use('/wallet', walletRouter);
 app.use("/", profileRouter);
 app.use("/", invoiceRouter);
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
   console.log(`http://localhost:${process.env.PORT}`);

@@ -91,44 +91,31 @@ export const updateCountService = async (req, res) => {
     try {
         const { action } = req.body;
         const { variantId } = req.params;
-
+        console.log(variantId);
         if (!userId)
             return res.status(401).json({ success: false, message: "User not logged in." });
-
         if (!variantId || !["inc", "dec"].includes(action))
             return res.status(400).json({ success: false, message: "Invalid request." });
-
         const cart = await Cart.findOne({ userId });
         if (!cart)
             return res.status(404).json({ success: false, message: "Cart not found." });
-
         const item = cart.items.find(i => i.variantId.toString() === variantId);
         if (!item)
             return res.status(404).json({ success: false, message: "Item not found." });
-
         const product = await Product.findById(item.productId).populate("category");
         const variant = product.variants.id(variantId);
-
+        console.log(variant);
         if (!variant)
             return res.status(404).json({ success: false, message: "Variant not found." });
-
-        // HANDLE QUANTITY UPDATE
         if (action === "inc") {
             if (item.quantity >= variant.quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: "No more stock available.",
-                });
+                return res.status(400).json({ success: false, message: "No more stock available.", });
             }
             if (item.quantity >= item.max) {
-                return res.status(400).json({
-                    success: false,
-                    message: `You can only add up to ${item.max}`,
-                });
+                return res.status(400).json({ success: false, message: `You can only add up to ${item.max}`, });
             }
             item.quantity++;
         }
-
         if (action === "dec") {
             if (item.quantity === 1) {
                 cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
@@ -137,27 +124,19 @@ export const updateCountService = async (req, res) => {
             }
             item.quantity--;
         }
-
-        // =============================
-        // OFFER CALCULATION — SAME AS CHECKOUT
-        // =============================
         const variantMRP = variant.offer;
-
         let finalVariantPrice = variantMRP;
         if (variant.offerPrice && variant.offerPrice < variantMRP)
             finalVariantPrice = variant.offerPrice;
-
         if (variant.offerPercentage) {
             const percentPrice = variantMRP - (variantMRP * variant.offerPercentage / 100);
             if (percentPrice < finalVariantPrice) finalVariantPrice = percentPrice;
         }
-
         let finalCategoryPrice = variantMRP;
         if (product.category?.offerPercentage) {
             finalCategoryPrice =
                 variantMRP - (variantMRP * product.category.offerPercentage / 100);
         }
-
         const salePrice =
             Math.min(finalVariantPrice, finalCategoryPrice);
         item.subTotal = salePrice * item.quantity;
@@ -171,7 +150,6 @@ export const updateCountService = async (req, res) => {
             total: cart.totalAmount,
             subTotal: item.subTotal,
         });
-
     } catch (error) {
         console.error("Error updating count:", error);
         return res.status(500).json({ success: false, message: "Server error" });

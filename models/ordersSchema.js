@@ -69,5 +69,5 @@ const orderSchema = new Schema({
 
 
 //creating model for Order
-const Order = mongoose.Model.$where.Orders || model("Order", orderSchema);
+const Order = mongoose.models.Order || model("Order", orderSchema);
 export default Order;

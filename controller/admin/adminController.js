@@ -2,7 +2,7 @@
 import User from "../../models/userSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-
+import { loadDashboardService } from "../../services/admin/dashboardService.js";
 
 
 //function to load the error page
@@ -45,13 +45,7 @@ const login = async (req, res) => {
 
 //function to load dashboard
 const loadDashboard = async (req, res) => {
-    try {
-        if (req.session.admin) {
-            res.render('dashboard');
-        }
-    } catch (error) {
-        res.redirect('/pageNotFound');
-    }
+    await loadDashboardService(req, res);
 }
 
 

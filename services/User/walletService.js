@@ -4,6 +4,7 @@ import Wallet from '../../models/walletSchema.js';
 import { razorpay } from '../../config/razorPay.js'
 import dotenv from 'dotenv';
 import crypto from 'crypto';
+import { HttpStatus } from '../../helpers/statusCodes.js';
 
 
 dotenv.config();
@@ -33,7 +34,6 @@ export const loadWalletService = async (req, res) => {
 
 
 
-
 export const createOrderService = async (req, res) => {
     try {
         const { amount } = req.body;
@@ -52,7 +52,7 @@ export const createOrderService = async (req, res) => {
         })
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, msg: "Server error" });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, msg: "Server error" });
     }
 }
 
@@ -84,6 +84,6 @@ export const verifyPaymentService = async (req, res) => {
         return res.json({ success: true, msg: "Money added to wallet" });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ success: false, msg: "Server error" });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, msg: "Server error" });
     }
 }

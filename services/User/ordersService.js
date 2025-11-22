@@ -2,6 +2,9 @@ import User from '../../models//userSchema.js'
 import Category from '../../models/categorySchema.js'
 import Order from '../../models/ordersSchema.js'
 import Product from '../../models/productSchema.js';
+import Wallet from '../../models/walletSchema.js';
+import { v4 as uuidv4 } from "uuid";
+import { HttpStatus } from '../../helpers/statusCodes.js';
 
 
 
@@ -75,30 +78,37 @@ export const cancelOrderService = async (req, res) => {
         if (!order) {
             return res.json({ success: false, message: "Order not found!" });
         }
-        if (order.items.some(item => item.status === "delivered")) {
+        if (order.items.some(item => item.status === "Delivered")) {
             return res.json({
                 success: false,
                 message: "Delivered items cannot be cancelled"
             });
         }
         for (let item of order.items) {
-            console.log(item);
-            await Product.updateOne(
-                { _id: item.productId, "variants._id": item.variantId },
-                { $inc: { "variants.$.quantity": item.quantity } }
-            );
+            await Product.updateOne({ _id: item.productId, "variants._id": item.variantId }, { $inc: { "variants.$.quantity": item.quantity } });
         }
-        order.items = order.items.map(item => ({
-            ...item, status: "Cancelled",
-        }))
+        order.items = order.items.map(item => ({ ...item, status: "Cancelled", }));
         order.orderStatus = "Cancelled";
+        const walletRefundAmount = order.totalAmount;
+        const lastWalletEntry = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
+        const previousBalance = lastWalletEntry ? lastWalletEntry.currentBalance : 0;
+        const newBalance = previousBalance + walletRefundAmount;
+        await Wallet.create({
+            transactionId: uuidv4(),
+            userId: userId,
+            type: "CREDIT",
+            amount: walletRefundAmount,
+            orderId: order._id,
+            previousBalance,
+            currentBalance: newBalance,
+        });
         await order.save();
-        return res.json({ success: true, message: "Order Cancelled" });
+        return res.json({ success: true, message: "Order Cancelled & Amount Credited to Wallet" });
     } catch (error) {
-        console.error('Error caneling the order:', error);
+        console.error("Error canceling the order:", error);
         return res.redirect('/pageNotFound');
     }
-}
+};
 
 
 
@@ -106,27 +116,45 @@ export const cancelProductService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
     try {
         const { itemId, orderId } = req.body;
-        console.log(req.body);
-        const order = await Order.findOne({ userId, orderId });
+        const order = await Order.findOne({ _id: orderId, userId });
         if (!order) {
             return res.json({ success: false, message: "Order not found!" });
         }
         const item = order.items.id(itemId);
-        await Product.updateOne(
-            { _id: item.productId, "variants._id": item.variantID },
-            { $inc: { "variants.$.quantity": item.quantity } }
-        );
-        item.status = "cancelled";
+        if (!item) {
+            return res.json({ success: false, message: "Item not found!" });
+        }
+        await Product.updateOne({ _id: item.productId, "variants._id": item.variantID }, { $inc: { "variants.$.quantity": item.quantity } });
+        item.status = "Cancelled";
+        const refundAmount = item.price * item.quantity;
+        const lastTransaction = await Wallet.findOne({ userId }).sort({ createdAt: -1 }).lean();
+        const previousBalance = lastTransaction ? lastTransaction.currentBalance : 0;
+        const currentBalance = previousBalance + refundAmount;
+        await Wallet.create({
+            transactionId: uuidv4(),
+            userId,
+            type: "CREDIT",
+            amount: refundAmount,
+            orderId: orderId,
+            previousBalance: previousBalance,
+            currentBalance: currentBalance,
+        });
         const allCancelled = order.items.every(i => i.status === "Cancelled");
         if (allCancelled) {
-            order.orderStatus = "cancelled";
+            order.orderStatus = "Cancelled";
         }
         await order.save();
-        return res.json({ success: true, message: "Product Cancelled!" });
+        return res.json({
+            success: true, message: `Product cancelled and ₹${refundAmount} has been added to your wallet.`, refunded: refundAmount, currentWalletBalance: currentBalance
+        });
     } catch (error) {
-        console.error('Error canceling the product : ', error);
+        console.error("Error canceling the product:", error);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Internal server error",
+        });
     }
-}
+};
 
 
 

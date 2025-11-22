@@ -3,6 +3,14 @@ import brandSortOption from "../../helpers/brandSort.js"
 import Product from '../../models/productSchema.js';
 import Category from '../../models/categorySchema.js';
 import Order from '../../models/ordersSchema.js';
+import Wallet from '../../models/walletSchema.js';
+import { v4 as uuidv4 } from "uuid";
+
+
+
+const transactionId = uuidv4();
+
+
 
 const loadOrders = async (req, res) => {
     try {
@@ -88,21 +96,40 @@ const loadOrders = async (req, res) => {
 };
 
 
+
 const changeStatus = async (req, res) => {
     try {
         const { orderId, sku, status } = req.body;
         if (!orderId || !sku || !status) {
             return res.json({ success: false, message: "Missing required fields." });
         }
-        const order = await Order.findOneAndUpdate(
-            { orderId, "items.sku": sku },
-            { $set: { "items.$.status": status } },
-            { new: true }
-        );
+        const order = await Order.findOne({ orderId });
         if (!order) {
-            return res.json({ success: false, message: "Order or item not found." });
+            return res.json({ success: false, message: "Order not found." });
         }
-        const statuses = order.items.map(item => item.status);
+        const item = order.items.find(i => i.sku === sku);
+        if (!item) {
+            return res.json({ success: false, message: "Item not found in order." });
+        }
+        item.status = status;
+        await order.save();
+        if (status === "Cancelled" || status === "Returned") {
+            const refundAmount = item.subTotal;
+            const userId = order.userId;
+            const lastWalletEntry = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
+            const previousBalance = lastWalletEntry ? lastWalletEntry.currentBalance : 0;
+            const newBalance = previousBalance + refundAmount;
+            await Wallet.create({
+                transactionId: uuidv4(),
+                userId,
+                type: "CREDIT",
+                amount: refundAmount,
+                orderId,
+                previousBalance,
+                currentBalance: newBalance
+            });
+        }
+        const statuses = order.items.map(i => i.status);
         const uniqueStatuses = [...new Set(statuses)];
         if (uniqueStatuses.length === 1) {
             order.orderStatus = uniqueStatuses[0];
@@ -118,6 +145,8 @@ const changeStatus = async (req, res) => {
     }
 };
 
+
+
 const loadOrderDetails = async (req, res) => {
     try {
         console.log(req.parms.id);
@@ -128,20 +157,5 @@ const loadOrderDetails = async (req, res) => {
 
 
 
-
 export default { loadOrders, changeStatus, loadOrderDetails };
 
-
-
-
-// {
-//     _id: new ObjectId('691e0277febd7449d6d64ffd'),
-//     userId: new ObjectId('691a140741cda9393f9fd273'),
-//     items: [ [Object] ],
-//     deliveryDate: 2025-11-26T00:00:00.000Z,
-//     orderDate: 2025-11-19T17:46:31.844Z,
-//     createdAt: 2025-11-19T17:46:31.845Z,
-//     updatedAt: 2025-11-19T17:48:27.151Z,
-//     __v: 0,
-//     returnReason: 'Got damaged product'
-//   }

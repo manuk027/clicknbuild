@@ -333,15 +333,51 @@
                                         const data = await response.json();
                                         if (response.ok) {
                                             if (data.removed) {
-                                                window.location.reload();
-                                            } else {
-                                                document.querySelector(`#qty-${index}`).value = data.quantity;
+                                                await Swal.fire({
+                                                    icon: "success",
+                                                    title: "Item Removed",
+                                                    text: "Product removed from your cart.",
+                                                    confirmButtonColor: "#000000",
+                                                    timer: 1000,
+                                                    showConfirmButton: false,
+                                                });
+                                                return window.location.reload();
                                             }
+                                            document.querySelector(`#qty-${index}`).value = data.quantity;
+                                            const totalEl = document.getElementById("final-total");
+                                            if (totalEl && data.total !== undefined) {
+                                                totalEl.textContent = data.total.toLocaleString("en-IN");
+                                            }
+                                            await Swal.fire({
+                                                icon: "success",
+                                                title: "Quantity Updated!",
+                                                text: data.message || "Cart updated successfully.",
+                                                confirmButtonColor: "#000000",
+                                                timer: 1000,
+                                                showConfirmButton: false,
+                                            });
+                                        } else {
+                                            await Swal.fire({
+                                                icon: "warning",
+                                                title: "Action Failed",
+                                                text: data.message || "Something went wrong!",
+                                                confirmButtonColor: "#000000",
+                                                timer: 1000,
+                                                showConfirmButton: false,
+                                            });
                                         }
                                     } catch (error) {
-                                        console.error("Error incrementing product count:", error);
+                                        console.error("Error decrementing product quantity:", error);
+
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Error",
+                                            text: "Unable to update quantity. Please try again.",
+                                            confirmButtonColor: "#000000",
+                                        });
                                     }
-                                };
+                                }
+
 
                             </script>
                             <script>

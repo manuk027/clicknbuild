@@ -6,6 +6,7 @@ import categoryController from '../controller/admin/categoryController.js';
 import productController from '../controller/admin/productController.js';
 import brandController from '../controller/admin/brandController.js';
 import orderController from '../controller/admin/orderController.js';
+import reportController from '../controller/admin/reportController.js';
 import auth from '../middleware/auth.js'
 import multer from 'multer';
 import uploads from '../helpers/multer.js';
@@ -18,6 +19,10 @@ router.get('/pageNotFound', adminController.loadErrorPage)
 router.get('/login', adminController.loadLogin);
 router.post('/login', adminController.login);
 router.get('/', auth.adminAuth, adminController.loadDashboard);
+router.get('/report', auth.adminAuth, reportController.getDashboardData);
+router.get('/report/download.pdf', auth.adminAuth, reportController.downloadPDF);
+router.get('/report/download.xlsx', auth.adminAuth, reportController.downloadExcel);
+
 router.get('/logout', adminController.logout);
 
 
@@ -66,7 +71,10 @@ router.post('/orders/updateStatus', auth.adminAuth, orderController.changeStatus
 router.get('/order/details/:id', auth.adminAuth, orderController.loadOrderDetails);
 
 
-router.get(/(.*)/, (req, res)=>{
+
+
+
+router.get(/(.*)/, (req, res) => {
     res.render('adminErrorPage');
 });
 
