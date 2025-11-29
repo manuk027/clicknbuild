@@ -4,9 +4,9 @@ import User from '../../models/userSchema.js';
 import CouponUsage from '../../models/couponUsage.js';
 
 
+
 export const loadCouponsService = async (req, res) => {
     try {
-        console.log("hello");
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort || "name";
         const sortOption = couponSortOption(sort);
@@ -20,7 +20,7 @@ export const loadCouponsService = async (req, res) => {
         const totalPages = Math.ceil(totalCoupons / limit);
         res.render("coupons", { coupon: couponData, data: couponData, current: page, pages: totalPages, totalCoupons, limit, sort, search: searchTerm });
     } catch (error) {
-        console.log('Error loading th coupons: ', error);
+        console.error('Error loading th coupons: ', error);
         return res.redirect("/admin/pageNotFound");
 
     }

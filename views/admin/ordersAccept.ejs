@@ -4,592 +4,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin-Orders</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-        type="image/png">
+    <title>Admin - Orders</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 font-sans text-gray-900">
 
-    <div class="flex min-h-screen">
-        <aside id="sidebar"
-            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
-            <%- include("../../views/partials/admin/sidebar") %>
-        </aside>
+    <%- include("../../views/partials/admin/sidebar") %>
 
-        <div class="flex-1 flex flex-col min-h-screen">
-            <header class="bg-white shadow-sm sticky top-0 z-30">
-                <%- include("../../views/partials/admin/header") %>
-            </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <%- include("../../views/partials/admin/header") %>
+        </header>
 
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <div class="mb-6">
-                    <div class="flex justify-between items-center w-full">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                            ORDER LIST
-                        </h1>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center w-full">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                        ORDER LIST
+                    </h1>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <span><a href="/admin" class="hover:text-black">Dashboard</a></span>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-900 font-medium">Orders</span>
+                </div>
+            </div>
 
+            <div class="flex flex-col lg:flex-row gap-4 mb-6 justify-between items-start lg:items-center">
+                
+                <form id="searchForm" action="/admin/orders" method="GET" class="flex w-full lg:max-w-md relative">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" id="searchInput" placeholder="Search orders..." 
+                            value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                            class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
+                        <% if (search) { %>
+                            <button type="button" id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        <% } %>
                     </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <span><a href="/admin">Dashboard</a></span>
-                        <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900">Orders</span>
+                    <button type="submit" class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        Search
+                    </button>
+                </form>
+
+                <div class="flex flex-wrap gap-3 w-full lg:w-auto">
+                    <div class="relative w-full sm:w-auto">
+                        <button id="filtersBtn" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                            <i class="fas fa-sliders-h text-gray-500"></i>
+                            <span>Filters</span>
+                            <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                        </button>
+                        <div id="filtersDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <a onclick="applyFilter('All')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">All</a>
+                            <a onclick="applyFilter('Pending')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Pending</a>
+                            <a onclick="applyFilter('Processing')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Processing</a>
+                            <a onclick="applyFilter('Out for delivery')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Out for delivery</a>
+                            <a onclick="applyFilter('Delivered')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Delivered</a>
+                            <a onclick="applyFilter('Return requested')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Return requested</a>
+                            <a onclick="applyFilter('Returned')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Returned</a>
+                            <a onclick="applyFilter('Cancelled')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Cancelled</a>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full sm:w-auto">
+                        <button id="sortBtn" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                            <i class="fas fa-sort text-gray-500"></i>
+                            <span>Sort</span>
+                            <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                        </button>
+                        <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Newest</a>
+                            <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm">Oldest</a>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div class="flex items-center justify-between mb-6 w-full">
-                        <form id="searchForm" action="/admin/orders" method="GET" class="flex w-full max-w-md">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
-                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-black" />
-                                <% if (search) { %>
-                                    <button type="button" id="clearSearch"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <% } %>
-                            </div>
-                            <button type="submit"
-                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
-                                Search
-                            </button>
-                        </form>
-                    </div>
-                    <script>
-                        // ✅ Optional: clear search button
-                        const clearSearch = document.getElementById("clearSearch");
-                        if (clearSearch) {
-                            clearSearch.addEventListener("click", () => {
-                                window.location.href = "/admin/orders"; // Reset to full list
-                            });
-                        }
+            <% 
+            function statusColor(status) {
+                switch (status) {
+                    case "Delivered": return "bg-green-100 text-green-700 border-green-200";
+                    case "Pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
+                    case "Cancelled": return "bg-red-100 text-red-700 border-red-200";
+                    case "Return requested": return "bg-blue-100 text-blue-700 border-blue-200";
+                    case "Returned": return "bg-purple-100 text-purple-700 border-purple-200";
+                    default: return "bg-gray-100 text-gray-700 border-gray-200";
+                }
+            } 
+            %>
 
-                        // ✅ Trigger search on pressing Enter
-                        const searchInput = document.getElementById("searchInput");
-                        const searchForm = document.getElementById("searchForm");
-                        if (searchInput && searchForm) {
-                            searchInput.addEventListener("keypress", function (event) {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    searchForm.submit();
-                                }
-                            });
-                        }
-                    </script>
-                    <div class="flex gap-4">
-                        <div class="relative">
-                            <button id="filtersBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>Filters</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-                            <div id="filtersDropdown"
-                                class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a onclick="applyFilter('Delivered')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Delivered</a>
-                                <a onclick="applyFilter('Return requested')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Return requested</a>
-                                <a onclick="applyFilter('Pending')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Pending</a>
-                                <a onclick="applyFilter('Cancelled')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Cancelled</a>
-                                <a onclick="applyFilter('Processing')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Processing</a>
-                                <a onclick="applyFilter('Out for delivery')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Out for delivery</a>
-                                <a onclick="applyFilter('Returned')"
-                                    class="block px-4 py-2 hover:bg-gray-100">Returned</a>
-                                <a onclick="applyFilter('All')" class="block px-4 py-2 hover:bg-gray-100">All</a>
-
-                            </div>
-
-                        </div>
-                        <script>
-                            // Toggle filter dropdown open/close
-                            document.getElementById("filtersBtn").addEventListener("click", () => {
-                                document.getElementById("filtersDropdown").classList.toggle("hidden");
-                            });
-
-                            // Close dropdown when clicking outside
-                            document.addEventListener("click", (e) => {
-                                const btn = document.getElementById("filtersBtn");
-                                const dropdown = document.getElementById("filtersDropdown");
-
-                                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-                                    dropdown.classList.add("hidden");
-                                }
-                            });
-
-                            // Apply filter
-                            function applyFilter(status) {
-                                const url = new URL(window.location.href);
-
-                                if (status === "All") {
-                                    url.searchParams.delete("status");
-                                } else {
-                                    url.searchParams.set("status", status);
-                                }
-
-                                window.location.href = url.toString();
-                            }
-                        </script>
-
-                        <div class="relative">
-                            <button id="sortBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sort"></i>
-                                <span>SORT</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-
-                            <div id="sortDropdown"
-                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
-                            </div>
-                        </div>
-
-                        <script>
-                            document.getElementById("sortBtn").addEventListener("click", () => {
-                                document.getElementById("sortDropdown").classList.toggle("hidden");
-                            });
-
-                            document.addEventListener("click", (e) => {
-                                if (!document.getElementById("sortBtn").contains(e.target) && !document.getElementById("sortDropdown").contains(e.target)) {
-                                    document.getElementById("sortDropdown").classList.add("hidden");
-                                }
-                            });
-
-                            function applySort(sortType) {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set("sort", sortType);
-                                window.location.href = url.toString();
-                            }
-                        </script>
-
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[800px] ">
-                            <thead class="bg-black text-white text-center">
-                                <tr>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        OrderId
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        SKU
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Date
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Status
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Action
-                                    </th>
-                                     <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Details
-                                    </th>
+            <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-black text-white text-center">
+                            <tr>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">OrderId</th>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">SKU</th>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">Date</th>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">Action</th>
+                                <th class="px-4 py-4 text-sm font-semibold tracking-wider">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <% for(let i=0; i<product.length; i++){ %>
+                                <tr class="hover:bg-gray-50 transition-colors" data-order='<%- JSON.stringify(product[i]) %>'>
+                                    <td class="px-4 py-4 text-gray-700 text-center font-medium">#<%=product[i].orderId%></td>
+                                    <td class="px-4 py-4 text-gray-600 text-center"><%=product[i].sku%></td>
+                                    <td class="px-4 py-4 text-gray-600 text-center"><%=product[i]?.orderDate.toLocaleDateString("en-CA")%></td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="<%= statusColor(product[i].status) %> px-3 py-1 rounded-full text-xs font-semibold inline-block border">
+                                            <%= product[i].status %>
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-center">
+                                        <button class="orderActionBtn w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-black hover:text-white transition-colors flex items-center justify-center mx-auto"
+                                            data-id="<%= product[i].orderId %>" data-sku="<%= product[i].sku %>" data-status="<%= product[i].status %>">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+                                    </td>
+                                    <td class="px-4 py-4 text-center">
+                                        <button class="showVariantsBtn w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center mx-auto"
+                                            data-id="<%= product[i].itemId %>">
+                                            <i class="far fa-eye text-xs"></i>
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-
-                            <tbody class="divide-y divide-gray-200">
-                                <%for(let i=0; i<product.length; i++){%>
-                                   <tr class="hover:bg-gray-50 transition-colors" data-order='<%- JSON.stringify(product[i]) %>'>
-
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].orderId%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].sku%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.orderDate.toLocaleDateString("en-CA")%>
-                                        </td>
-                                        <%
-function statusColor(status) {
-    switch (status) {
-        case "Delivered": return "bg-green-100 text-green-700";
-        case "Pending": return "bg-yellow-100 text-yellow-700";
-        case "Cancelled": return "bg-red-100 text-red-700";
-        case "Return requested": return "bg-blue-100 text-blue-700";
-        default: return "bg-gray-100 text-gray-700";
-    }
-}
-%>
-
-                                       <td class="px-4 py-4 text-gray-700">
-    <span class="<%= statusColor(product[i].status) %> px-3 py-1 rounded-full text-sm font-medium">
-        <%= product[i].status %>
-    </span>
-</td>
-
-
-                                        <td class="px-4 py-4 text-gray-700 relative">
-                                            <button class="orderActionBtn p-2 text-gray-600 hover:bg-gray-100 rounded"
-                                                data-id="<%= product[i].orderId %>" data-sku="<%= product[i].sku %>"
-                                                data-status="<%= product[i].orderId %>">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                           <button class="text-gray-600 hover:text-gray-900 transition-colors showVariantsBtn"
-    data-id="<%= product[i].itemId %>">
-    <i class="far fa-eye text-lg"></i>
-</button>
-
-
-                                        </td>
-
-                                    </tr>
-                                    <%}%>
-
-
-                            </tbody>
-                        </table>
-                        <!-- Modal -->
-<div id="orderModal"
-     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-
-    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-2xl p-6 relative 
-                max-h-[80vh] overflow-y-auto">
-
-        <!-- Close Button -->
-        <button id="closeOrderModal" class="absolute top-3 right-3 text-gray-500 text-xl">
-            ✕
-        </button>
-
-        <h2 class="text-xl font-semibold mb-4">Order Details</h2>
-
-        <div id="orderDetailsContent" class="space-y-2 text-gray-700"></div>
-    </div>
-</div>
-
-
-                        <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    const modal = document.getElementById("orderModal");
-    const closeModal = document.getElementById("closeOrderModal");
-    const contentBox = document.getElementById("orderDetailsContent");
-
-    const showButtons = document.querySelectorAll(".showVariantsBtn");
-
-    showButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-
-            // Find parent row
-            const row = btn.closest("tr");
-
-            // Extract existing JSON data
-            const order = JSON.parse(row.dataset.order);
-
-            // Build modal HTML
-            contentBox.innerHTML = `
-    <div class="space-y-6">
-
-        <!-- ORDER SUMMARY -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Order Summary</h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <p><strong>Order ID:</strong> ${order.orderId}</p>
-                <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString("en-CA")}</p>
-
-                <p><strong>Status:</strong> ${order.status}</p>
-                <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-
-                <p><strong>Order Status:</strong> ${order.orderStatus || "-"}</p>
-                <p><strong>Applied Offer:</strong> ${order.appliedOffer || "No offers applied"}</p>
-            </div>
-        </div>
-
-        <!-- PRODUCT DETAILS -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Product Details</h3>
-
-            <div class="flex items-center gap-4">
-                <img src="${order.coverImage}" class="w-20 h-20 object-cover rounded-lg border" />
-
-                <div>
-                    <p><strong>${order.name}</strong></p>
-                    <p class="text-sm text-gray-600">SKU: ${order.sku}</p>
-                    <p class="text-sm text-gray-600">Quantity: ${order.quantity}</p>
+                            <% } %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
 
-        <!-- PRICE BREAKDOWN -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Price Breakdown</h3>
+            <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
+                <% for(let i=0; i<product.length; i++){ %>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 relative" data-order='<%- JSON.stringify(product[i]) %>'>
+                        
+                        <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
+                            <div>
+                                <span class="text-xs text-gray-500 block uppercase">Order ID</span>
+                                <span class="font-bold text-gray-900">#<%= product[i].orderId %></span>
+                            </div>
+                            <span class="<%= statusColor(product[i].status) %> px-2 py-1 rounded text-xs font-semibold border">
+                                <%= product[i].status %>
+                            </span>
+                        </div>
 
-            <div class="space-y-2">
-                <p><strong>Subtotal:</strong> ₹${order.subtotal}</p>
-                <p><strong>Delivery Fee:</strong> ₹${order.deliveryFee}</p>
-                <p><strong>Total Amount:</strong> <span class="font-bold">₹${order.totalAmount}</span></p>
-            </div>
-        </div>
-
-        <!-- TRANSACTION DETAILS -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Transaction Details</h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <p><strong>Amount:</strong> ₹${order.transaction.amount}</p>
-                <p><strong>Method:</strong> ${order.transaction.paymentMethod}</p>
-
-                <p><strong>Payment Type:</strong> ${order.transaction.paymentType || '-'}</p>
-                <p><strong>Status:</strong> ${order.transaction.status || '-'}</p>
-
-                <p><strong>Transaction ID:</strong> ${order.transaction.transactionId || '-'}</p>
-            </div>
-        </div>
-
-        <!-- CUSTOMER DETAILS -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Customer Details</h3>
-
-            <p><strong>Name:</strong> ${order.address.fullName}</p>
-            <p><strong>Phone:</strong> ${order.address.phoneNumber}</p>
-        </div>
-
-        <!-- SHIPPING ADDRESS -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Shipping Address</h3>
-
-            <p>${order.address.address}, ${order.address.city}</p>
-            <p>${order.address.district}, ${order.address.state}</p>
-            <p>${order.address.pincode}</p>
-            <p>${order.address.landmark}</p>
-        </div>
-
-        <!-- RETURN INFO -->
-        <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-            <h3 class="font-semibold text-lg mb-3">Return Details</h3>
-            <p><strong>Reason:</strong> ${order.returnReason || "No return requested"}</p>
-        </div>
-
-    </div>
-`;
-
-
-            modal.classList.remove("hidden");
-        });
-    });
-
-    // Close Modal
-    closeModal.addEventListener("click", () => modal.classList.add("hidden"));
-
-    modal.addEventListener("click", e => {
-        if (e.target === modal) modal.classList.add("hidden");
-    });
-
-});
-</script>
-
-                        <div id="statusModal"
-                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-
-                            <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl">
-
-                                <h2 class="text-xl font-semibold mb-4 text-gray-800">Change Order Status</h2>
-
-                                <select id="statusSelect"
-                                    class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-black mb-4">
-                                    <option value="Pending">Pending</option>
-                                    <option value="Processing">Processing</option>
-                                    <option value="Out for delivery">Out for delivery</option>
-                                    <option value="Delivered">Delivered</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                    <option value="Returned">Returned</option>
-                                    <option value="Return requested">Return requested</option>
-                                </select>
-
-                                <div class="flex justify-end gap-3 mt-4">
-                                    <button id="cancelModal"
-                                        class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300">
-                                        Cancel
-                                    </button>
-
-                                    <button id="confirmStatus"
-                                        class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900">
-                                        Change Status
-                                    </button>
-                                </div>
-
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 block">SKU</span>
+                                <span class="text-sm font-medium text-gray-700"><%= product[i].sku %></span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 block">Date</span>
+                                <span class="text-sm font-medium text-gray-700"><%= product[i]?.orderDate.toLocaleDateString("en-CA") %></span>
                             </div>
                         </div>
 
-                        <script>
-                            const modal = document.getElementById("statusModal");
-                            const statusSelect = document.getElementById("statusSelect");
-                            const cancelBtn = document.getElementById("cancelModal");
-                            const confirmBtn = document.getElementById("confirmStatus");
-
-                            let activeOrderId = null;
-                            let activeSku = null;
-
-                            // Open modal when clicking Action button
-                            document.querySelectorAll(".orderActionBtn").forEach(btn => {
-                                btn.addEventListener("click", () => {
-                                    activeOrderId = btn.dataset.id;
-                                    activeSku = btn.dataset.sku;
-                                    statusSelect.value = btn.dataset.status || "pending";
-
-                                    modal.classList.remove("hidden");
-                                });
-                            });
-
-                            // Close modal
-                            cancelBtn.addEventListener("click", () => {
-                                modal.classList.add("hidden");
-                            });
-
-                            // Close modal when clicking outside card
-                            modal.addEventListener("click", (e) => {
-                                if (e.target === modal) {
-                                    modal.classList.add("hidden");
-                                }
-                            });
-
-                            // Change status
-                            confirmBtn.addEventListener("click", async () => {
-                                const newStatus = statusSelect.value;
-
-                                const res = await fetch("/admin/orders/updateStatus", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        orderId: activeOrderId,
-                                        sku: activeSku,           // ✅ SEND SKU
-                                        status: newStatus
-                                    })
-                                });
-
-                                const data = await res.json();
-
-                                if (data.success) {
-                                    Swal.fire("Updated!", data.message, "success")
-                                        .then(() => location.reload());
-                                } else {
-                                    Swal.fire("Error", data.message, "error");
-                                }
-
-                                modal.classList.add("hidden");
-                            });
-                        </script>
-
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button class="orderActionBtn flex-1 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                data-id="<%= product[i].orderId %>" data-sku="<%= product[i].sku %>" data-status="<%= product[i].status %>">
+                                <i class="fas fa-edit"></i> Edit Status
+                            </button>
+                            <button class="showVariantsBtn flex-1 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                data-id="<%= product[i].itemId %>">
+                                <i class="far fa-eye"></i> View Details
+                            </button>
+                        </div>
                     </div>
-                </div>
+                <% } %>
+            </div>
 
-                <% if (product.length> 0) { %>
-                    <div class="flex justify-center m-6">
-                        <nav aria-label="Dashboard Pagination">
-                            <ul class="flex items-center space-x-2">
+            <% if (product.length > 0) { %>
+            <div class="flex justify-center mt-8 pb-8">
+                <nav aria-label="Dashboard Pagination">
+                    <ul class="flex items-center space-x-2">
+                        <% let baseUrl = `/admin/orders?sort=${sort || ""}&search=${search || ""}&status=${statusFilter || ""}`; %>
 
-                                <% // Build base URL with existing filters 
-                                    let baseUrl=`/admin/orders?sort=${sort || ""}&search=${search || "" }&status=${statusFilter || "" }`; 
-                                    %>
+                        <% if (current == 1) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=1" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">First</a></li>
+                        <% } %>
 
-                                    <!-- First Page -->
-                                    <% if (current==1) { %>
-                                        <li>
-                                            <span
-                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                                                First
-                                            </span>
-                                        </li>
-                                        <% } else { %>
-                                            <li>
-                                                <a href="<%= baseUrl %>&page=1"
-                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                    First
-                                                </a>
-                                            </li>
-                                            <% } %>
+                        <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
+                        <% if (i !== 1) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
 
-                                                <!-- Ellipsis Before -->
-                                                <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                                    <% if (i !==1) { %>
-                                                        <li><span
-                                                                class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                        </li>
-                                                        <% } %>
+                        <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+                            <% if (i == current) { %>
+                                <li><span class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg"><%= i %></span></li>
+                            <% } else { %>
+                                <li><a href="<%= baseUrl %>&page=<%= i %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"><%= i %></a></li>
+                            <% } %>
+                        <% } %>
 
-                                                            <!-- Page Numbers -->
-                                                            <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                                                <% if (i==current) { %>
-                                                                    <li>
-                                                                        <span
-                                                                            class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                                            <%= i %>
-                                                                        </span>
-                                                                    </li>
-                                                                    <% } else { %>
-                                                                        <li>
-                                                                            <a href="<%= baseUrl %>&page=<%= i %>"
-                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                                <%= i %>
-                                                                            </a>
-                                                                        </li>
-                                                                        <% } %>
+                        <% if (i == Number(current) + 4 && i < pages) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
 
-                                                                            <% if (i==Number(current) + 4 && i < pages)
-                                                                                { %>
-                                                                                <li><span
-                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                                                </li>
-                                                                                <% } %>
-                                                                                    <% } %>
+                        <% if (current == pages) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=<%= pages %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Last</a></li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
 
-                                                                                        <!-- Last Page -->
-                                                                                        <% if (current==pages) { %>
-                                                                                            <li>
-                                                                                                <span
-                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                                                                                                    Last
-                                                                                                </span>
-                                                                                            </li>
-                                                                                            <% } else { %>
-                                                                                                <li>
-                                                                                                    <a href="<%= baseUrl %>&page=<%= pages %>"
-                                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                                                        Last
-                                                                                                    </a>
-                                                                                                </li>
-                                                                                                <% } %>
+        </main>
+    </div>
 
-                            </ul>
-                        </nav>
-                    </div>
-                    <% } %>
-
-            </main>
+    <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[80] backdrop-blur-sm px-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl relative flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-xl z-10">
+                <h2 class="text-xl font-bold text-gray-800">Order Details</h2>
+                <button id="closeOrderModal" class="text-gray-400 hover:text-red-500 transition text-2xl leading-none">&times;</button>
+            </div>
+            <div id="orderDetailsContent" class="p-6 overflow-y-auto space-y-4 text-gray-700"></div>
         </div>
     </div>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[80] hidden px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl animate-fade-in">
+            <h2 class="text-xl font-bold mb-4 text-gray-900">Update Status</h2>
+            <select id="statusSelect" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-black mb-6 bg-white">
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Out for delivery">Out for delivery</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Returned">Returned</option>
+                <option value="Return requested">Return requested</option>
+            </select>
+            <div class="flex justify-end gap-3">
+                <button id="cancelModal" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">Cancel</button>
+                <button id="confirmStatus" class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition shadow-md">Update</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/admin/categoryList.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // --- Search & Filters ---
+        const searchInput = document.getElementById("searchInput");
+        const searchForm = document.getElementById("searchForm");
+        const clearSearch = document.getElementById("clearSearch");
 
+        if (clearSearch) {
+            clearSearch.addEventListener("click", () => window.location.href = "/admin/orders");
+        }
+        if (searchInput && searchForm) {
+            searchInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") { e.preventDefault(); searchForm.submit(); }
+            });
+        }
+
+        // --- Dropdown Toggles ---
+        const toggleDropdown = (btnId, menuId) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+            if(btn && menu) {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    menu.classList.toggle("hidden");
+                });
+                document.addEventListener("click", (e) => {
+                    if (!btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add("hidden");
+                });
+            }
+        }
+        toggleDropdown("filtersBtn", "filtersDropdown");
+        toggleDropdown("sortBtn", "sortDropdown");
+
+        // --- Helper Functions ---
+        window.applyFilter = (status) => {
+            const url = new URL(window.location.href);
+            status === "All" ? url.searchParams.delete("status") : url.searchParams.set("status", status);
+            window.location.href = url.toString();
+        }
+        window.applySort = (type) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set("sort", type);
+            window.location.href = url.toString();
+        }
+
+        // --- Order Modal Logic ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const orderModal = document.getElementById("orderModal");
+            const closeOrderModal = document.getElementById("closeOrderModal");
+            const contentBox = document.getElementById("orderDetailsContent");
+
+            // Event Delegation to handle buttons in both Desktop Table AND Mobile Cards
+            document.body.addEventListener("click", (e) => {
+                const btn = e.target.closest(".showVariantsBtn");
+                if (btn) {
+                    // Find nearest container with data (row for desktop, card for mobile)
+                    const container = btn.closest("tr") || btn.closest(".bg-white[data-order]");
+                    if (container && container.dataset.order) {
+                        const order = JSON.parse(container.dataset.order);
+                        
+                        contentBox.innerHTML = `
+                            <div class="space-y-6">
+                                <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+                                    <h3 class="font-bold text-gray-800 text-lg mb-3 flex items-center gap-2">Summary</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                                        <p><span class="text-gray-500">Order ID:</span> <span class="font-medium text-gray-900">#${order.orderId}</span></p>
+                                        <p><span class="text-gray-500">Date:</span> <span class="font-medium text-gray-900">${new Date(order.orderDate).toLocaleDateString("en-CA")}</span></p>
+                                        <p><span class="text-gray-500">Status:</span> <span class="font-medium text-gray-900">${order.status}</span></p>
+                                        <p><span class="text-gray-500">Payment:</span> <span class="font-medium text-gray-900">${order.paymentMethod}</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 items-start border rounded-lg p-4 bg-white">
+                                    <img src="${order.coverImage}" class="w-20 h-20 object-cover rounded-md border border-gray-200" />
+                                    <div>
+                                        <h4 class="font-bold text-gray-900">${order.name}</h4>
+                                        <p class="text-sm text-gray-500 mt-1">SKU: ${order.sku}</p>
+                                        <p class="text-sm text-gray-500">Qty: ${order.quantity}</p>
+                                    </div>
+                                </div>
+                                <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
+                                    <div class="flex justify-between text-sm mb-1"><span>Subtotal</span> <span>₹${order.subtotal}</span></div>
+                                    <div class="flex justify-between text-sm mb-2 pb-2 border-b border-gray-200"><span>Delivery</span> <span>₹${order.deliveryFee}</span></div>
+                                    <div class="flex justify-between font-bold text-lg"><span>Total</span> <span>₹${order.totalAmount}</span></div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="p-4 border rounded-lg">
+                                        <h3 class="font-bold text-gray-800 mb-2">Customer</h3>
+                                        <p class="text-sm text-gray-600">${order.address.fullName}</p>
+                                        <p class="text-sm text-gray-600">${order.address.phoneNumber}</p>
+                                    </div>
+                                    <div class="p-4 border rounded-lg">
+                                        <h3 class="font-bold text-gray-800 mb-2">Shipping</h3>
+                                        <p class="text-sm text-gray-600">${order.address.address}, ${order.address.city}</p>
+                                        <p class="text-sm text-gray-600">${order.address.state} - ${order.address.pincode}</p>
+                                    </div>
+                                </div>
+                                ${order.returnReason ? `<div class="p-4 border rounded-lg bg-red-50 text-red-700"><h3 class="font-bold mb-1">Return Request</h3><p class="text-sm">${order.returnReason}</p></div>` : ''}
+                            </div>
+                        `;
+                        orderModal.classList.remove("hidden");
+                    }
+                }
+            });
+
+            closeOrderModal.addEventListener("click", () => orderModal.classList.add("hidden"));
+            orderModal.addEventListener("click", (e) => { if(e.target === orderModal) orderModal.classList.add("hidden"); });
+
+            // --- Status Modal Logic ---
+            const statusModal = document.getElementById("statusModal");
+            const statusSelect = document.getElementById("statusSelect");
+            const cancelStatusBtn = document.getElementById("cancelModal");
+            const confirmStatusBtn = document.getElementById("confirmStatus");
+            let activeOrderId = null, activeSku = null;
+
+            // Event Delegation for Edit Status Button
+            document.body.addEventListener("click", (e) => {
+                const btn = e.target.closest(".orderActionBtn");
+                if (btn) {
+                    activeOrderId = btn.dataset.id;
+                    activeSku = btn.dataset.sku;
+                    statusSelect.value = btn.dataset.status; 
+                    statusModal.classList.remove("hidden");
+                }
+            });
+
+            cancelStatusBtn.addEventListener("click", () => statusModal.classList.add("hidden"));
+            statusModal.addEventListener("click", (e) => { if(e.target === statusModal) statusModal.classList.add("hidden"); });
+
+            confirmStatusBtn.addEventListener("click", async () => {
+                const newStatus = statusSelect.value;
+                try {
+                    const res = await fetch("/admin/orders/updateStatus", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ orderId: activeOrderId, sku: activeSku, status: newStatus })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: data.message,
+                            confirmButtonColor: '#000'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire("Error", "Something went wrong", "error");
+                }
+                statusModal.classList.add("hidden");
+            });
+        });
+    </script>
 </body>
-
 </html>

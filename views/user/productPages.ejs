@@ -15,171 +15,230 @@
 
 </head>
 
-<body class="font-[Poppins] bg-gray-50">
+<body class="font-[Poppins] bg-gray-50 flex flex-col min-h-screen">
     <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
 
         <!-- Main Content -->
-        <main class="container mx-auto px-4 md:px-6 py-8">
+        <main class="container mx-auto px-4 md:px-6 py-8 flex-grow">
 
             <!-- Breadcrumb -->
-            <div class="text-sm text-gray-600 mb-6">
+            <div class="text-sm text-gray-600 mb-6 flex flex-wrap items-center">
                 <a href="/" class="hover:text-black">Home</a>
                 <span class="mx-2">/</span>
                 <span class="text-black font-medium">
                     <% if(filterCategory.length>1){ %>
                         All Products
                         <% } else { %>
-                            <%=product[0].category.name%>
+                            <%=product[0]?.category?.name || 'Products' %>
                                 <% } %>
                 </span>
             </div>
 
-            <!-- ✅ Mobile Filter & Sort Dropdowns -->
-            <!-- ✅ Mobile Filter & Sort Section (Supports Multiple Filters, Single Sort) -->
-            <div class="lg:hidden mb-6 bg-white p-4 rounded-lg shadow-sm">
-                <form id="filterForm" method="GET"
-                    action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>"
-                    class="hidden lg:block">
-
-
-                    <!-- Filter Section -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Filter By</label>
-                        <% if(filterBrand && filterBrand.length){ %>
-                            <h4 class="font-medium text-gray-800 mb-2">Brand</h4>
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <% for(let i=0; i<filterBrand.length; i++){ %>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" name="brand" value="<%=filterBrand[i]%>"
-                                            class="text-black focus:ring-black rounded border-gray-300"
-                                            <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
-                                            : '' %>>
-                                        <span class="text-sm">
-                                            <%=filterBrand[i]%>
-                                        </span>
-                                    </label>
-                                    <% } %>
-                            </div>
-                            <% } %>
-
-                                <% if(filterCategory && filterCategory.length){ %>
-                                    <h4 class="font-medium text-gray-800 mb-2">Category</h4>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <% for(let i=0; i<filterCategory.length; i++){ %>
-                                            <label class="flex items-center space-x-2">
-                                                <input type="checkbox" name="category" value="<%=filterCategory[i]%>"
-                                                    class="text-black focus:ring-black rounded border-gray-300"
-                                                    <%=selectedCategories &&
-                                                    selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %>>
-                                                <span class="text-sm">
-                                                    <%=filterCategory[i]%>
-                                                </span>
-                                            </label>
-                                            <% } %>
-                                    </div>
-                                    <% } %>
-                    </div>
-
-                    <!-- Sort Dropdown -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                        <select id="mobileSortDropdown" name="sort"
-                            class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black">
-                            <option value="">Select Sort</option>
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="priceAsc">Price: Low - High</option>
-                            <option value="priceDesc">Price: High - Low</option>
-                            <option value="nameAsc">Name: A - Z</option>
-                            <option value="nameDesc">Name: Z - A</option>
-                        </select>
-                    </div>
-
-                    <!-- Apply Button -->
-                    <button type="submit"
-                        class="w-full bg-black text-white py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition">
-                        Apply Filter
-                    </button>
-                </form>
+            <!-- ✅ Mobile Filter Trigger Button -->
+            <div class="lg:hidden mb-6">
+                <button onclick="toggleFilterModal()"
+                    class="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-800 py-3 rounded-lg shadow-sm font-medium hover:bg-gray-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5M3.75 12h16.5" />
+                    </svg>
+                    Filter & Sort
+                </button>
             </div>
-            <!-- ✅ End Mobile Section -->
 
-            <!-- ✅ End Mobile Section -->
+            <!-- ✅ Mobile Filter Modal (Slide-over) -->
+            <div id="mobileFilterModal" class="relative z-50 hidden" aria-labelledby="slide-over-title" role="dialog"
+                aria-modal="true">
+                <!-- Background backdrop -->
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+                    onclick="toggleFilterModal()"></div>
+
+                <div class="fixed inset-0 overflow-hidden">
+                    <div class="absolute inset-0 overflow-hidden">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                            <!-- Panel -->
+                            <div class="pointer-events-auto w-screen max-w-xs transform transition ease-in-out duration-500 sm:duration-700 bg-white shadow-xl flex flex-col h-full">
+                                
+                                <!-- Modal Header -->
+                                <div class="px-4 py-6 sm:px-6 border-b border-gray-200 flex items-center justify-between">
+                                    <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">Filters & Sort
+                                    </h2>
+                                    <button type="button"
+                                        class="relative -m-2 p-2 text-gray-400 hover:text-gray-500 rounded-full hover:bg-gray-100 transition"
+                                        onclick="toggleFilterModal()">
+                                        <span class="absolute -inset-0.5"></span>
+                                        <span class="sr-only">Close panel</span>
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                            stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Modal Content (Form) -->
+                                <form id="mobileFilterForm" method="GET"
+                                    action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>"
+                                    class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+
+                                    <!-- Sort Section -->
+                                    <div class="mb-6">
+                                        <h3 class="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Sort By</h3>
+                                        <select name="sort"
+                                            class="w-full border border-gray-300 rounded-md py-2.5 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black bg-white">
+                                            <option value="">Default</option>
+                                            <option value="newest" <%= (locals.sort === 'newest') ? 'selected' : '' %>>Newest First</option>
+                                            <option value="oldest" <%= (locals.sort === 'oldest') ? 'selected' : '' %>>Oldest First</option>
+                                            <option value="priceAsc" <%= (locals.sort === 'priceAsc') ? 'selected' : '' %>>Price: Low - High</option>
+                                            <option value="priceDesc" <%= (locals.sort === 'priceDesc') ? 'selected' : '' %>>Price: High - Low</option>
+                                            <option value="nameAsc" <%= (locals.sort === 'nameAsc') ? 'selected' : '' %>>Name: A - Z</option>
+                                            <option value="nameDesc" <%= (locals.sort === 'nameDesc') ? 'selected' : '' %>>Name: Z - A</option>
+                                        </select>
+                                    </div>
+
+                                    <hr class="border-gray-100 mb-6">
+
+                                    <!-- Filter Sections -->
+                                    <% if(filterBrand && filterBrand.length){ %>
+                                        <div class="mb-6">
+                                            <h3 class="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Brand</h3>
+                                            <div class="space-y-3">
+                                                <% for(let i=0; i<filterBrand.length; i++){ %>
+                                                    <label class="flex items-center space-x-3">
+                                                        <input type="checkbox" name="brand" value="<%=filterBrand[i]%>"
+                                                            class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                                                            <%=selectedBrands && selectedBrands.includes(filterBrand[i])
+                                                            ? 'checked' : '' %>>
+                                                        <span class="text-gray-700 text-sm">
+                                                            <%=filterBrand[i]%>
+                                                        </span>
+                                                    </label>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+
+                                    <% if(filterCategory && filterCategory.length){ %>
+                                        <div class="mb-6">
+                                            <h3 class="font-medium text-gray-900 mb-3 text-sm uppercase tracking-wide">Category</h3>
+                                            <div class="space-y-3">
+                                                <% for(let i=0; i<filterCategory.length; i++){ %>
+                                                    <label class="flex items-center space-x-3">
+                                                        <input type="checkbox" name="category"
+                                                            value="<%=filterCategory[i]%>"
+                                                            class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                                                            <%=selectedCategories &&
+                                                            selectedCategories.includes(filterCategory[i]) ? 'checked'
+                                                            : '' %>>
+                                                        <span class="text-gray-700 text-sm">
+                                                            <%=filterCategory[i]%>
+                                                        </span>
+                                                    </label>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </form>
+
+                                <!-- Modal Footer (Sticky) -->
+                                <div class="border-t border-gray-200 px-4 py-6 sm:px-6 bg-gray-50">
+                                    <button type="submit" form="mobileFilterForm"
+                                        class="w-full flex items-center justify-center rounded-md border border-transparent bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-gray-800 transition">
+                                        Apply Filters
+                                    </button>
+                                    <a href="<%= baseRoute || '/shop' %>"
+                                        class="mt-3 block w-full text-center text-sm font-medium text-gray-500 hover:text-black transition">
+                                        Clear All Filters
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="flex flex-col lg:flex-row gap-8">
 
-                <!-- Sidebar Filters -->
-                <form id="filterForm" method="GET"
-                    action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>">
-                    <% if (filterBrand) { %>
-                        <div class="mb-6">
-                            <h3 class="font-medium mb-3">Brand</h3>
-                            <div class="space-y-2">
-                                <% for (let i=0; i < filterBrand.length; i++) { %>
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="checkbox" name="brand" value="<%= filterBrand[i] %>"
-                                            class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                                            <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
-                                            : '' %>>
-                                        <span class="ml-2 text-sm">
-                                            <%= filterBrand[i] %>
-                                        </span>
-                                    </label>
-                                    <% } %>
-                            </div>
-                        </div>
-                        <% } %>
-
-                            <% if (filterCategory) { %>
-                                <div class="mb-6">
-                                    <h3 class="font-medium mb-3">Category</h3>
-                                    <div class="space-y-2">
-                                        <% for (let i=0; i < filterCategory.length; i++) { %>
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="checkbox" name="category" value="<%= filterCategory[i] %>"
-                                                    class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                                                    <%=selectedCategories &&
-                                                    selectedCategories.includes(filterCategory[i]) ? 'checked' : '' %>>
-                                                <span class="ml-2 text-sm">
-                                                    <%= filterCategory[i] %>
-                                                </span>
-                                            </label>
-                                            <% } %>
-                                    </div>
+                <!-- Sidebar Filters (Desktop Only) -->
+                <aside class="hidden lg:block w-64 flex-shrink-0">
+                    <form id="desktopFilterForm" method="GET"
+                        action="/<%= typeof route !== 'undefined' ? route : 'products' %>/<%= typeof name !== 'undefined' ? name : '' %>">
+                        <% if (filterBrand) { %>
+                            <div class="mb-6">
+                                <h3 class="font-medium mb-3">Brand</h3>
+                                <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                                    <% for (let i=0; i < filterBrand.length; i++) { %>
+                                        <label class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                            <input type="checkbox" name="brand" value="<%= filterBrand[i] %>"
+                                                class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                                <%=selectedBrands && selectedBrands.includes(filterBrand[i]) ? 'checked'
+                                                : '' %>>
+                                            <span class="ml-2 text-sm">
+                                                <%= filterBrand[i] %>
+                                            </span>
+                                        </label>
+                                        <% } %>
                                 </div>
-                                <% } %>
+                            </div>
+                            <% } %>
 
-                                    <button type="submit"
-                                        class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium">
-                                        APPLY
-                                    </button>
+                                <% if (filterCategory) { %>
+                                    <div class="mb-6">
+                                        <h3 class="font-medium mb-3">Category</h3>
+                                        <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                                            <% for (let i=0; i < filterCategory.length; i++) { %>
+                                                <label
+                                                    class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                    <input type="checkbox" name="category"
+                                                        value="<%= filterCategory[i] %>"
+                                                        class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                                        <%=selectedCategories &&
+                                                        selectedCategories.includes(filterCategory[i]) ? 'checked' : ''
+                                                        %>>
+                                                    <span class="ml-2 text-sm">
+                                                        <%= filterCategory[i] %>
+                                                    </span>
+                                                </label>
+                                                <% } %>
+                                        </div>
+                                    </div>
+                                    <% } %>
 
-                                    <a href="<%=baseRoute%>"
-                                        class="block w-full text-center bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium mt-4">
-                                        CLEAR FILTERS
-                                    </a>
-                </form>
+                                        <button type="submit"
+                                            class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-medium text-sm">
+                                            APPLY FILTERS
+                                        </button>
+
+                                        <a href="<%=baseRoute%>"
+                                            class="block w-full text-center border border-black text-black py-3 rounded-md hover:bg-gray-100 transition font-medium mt-4 text-sm">
+                                            CLEAR FILTERS
+                                        </a>
+                    </form>
+                </aside>
 
                 <!-- Products Section -->
                 <div class="flex-1">
 
                     <!-- Sort Bar (Visible on Desktop Only) -->
                     <div
-                        class="bg-white rounded-lg shadow-sm p-4 mb-6 flex-wrap items-center justify-between gap-4 hidden lg:flex">
+                        class="bg-white rounded-lg shadow-sm p-4 mb-6 hidden lg:flex flex-wrap items-center justify-between gap-4">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-sm text-gray-600 font-bold">Sort By</span>
-                            <a onclick="applySort('newest')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Newest First</a>
-                            <a onclick="applySort('oldest')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Oldest First</a>
-                            <a onclick="applySort('priceAsc')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Low - High</a>
-                            <a onclick="applySort('priceDesc')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: High - Low</a>
-                            <a onclick="applySort('nameAsc')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Name: A - Z</a>
-                            <a onclick="applySort('nameDesc')"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-black">Price: Z - A</a>
+                            <span class="text-sm text-gray-600 font-bold mr-2">Sort By:</span>
+                            <div class="flex flex-wrap gap-2">
+                                <a onclick="applySort('newest')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (!locals.sort || locals.sort === 'newest') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Newest</a>
+                                <a onclick="applySort('priceAsc')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'priceAsc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Price:
+                                    Low - High</a>
+                                <a onclick="applySort('priceDesc')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'priceDesc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Price:
+                                    High - Low</a>
+                                <a onclick="applySort('nameAsc')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'nameAsc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Name:
+                                    A - Z</a>
+                            </div>
                         </div>
                     </div>
 
@@ -200,87 +259,98 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             <% for(let i=0; i<product.length; i++){ %>
                                 <div
-                                    class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden group flex flex-col h-full min-h-[500px]">
+                                    class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden group flex flex-col h-full">
                                     <div
                                         class="relative aspect-square bg-gray-100 flex items-center justify-center p-6">
-                                        <a href="/product?id=<%= product[i]._id %>">
+                                        <a href="/product?id=<%= product[i]._id %>"
+                                            class="w-full h-full flex items-center justify-center">
                                             <img src="<%=product[i].images[0]%>" alt="<%=product[i].brand.name%>"
-                                                class="w-full h-full object-contain transition-transform product-img"
+                                                class="max-w-full max-h-full object-contain transition-transform product-img"
                                                 data-images='<%- JSON.stringify(product[i].images) %>'>
                                         </a>
                                         <button
                                             onclick="addToWishlist('<%= product[i]._id %>', '<%= product[i].variants[0]._id %>', <%= i %>)"
-                                            class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition bg-white hover:bg-gray-100">
+                                            class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition bg-white hover:bg-gray-100 shadow-sm z-10">
 
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 fill="<%= wish.includes(product[i].variants[0]._id.toString()) ? 'red' : 'white' %>"
                                                 stroke="<%= wish.includes(product[i].variants[0]._id.toString()) ? 'none' : 'black' %>"
-                                                viewBox="0 0 24 24" stroke-width="2"
+                                                viewBox="0 0 24 24" stroke-width="1.5"
                                                 class="w-5 h-5 transition-all duration-300 ease-in-out"
                                                 id="qty-<%= i %>">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                             </svg>
                                         </button>
-
-
                                     </div>
+
                                     <div class="p-4 flex flex-col flex-grow">
-                                        <% if(product[i].variants[0].quantity<=10 && product[i].variants[0].quantity>=1){ %>
-                                            <h3 class="font-medium text-red-900 mb-1 truncate">
-                                                <%=product[i].variants[0].quantity%> items left.
-                                            </h3>
+                                        <!-- Stock Status -->
+                                        <% if(product[i].variants[0].quantity<=10 &&
+                                            product[i].variants[0].quantity>=1){ %>
+                                            <span class="text-xs font-semibold text-red-600 mb-1">
+                                                Only <%=product[i].variants[0].quantity%> left
+                                            </span>
                                             <% } else if(product[i].variants[0].quantity===0){ %>
-                                                <h3 class="font-medium text-red-900 mb-1 truncate">Out of Stock.
-                                                </h3>
-                                                <% } %>
+                                                <span class="text-xs font-semibold text-gray-500 mb-1">
+                                                    Out of Stock
+                                                </span>
+                                                <% } else { %>
+                                                    <span class="text-xs font-semibold text-green-600 mb-1">
+                                                        In Stock
+                                                    </span>
+                                                    <% } %>
 
-                                                    <h3 class="font-medium text-gray-800 mb-1 truncate">
-                                                        <%=product[i].brand.name%>
-                                                    </h3>
-                                                    <h6 class="font-medium text-gray-800 mb-2 line-clamp-2">
-                                                        <%=product[i].model%>
-                                                    </h6>
+                                                        <h3
+                                                            class="text-sm text-gray-500 mb-1 uppercase tracking-wide truncate">
+                                                            <%=product[i].brand.name%>
+                                                        </h3>
+                                                        <h6
+                                                            class="font-medium text-gray-900 mb-2 line-clamp-2 h-10 leading-5">
+                                                            <%=product[i].model%>
+                                                        </h6>
 
-                                                    <div class="flex items-center gap-2 mb-2">
-                                                        <span class="text-gray-400 line-through text-sm">₹
-                                                            <%=product[i].variants[0].price%>
-                                                        </span>
-                                                        <span class="text-lg font-semibold text-gray-900">₹
-                                                            <%=product[i].variants[0].offer%>
-                                                        </span>
-                                                    </div>
+                                                        <div class="mt-auto">
+                                                            <div class="flex items-baseline gap-2 mb-3">
+                                                                <span
+                                                                    class="text-lg font-bold text-gray-900">₹<%=product[i].variants[0].offer%></span>
+                                                                <% if(product[i].variants[0].price>
+                                                                    product[i].variants[0].offer) { %>
+                                                                    <span
+                                                                        class="text-sm text-gray-400 line-through">₹<%=product[i].variants[0].price%></span>
+                                                                    <% } %>
+                                                            </div>
 
-                                                    <div class="flex items-center gap-1 mb-3">
-                                                        <span class="text-yellow-400">★★★★★</span>
-                                                    </div>
-
-                                                    <% if(product[i].variants[0].quantity>=1){ %>
-                                                        <button
-                                                            class="add-to-cart-btn mt-auto w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition font-medium text-sm"
-                                                            data-product-id="<%= product[i]._id %>"
-                                                            data-variant-id="<%= product[i].variants[0]._id %>">
-                                                            Add to Cart
-                                                        </button>
-
-                                                        <% } %>
+                                                            <% if(product[i].variants[0].quantity>=1){ %>
+                                                                <button
+                                                                    class="add-to-cart-btn w-full bg-black text-white py-2.5 rounded-md hover:bg-gray-800 transition font-medium text-sm flex items-center justify-center gap-2"
+                                                                    data-product-id="<%= product[i]._id %>"
+                                                                    data-variant-id="<%= product[i].variants[0]._id %>">
+                                                                    <span>Add to Cart</span>
+                                                                </button>
+                                                                <% } else { %>
+                                                                    <button disabled
+                                                                        class="w-full bg-gray-200 text-gray-500 py-2.5 rounded-md font-medium text-sm cursor-not-allowed">
+                                                                        Out of Stock
+                                                                    </button>
+                                                                    <% } %>
+                                                        </div>
                                     </div>
                                 </div>
-
                                 <% } %>
                         </div>
                         <% } else { %>
-                            <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+                            <div
+                                class="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 bg-white rounded-lg py-12">
                                 <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png"
-                                    alt="No products found" class="w-32 sm:w-40 mb-6 opacity-80 select-none" />
-                                <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-2">No Products Found</h2>
-                                <p class="text-gray-500 max-w-md">
-                                    We couldn’t find any items that match your search or filter criteria.<br />
-                                    Try adjusting your filters or explore other categories.
+                                    alt="No products found" class="w-24 h-24 mb-6 opacity-60" />
+                                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">No Products Found</h2>
+                                <p class="text-gray-500 max-w-sm mx-auto text-sm sm:text-base">
+                                    We couldn’t find any items matching your filters.
                                 </p>
-                                <a href="/"
-                                    class="mt-6 inline-block bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition text-sm font-medium">
-                                    Back to Home
+                                <a href="<%= baseRoute || '/shop' %>"
+                                    class="mt-6 inline-block bg-black text-white px-8 py-2.5 rounded-md hover:bg-gray-800 transition text-sm font-medium">
+                                    Clear Filters
                                 </a>
                             </div>
                             <% } %>
@@ -291,7 +361,7 @@
                                         let index = 0;
                                         let interval;
 
-                                        img.addEventListener('mouseenter', () => {
+                                        img.parentElement.addEventListener('mouseenter', () => {
                                             if (images.length <= 1) return;
                                             interval = setInterval(() => {
                                                 index = (index + 1) % images.length;
@@ -299,7 +369,7 @@
                                             }, 1000);
                                         });
 
-                                        img.addEventListener('mouseleave', () => {
+                                        img.parentElement.addEventListener('mouseleave', () => {
                                             clearInterval(interval);
                                             index = 0;
                                             img.src = images[0];
@@ -309,79 +379,54 @@
                 </div>
             </div>
         </main>
-        <% if (product.length> 0) { %>
-            <div class="flex justify-center m-6">
-                <nav aria-label="Dashboard Pagination">
-                    <ul class="flex items-center space-x-2">
 
+        <% if (product.length> 0) { %>
+            <div class="py-8 px-4 flex justify-center bg-gray-50">
+                <nav aria-label="Pagination">
+                    <ul class="flex flex-wrap items-center justify-center gap-2">
                         <!-- First Page -->
                         <% if (current==1) { %>
-                            <li>
-                                <span
-                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                                    First
-                                </span>
+                            <li><span
+                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded bg-white cursor-not-allowed">First</span>
                             </li>
                             <% } else { %>
-                                <li>
-                                    <a href="/shop/?page=1"
-                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                        First
-                                    </a>
+                                <li><a href="/shop/?page=1"
+                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded bg-white hover:bg-gray-50">First</a>
                                 </li>
                                 <% } %>
 
-                                    <!-- Ellipsis before -->
                                     <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
                                         <% if (i !==1) { %>
-                                            <li>
-                                                <span class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                            </li>
+                                            <li><span class="px-2 text-sm text-gray-500">...</span></li>
                                             <% } %>
 
-                                                <!-- Page Numbers -->
                                                 <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
                                                     <% if (i==current) { %>
-                                                        <li>
-                                                            <span
-                                                                class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
+                                                        <li><span
+                                                                class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-black rounded">
                                                                 <%= i %>
-                                                            </span>
-                                                        </li>
+                                                            </span></li>
                                                         <% } else { %>
-                                                            <li>
-                                                                <a href="/shop/?page=<%= i %>"
-                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
+                                                            <li><a href="/shop/?page=<%= i %>"
+                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded bg-white hover:bg-gray-50">
                                                                     <%= i %>
-                                                                </a>
-                                                            </li>
+                                                                </a></li>
                                                             <% } %>
-
                                                                 <% if (i==Number(current) + 4 && i < pages) { %>
-                                                                    <li>
-                                                                        <span
-                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
+                                                                    <li><span class="px-2 text-sm text-gray-500">...</span>
                                                                     </li>
                                                                     <% } %>
                                                                         <% } %>
 
-                                                                            <!-- Last Page -->
                                                                             <% if (current==pages) { %>
-                                                                                <li>
-                                                                                    <span
-                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">
-                                                                                        Last
-                                                                                    </span>
+                                                                                <li><span
+                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded bg-white cursor-not-allowed">Last</span>
                                                                                 </li>
                                                                                 <% } else { %>
-                                                                                    <li>
-                                                                                        <a href="/shop/?page=<%= pages %>"
-                                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                                            Last
-                                                                                        </a>
+                                                                                    <li><a href="/shop/?page=<%= pages %>"
+                                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded bg-white hover:bg-gray-50">Last</a>
                                                                                     </li>
                                                                                     <% } %>
-
                     </ul>
                 </nav>
             </div>
@@ -390,27 +435,35 @@
 
                 <%- include("../../views/partials/user/footer") %>
 
+                    <!-- Scripts -->
                     <script>
+                        // Toggle Mobile Filter Modal
+                        function toggleFilterModal() {
+                            const modal = document.getElementById('mobileFilterModal');
+                            if (modal.classList.contains('hidden')) {
+                                modal.classList.remove('hidden');
+                                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                            } else {
+                                modal.classList.add('hidden');
+                                document.body.style.overflow = '';
+                            }
+                        }
+
+                        // Prevent default add to cart navigation
                         document.querySelectorAll('button').forEach(btn => {
                             if (btn.textContent.includes('Add to Cart')) {
                                 btn.addEventListener('click', e => e.preventDefault());
                             }
                         });
-                    </script>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-                            // Select all buttons with the class
-                            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
 
-                            // Loop through each button and attach click event
+                        // Add to Cart Logic
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
                             addToCartButtons.forEach((button) => {
                                 button.addEventListener("click", async (event) => {
                                     event.preventDefault();
-
                                     const productId = button.dataset.productId;
                                     const variantId = button.dataset.variantId;
-
-
                                     try {
                                         const response = await fetch("/cart/add", {
                                             method: "POST",
@@ -419,9 +472,8 @@
                                             credentials: "include",
                                         });
 
-                                        const data = await response.json().catch(() => null); // prevent crash if backend returns HTML
+                                        const data = await response.json().catch(() => null);
 
-                                        // 🧩 Check login by status, not content-type
                                         if (response.status === 401 || (data && data.message === "User not logged in.")) {
                                             await Swal.fire({
                                                 icon: "warning",
@@ -433,19 +485,19 @@
                                             return;
                                         }
 
-                                        // ✅ Handle success
                                         if (response.ok && data?.success) {
                                             await Swal.fire({
                                                 icon: "success",
                                                 title: "Added to Cart!",
                                                 text: data.message || "Product added to cart successfully.",
                                                 confirmButtonColor: "#000000",
+                                                timer: 1500
                                             });
+                                            // Refresh to update cart count if applicable
                                             window.location.reload();
                                             return;
                                         }
 
-                                        // ⚠️ Expected user errors (validation, out of stock, etc.)
                                         if (response.status === 400 || response.status === 404) {
                                             await Swal.fire({
                                                 icon: "warning",
@@ -456,7 +508,6 @@
                                             return;
                                         }
 
-                                        // ❌ Unexpected or server errors
                                         if (response.status === 500 || !data?.success) {
                                             await Swal.fire({
                                                 icon: "error",
@@ -475,13 +526,11 @@
                                             confirmButtonColor: "#000000",
                                         });
                                     }
-
-
                                 });
                             });
                         });
-                    </script>
-                    <script>
+
+                        // Add to Wishlist Logic
                         async function addToWishlist(productId, variantId, index) {
                             try {
                                 const response = await fetch("/wishlist/add", {
@@ -493,7 +542,6 @@
 
                                 const contentType = response.headers.get("content-type");
 
-                                // If not logged in, backend likely returned HTML
                                 if (!contentType || !contentType.includes("application/json")) {
                                     await Swal.fire({
                                         icon: "warning",
@@ -525,25 +573,30 @@
                                             title: "Added to wishlist!",
                                             text: data.message || "Product added to wishlist successfully.",
                                             confirmButtonColor: "#000000",
+                                            timer: 1500
                                         });
 
                                         const heart = document.querySelector(`#qty-${index}`);
-                                        heart.style.fill = "red";
-                                        heart.style.stroke = "none"; // no border when red
+                                        if (heart) {
+                                            heart.style.fill = "red";
+                                            heart.style.stroke = "none";
+                                        }
 
                                     } else {
                                         await Swal.fire({
-                                            icon: "warning",
-                                            title: "Removed from wishlist!",
+                                            icon: "info",
+                                            title: "Removed from wishlist",
                                             text: data.message || "Product removed from wishlist successfully.",
                                             confirmButtonColor: "#000000",
+                                            timer: 1500
                                         });
 
                                         const heart = document.querySelector(`#qty-${index}`);
-                                        heart.style.fill = "white"; // white heart
-                                        heart.style.stroke = "black"; // black border
+                                        if (heart) {
+                                            heart.style.fill = "white";
+                                            heart.style.stroke = "black";
+                                        }
                                     }
-
 
                                 } else {
                                     await Swal.fire({

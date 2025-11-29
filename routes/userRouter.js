@@ -79,9 +79,5 @@ router.post('/address', userController.addAddress)
 router.get('/editAddress/:address', userController.loadEditAddress);
 router.put('/editAddress/:address', userController.editAddress);
 router.delete('/deleteAddress/:address', userController.deleteAddress);
-
-// router.get('/wishlist', userController.loadWishlist);
-// router.get('/wishlist', userController.addToWishlist);
 router.post('/cart/add', userController.addToCart);
-// router.get('/emptyCart', userController.emptyCart);
 export default router; 

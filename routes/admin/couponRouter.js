@@ -10,7 +10,4 @@ couponRouter.get('/coupons/addCoupons', auth.adminAuth, loadAddCoupons)
 couponRouter.post('/coupons/addCoupons', auth.adminAuth, addCoupons);
 couponRouter.get('/coupons/unListCoupon', auth.adminAuth, unListCoupons);
 couponRouter.get('/coupons/listCoupon', auth.adminAuth, listCoupons);
-// couponRouter.get('/coupons/editBrand/', auth.adminAuth, loadEditCoupons);
-// couponRouter.put('/coupons/editBrand/', auth.adminAuth, editCoupons);
-
 export default couponRouter; 

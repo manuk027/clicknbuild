@@ -55,22 +55,22 @@ router.get('/brands/editBrand/', auth.adminAuth, brandController.loadEditBrand);
 router.put('/brands/editBrand/', auth.adminAuth, uploads.single('brandImage'), brandController.editBrand);
 
 
+
 // product management
 router.get('/products', auth.adminAuth, productController.loadProduct);
 router.get('/products/addProducts', auth.adminAuth, productController.loadAddProduct);
 router.post('/products/addProducts', auth.adminAuth, productController.addProduct);
 router.get('/products/unListProduct', auth.adminAuth, productController.unListProduct);
 router.get('/products/listProduct', auth.adminAuth, productController.listProduct);
-router.get('/ptoducts/viewVariants', auth.adminAuth, productController.viewVariants)
+router.get('/products/viewVariants', auth.adminAuth, productController.viewVariants)
 router.get('/products/editProduct/', auth.adminAuth, productController.loadEditProduct);
 router.put("/products/editProduct/:id", upload.array("images", 4), productController.editProduct);
+
+
 
 //order management
 router.get('/orders', auth.adminAuth, orderController.loadOrders);
 router.post('/orders/updateStatus', auth.adminAuth, orderController.changeStatus);
-router.get('/order/details/:id', auth.adminAuth, orderController.loadOrderDetails);
-
-
 
 
 

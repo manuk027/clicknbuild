@@ -2,23 +2,20 @@
 
 <body class="font-[Poppins]">
 
-  <header class="bg-black text-white px-6 md:px-12 py-0 h-24 flex items-center justify-between">
+  <header class="bg-black text-white px-4 md:px-12 py-2 md:py-0 min-h-[4rem] md:h-24 flex items-center justify-between relative z-50">
 
-    <div class="logo flex items-center h-24 w-24">
+    <div class="logo flex items-center h-12 w-12 md:h-24 md:w-24 flex-shrink-0 mr-2">
       <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" alt="logo"
         class="w-full h-full object-contain">
     </div>
 
-    <!-- Search bar -->
-    <div class="bg-white rounded-md flex items-center px-2 w-1/2 md:w-1/3 border border-gray-300">
+    <div class="bg-white rounded-md flex items-center px-2 flex-1 max-w-lg mx-2 md:mx-0 border border-gray-300 relative">
       <input id="searchInput" type="text"
-        pplaceholder="<%= typeof searchQuery !== 'undefined' && searchQuery ? searchQuery : 'Search' %>"
-value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+        placeholder="<%= typeof searchQuery !== 'undefined' && searchQuery ? searchQuery : 'Search' %>"
+        value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+        class="p-2 w-full text-black border-none outline-none text-sm rounded-md min-w-0" />
 
-        class="p-2 w-full text-black border-none outline-none text-sm rounded-md" />
-
-      <!-- Clear (X) button -->
-      <button id="clearSearchBtn" class="text-gray-400 hover:text-gray-600 hidden">
+      <button id="clearSearchBtn" class="text-gray-400 hover:text-gray-600 hidden px-2">
         ✕
       </button>
     </div>
@@ -28,7 +25,6 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
       const searchInput = document.getElementById("searchInput");
       const clearSearchBtn = document.getElementById("clearSearchBtn");
 
-      // Show X button only when input has text
       function toggleClearButton() {
         if (searchInput.value.trim().length > 0) {
           clearSearchBtn.classList.remove("hidden");
@@ -38,9 +34,8 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
       }
 
       searchInput.addEventListener("input", toggleClearButton);
-      toggleClearButton(); // run once on load
+      toggleClearButton(); 
 
-      // Enter → Search
       searchInput.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
           const query = searchInput.value.trim();
@@ -50,7 +45,6 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
         }
       });
 
-      // Clear search (X button)
       clearSearchBtn.addEventListener("click", function () {
         searchInput.value = "";
         toggleClearButton();
@@ -59,24 +53,20 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
     </script>
 
 
-
-
-    <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+    <button id="menu-btn" class="md:hidden text-white focus:outline-none ml-3 flex-shrink-0">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
         class="w-7 h-7">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
       </svg>
     </button>
 
-    <div class="hidden md:flex items-center gap-12">
-      <nav class="flex items-center gap-10">
-        <a href="/" class="hover:text-gray-300">Home</a>
+    <div class="hidden md:flex items-center gap-6 lg:gap-12 ml-4">
+      <nav class="flex items-center gap-4 lg:gap-10 text-sm lg:text-base">
+        <a href="/" class="hover:text-gray-300 whitespace-nowrap">Home</a>
+        <a href="/shop" class="hover:text-gray-300 whitespace-nowrap">Shop</a>
 
-        <a href="/shop" class="hover:text-gray-300">Shop</a>
-
-        <!-- Components Dropdown -->
         <div class="relative group">
-          <button class="hover:text-gray-300 flex items-center gap-1">
+          <button class="hover:text-gray-300 flex items-center gap-1 whitespace-nowrap">
             Components
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
               stroke="currentColor" class="w-4 h-4">
@@ -84,7 +74,7 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
             </svg>
           </button>
           <div
-            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            class="absolute left-0 top-full mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <%for(let i=0; i<component.length; i++){%>
               <a href="/component/<%=component[i].name%>" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">
                 <%=component[i].name%>
@@ -93,10 +83,8 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
           </div>
         </div>
 
-
-        <!-- Peripherals Dropdown -->
         <div class="relative group">
-          <button class="hover:text-gray-300 flex items-center gap-1">
+          <button class="hover:text-gray-300 flex items-center gap-1 whitespace-nowrap">
             Peripherals
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
               stroke="currentColor" class="w-4 h-4">
@@ -104,7 +92,7 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
             </svg>
           </button>
           <div
-            class="absolute left-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            class="absolute left-0 top-full mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <%for(let i=0; i<peripheral.length; i++){%>
               <a href="/peripheral/<%=peripheral[i].name%>"
                 class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">
@@ -115,34 +103,32 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
         </div>
 
         <%if(!locals.user){%>
-          <a href="/login" class="hover:text-gray-300">Login / Signup</a>
+          <a href="/login" class="hover:text-gray-300 whitespace-nowrap">Login / Signup</a>
           <%}%>
       </nav>
 
       <%if(locals.user){%>
-        <div class="flex gap-6 items-center">
+        <div class="flex gap-4 lg:gap-6 items-center">
           <a href="/wishlist" class="hover:opacity-70 transition">
-            <img src="/images/heart.png" alt="wishlist" class="w-6 h-6">
+            <img src="/images/heart.png" alt="wishlist" class="w-6 h-6 object-contain">
           </a>
           <a href="/cart" class="hover:opacity-70 transition">
-            <img src="/images/cart.png" alt="cart" class="w-6 h-6">
+            <img src="/images/cart.png" alt="cart" class="w-6 h-6 object-contain">
           </a>
 
-          <!-- Profile Dropdown -->
           <div class="relative group">
-            <button class="hover:text-gray-300 flex items-center gap-1">
-
-              <img src="<%=user.profilePhoto || "https://res.cloudinary.com/dmx7sia5q/image/upload/v1763480620/Untitled_design_h0wjcl.png"%>" alt="user" class="w-6 h-6 rounded-full">
-              <span class="text-sm">
+            <button class="hover:text-gray-300 flex items-center gap-1 max-w-[150px]">
+              <img src="<%=user.profilePhoto || "https://res.cloudinary.com/dmx7sia5q/image/upload/v1763480620/Untitled_design_h0wjcl.png"%>" alt="user" class="w-8 h-8 rounded-full object-cover border border-gray-600">
+              <span class="text-sm truncate hidden lg:block ml-1">
                 <%=locals.user.fullName%>
               </span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                stroke="currentColor" class="w-4 h-4">
+                stroke="currentColor" class="w-4 h-4 ml-1">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
               </svg>
             </button>
             <div
-              class="absolute right-0 mt-0 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              class="absolute right-0 top-full mt-2 w-48 bg-white text-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <a href="/profile" class="block px-4 py-3 hover:bg-gray-200 first:rounded-t-md">Account</a>
               <a href="/logout" class="block px-4 py-3 hover:bg-gray-200 last:rounded-b-md">Logout</a>
             </div>
@@ -153,43 +139,41 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
   </header>
 
   <div id="mobile-menu"
-    class="hidden flex flex-col items-center bg-black text-white py-4 space-y-4 md:hidden overflow-visible">
-    <a href="/" class="hover:text-gray-300">Home</a>
-    <a href="/shop" class="hover:text-gray-300">Shop</a>
+    class="hidden flex flex-col items-center bg-black text-white w-full md:hidden border-t border-gray-800 relative z-40">
+    
+    <a href="/" class="hover:text-gray-300 w-full text-center py-3 border-b border-gray-900">Home</a>
+    <a href="/shop" class="hover:text-gray-300 w-full text-center py-3 border-b border-gray-900">Shop</a>
 
-
-    <!-- Mobile Components Dropdown -->
-    <div class="w-full z-index:4">
+    <div class="w-full border-b border-gray-900">
       <button id="mobile-components-btn"
-        class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+        class="w-full text-center py-3 hover:text-gray-300 flex items-center justify-center gap-1">
         Components
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-          class="w-4 h-4 transition-transform" id="components-arrow">
+          class="w-4 h-4 transition-transform duration-200" id="components-arrow">
           <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </button>
-      <div id="mobile-components-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
+      <div id="mobile-components-menu" class="hidden flex flex-col items-center bg-gray-100 text-black py-1 w-full">
         <%for(let i=0; i<component.length; i++){%>
-          <a href="component/<%=component[i].name%>" class="py-2 hover:bg-gray-200">
+          <a href="component/<%=component[i].name%>" class="py-2 hover:bg-gray-200 w-full text-center">
             <%=component[i].name%>
           </a>
           <%}%>
       </div>
     </div>
 
-    <!-- Mobile Peripherals Dropdown -->
-    <div class="w-full">
+    <div class="w-full border-b border-gray-900">
       <button id="mobile-peripherals-btn"
-        class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
+        class="w-full text-center py-3 hover:text-gray-300 flex items-center justify-center gap-1">
         Peripherals
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-          class="w-4 h-4 transition-transform" id="peripherals-arrow">
+          class="w-4 h-4 transition-transform duration-200" id="peripherals-arrow">
           <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </button>
-      <div id="mobile-peripherals-menu" class="hidden flex flex-col items-center bg-white text-black py-2">
+      <div id="mobile-peripherals-menu" class="hidden flex flex-col items-center bg-gray-100 text-black py-1 w-full">
         <%for(let i=0; i<peripheral.length; i++){%>
-          <a href="/peripheral/<%=peripheral[i].name%>" class="py-2 hover:bg-gray-200">
+          <a href="/peripheral/<%=peripheral[i].name%>" class="py-2 hover:bg-gray-200 w-full text-center">
             <%=peripheral[i].name%>
           </a>
           <%}%>
@@ -197,34 +181,39 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
     </div>
 
     <%if(!locals.user){%>
-      <a href="/login" class="hover:text-gray-300">Login/Signup</a>
+      <a href="/login" class="hover:text-gray-300 w-full text-center py-3">Login / Signup</a>
       <%}%>
 
-        <%if(locals.user){%>
-          <div class="flex flex-col items-center space-y-4">
-            <a href="/wishlist" class="hover:text-gray-300">Wishlist</a>
-            <a href="/cart" class="hover:text-gray-300">Cart</a>
+    <%if(locals.user){%>
+      <div class="w-full pt-2 pb-4">
+        <div class="flex justify-center gap-8 py-3 border-b border-gray-900">
+            <a href="/wishlist" class="flex flex-col items-center hover:text-gray-300 text-xs gap-1">
+                <img src="/images/heart.png" alt="wishlist" class="w-6 h-6 invert">
+                Wishlist
+            </a>
+            <a href="/cart" class="flex flex-col items-center hover:text-gray-300 text-xs gap-1">
+                <img src="/images/cart.png" alt="cart" class="w-6 h-6 invert">
+                Cart
+            </a>
+        </div>
 
-            <!-- Mobile Profile Dropdown -->
+        <div class="w-full mt-2">
+          <button id="mobile-profile-btn"
+            class="w-full text-center py-3 hover:text-gray-300 flex items-center justify-center gap-2">
+            <img src="<%=user.profilePhoto || "https://res.cloudinary.com/dmx7sia5q/image/upload/v1763480620/Untitled_design_h0wjcl.png"%>" alt="user" class="w-6 h-6 rounded-full object-cover">
+            <%= user.fullName %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" class="w-4 h-4 transition-transform duration-200" id="profile-arrow">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+          </button>
+          <div id="mobile-profile-menu" class="hidden flex flex-col items-center bg-gray-100 text-black py-1 w-full">
+            <a href="/profile" class="py-2 hover:bg-gray-200 w-full text-center">Account</a>
+            <a href="/logout" class="py-2 hover:bg-gray-200 w-full text-center">Logout</a>
           </div>
-          <div class="relative w-full">
-            <button id="mobile-profile-btn"
-              class="w-full text-center py-2 hover:text-gray-300 flex items-center justify-center gap-1">
-              <img src="<%= user.profilePhoto %>" alt="user" class="w-6 h-6 rounded-full">
-              <%= user.fullName %>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" class="w-4 h-4 transition-transform" id="profile-arrow">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-            </button>
-            <div class="w-full">
-              <div id="mobile-profile-menu" class="hidden flex flex-col items-center bg-white text-black py-2 w-full">
-                <a href="/profile" class="py-2 hover:bg-gray-200 w-full text-center">Account</a>
-                <a href="/logout" class="py-2 hover:bg-gray-200 w-full text-center">Logout</a>
-              </div>
-            </div>
-          </div>
-          <%}%>
+        </div>
+      </div>
+      <%}%>
   </div>
 
   <script>
@@ -254,10 +243,13 @@ value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
       peripheralsArrow.style.transform = mobilePeripheralsMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
     });
 
-    mobileProfileBtn.addEventListener('click', () => {
-      mobileProfileMenu.classList.toggle('hidden');
-      profileArrow.style.transform = mobileProfileMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-    });
+    // Check if profile btn exists (only when logged in)
+    if(mobileProfileBtn) {
+        mobileProfileBtn.addEventListener('click', () => {
+        mobileProfileMenu.classList.toggle('hidden');
+        profileArrow.style.transform = mobileProfileMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    }
   </script>
 
 </body>

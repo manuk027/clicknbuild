@@ -8,274 +8,293 @@
     <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Burned&display=swap" rel="stylesheet">
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-        type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Burned&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Custom Scrollbar Styles */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Tech Background Pattern for Brands Section */
+        .bg-dot-grid {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Dark Grid for CTA */
+        .bg-dark-grid {
+            background-image: linear-gradient(to right, #262626 1px, transparent 1px),
+                              linear-gradient(to bottom, #262626 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
 </head>
 
-<body>
-    <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
-        <!-- Hero Section -->
-        <div class="w-full h-48 md:h-72 lg:h-96 bg-cover bg-center"
-            style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://res.cloudinary.com/dmx7sia5q/image/upload/v1761806248/banner1_ezoizb.jpg');">
-            <div class="w-full h-full flex items-center justify-center">
-                <div class="text-center px-4">
-                    <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">YOUR SPECS, OUR BUILD</h1>
-                    <p class="text-sm md:text-base lg:text-lg text-gray-100">BUILD IT. OWN IT. FLAUNT IT.</p>
+<body class="bg-slate-50 text-gray-900 antialiased selection:bg-black selection:text-white">
+    
+    <div id="loader-wrapper" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-out">
+        <div id="d3-container"></div>
+        <div class="mt-6 font-mono text-sm sm:text-base text-white tracking-[0.2em] animate-pulse">
+            clickNbuild
+        </div>
+    </div>
+
+    <div class="relative z-50 shadow-sm">
+        <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
+    </div>
+        
+    <div class="relative w-full group overflow-hidden">
+        <img 
+            src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761806248/banner1_ezoizb.jpg" 
+            alt="Gaming PC Setup" 
+            class="w-full h-auto min-h-[300px] sm:min-h-[400px] object-cover align-middle transition-transform duration-[2s] ease-out group-hover:scale-105"
+        >
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-center justify-center">
+            <div class="text-center px-4 max-w-5xl mx-auto mt-10 sm:mt-0">
+                <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 drop-shadow-lg tracking-tight">
+                    YOUR SPECS, <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">OUR BUILD</span>
+                </h1>
+                <p class="text-sm sm:text-base md:text-lg text-gray-300 font-medium tracking-[0.2em] uppercase border-t border-gray-600 inline-block pt-4 mt-2">
+                    Build It. Own It. Flaunt It.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-100 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-8 bg-black rounded-r"></span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Flash Sales</h2>
+                </div>
+                
+                <div class="hidden md:flex gap-3">
+                    <button onclick="scrollFlashSales(-1)" class="p-3 rounded-full border border-gray-300 hover:bg-black hover:text-white hover:border-black transition-all duration-300 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button onclick="scrollFlashSales(1)" class="p-3 rounded-full border border-gray-300 hover:bg-black hover:text-white hover:border-black transition-all duration-300 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="flashSalesContainer" class="flex overflow-x-auto gap-5 sm:gap-8 pb-8 snap-x snap-mandatory scrollbar-hide px-2">
+                <%for(let i=0; i<product.length; i++){%>
+                    <%if(product[i].onFlashSale===true){%>
+                        <a href="/product?id=<%= product[i]._id %>" class="snap-start shrink-0 group">
+                            <div class="w-44 sm:w-56 md:w-64 bg-white rounded-xl p-3 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-2">
+                                <div class="bg-gray-50 aspect-square rounded-lg mb-4 flex items-center justify-center overflow-hidden relative">
+                                    <img src="<%=product[i].images[0]%>" alt="<%=product[i].model%>" class="w-3/4 h-3/4 object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
+                                    <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wider">Sale</span>
+                                </div>
+                                <div class="space-y-2 px-1">
+                                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide"><%=product[i].brand.name%></h3>
+                                    <h6 class="font-semibold text-sm sm:text-base text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors"><%=product[i].model%></h6>
+                                    <div class="flex justify-between items-end pt-1">
+                                        <div>
+                                            <span class="block text-xs text-gray-400 line-through">₹<%=product[i].variants[0].price%></span>
+                                            <span class="text-base sm:text-lg font-bold text-gray-900">₹<%=product[i]?.variants[0]?.offer%></span>
+                                        </div>
+                                        <div class="flex text-yellow-400 text-xs">★★★★★</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    <%}%>
+                <%}%>
+            </div>
+
+            <div class="text-center mt-6">
+                <a href="/shop/limitedEditions" class="inline-flex items-center gap-2 bg-transparent text-black border-b-2 border-black pb-1 text-sm font-semibold hover:text-gray-600 hover:border-gray-600 transition-all">
+                    View All Products
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-slate-50 bg-dot-grid">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center gap-3 mb-8 justify-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Popular Brands</h2>
+            </div>
+            
+            <div id="brandsContainer" class="relative flex overflow-x-auto scrollbar-hide scroll-smooth py-4">
+                <div class="brands-inner flex gap-6 sm:gap-10 mx-auto">
+                    <% for (let i=0; i < brand.length; i++) { %>
+                        <div class="flex-shrink-0 h-20 w-32 sm:h-24 sm:w-40 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-4 grayscale hover:grayscale-0 hover:shadow-lg hover:border-gray-300 transition-all duration-300 cursor-pointer">
+                            <img src="<%= brand[i].image %>" alt="<%= brand[i].name %>" class="max-h-full max-w-full object-contain">
+                        </div>
+                    <% } %>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Flash Sales Section -->
-
-        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-white">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-6 md:mb-8">
-                    <h2 class="text-2xl md:text-3xl font-bold">Flash Sales</h2>
-                    <div class="flex gap-2">
-                        <button onclick="scrollFlashSales(-1)" class="p-2 hover:bg-gray-200 rounded-full transition">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </button>
-                        <button onclick="scrollFlashSales(1)" class="p-2 hover:bg-gray-200 rounded-full transition">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-
-                <div id="flashSalesContainer" class="overflow-x-auto scrollbar-hide">
-                    <div class="flex gap-4 md:gap-6 pb-4">
-                        <!-- Product 1 -->
-                        <%for(let i=0; i<product.length; i++){%>
-                            <%if(product[i].onFlashSale===true){%>
-                                <a href="/product?id=<%= product[i]._id %>">
-                                    <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-                                        <div
-                                            class="bg-white-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                                            <img src="<%=product[i].images[0]%>" alt="Antec Case"
-                                                class=" h-full object-fit">
-                                        </div>
-                                        <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">
-                                            <%=product[i].brand.name%>
-                                        </h3>
-                                        <h6 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">
-                                            <%=product[i].model%>
-                                                </h3>
-                                                <div class="flex justify-between items-center mb-2">
-                                                    <span class="text-base md:text-lg font-bold">₹
-                                                        <%=product[i]?.variants[0]?.offer%>
-                                                    </span>
-                                                    <span class="text-xs md:text-sm text-gray-500 line-through">₹
-                                                        <%=product[i].variants[0].price%>
-                                                    </span>
-                                                </div>
-                                                <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-                                    </div>
-                                </a>
-                                <%}%>
-                                    <%}%>
-                    </div>
-                </div>
-
-                <div class="text-center mt-6 md:mt-8">
-                    <a href="/shop/limitedEditions"
-                        class="bg-black text-white px-6 md:px-8 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View
-                        All Products</a>
-                </div>
+    <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="w-2 h-8 bg-black rounded-r"></span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Limited Edition</h2>
             </div>
-        </section>
-
-
-        <!-- Popular Brands Section -->
-        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto">
-                <!-- Title -->
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800">
-                    Popular Brands
-                </h2>
-
-                <!-- Scrollable Brand Container -->
-                <div id="brandsContainer" class="relative flex overflow-x-auto scrollbar-hide scroll-smooth">
-                    <div class="brands-inner flex gap-6 md:gap-8 pb-2">
-                        <% for (let i=0; i < brand.length; i++) { %>
-                            <div
-                                class="flex-shrink-0 h-14 sm:h-16 md:h-20 lg:h-24 flex items-center justify-center bg-white rounded-lg shadow-sm p-2 md:p-3">
-                                <img src="<%= brand[i].image %>" alt="<%= brand[i].name %>"
-                                    class="h-full w-auto object-contain transition-transform duration-300 hover:scale-105">
-                            </div>
-                            <% } %>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-
-
-
-
-        <!-- Limited Edition Section -->
-        <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Limited Edition</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-                    <%for(let i=0; i<product.length; i++){%>
-                        <%if(product[i].isLimited===true){%>
-                            <a href="/product?id=<%= product[i]._id %>">
-                                <div>
-                                    <div
-                                        class="bg-white-100 h-32 md:h-48 rounded-lg mb-2 md:mb-4 flex items-center justify-center overflow-hidden relative">
-                                        <img src="<%=product[i].images[0]%>" alt="Product" class="h-full  object-fit">
-                                        <span
-                                            class="absolute top-1 md:top-2 right-1 md:right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">LIMITED</span>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-8">
+                <%for(let i=0; i<product.length; i++){%>
+                    <%if(product[i].isLimited===true){%>
+                        <a href="/product?id=<%= product[i]._id %>" class="group">
+                            <div class="h-full flex flex-col">
+                                <div class="bg-gray-100 aspect-[4/5] rounded-xl mb-4 flex items-center justify-center relative overflow-hidden shadow-inner group-hover:bg-gray-200 transition-colors">
+                                    <img src="<%=product[i].images[0]%>" alt="Product" class="w-3/4 h-3/4 object-contain transition-transform duration-500 group-hover:scale-110 mix-blend-multiply">
+                                    
+                                    <div class="absolute top-3 right-3 bg-black/90 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full border border-gray-700 shadow-lg">
+                                        LIMITED
                                     </div>
-                                    <h3 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">
-                                        <%=product[i].brand.name%>
-                                    </h3>
-                                    <h6 class="font-semibold text-xs md:text-sm mb-1 line-clamp-2">
-                                        <%=product[i].model%>
-                                            </h3>
-                                            <div class="flex gap-2 mb-1 text-xs md:text-sm">
-                                                <span class="font-bold">₹<%=product[i].variants[0].price%></span>
-                                                <span class="text-gray-500 line-through">₹
-                                                    <%=product[i].variants[0].price%>
-                                                </span>
-                                            </div>
-                                            <div class="flex justify-center text-yellow-400 text-xs md:text-sm">★★★★★
-                                            </div>
                                 </div>
-                            </a>
-                            <%}%>
-                                <%}%>
-                </div>
-            </div>
-        </section>
-
-        <!-- Best Seller Section -->
-        <!-- <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-6 md:mb-8">
-                    <h2 class="text-2xl md:text-3xl font-bold">Best Seller</h2>
-                    <button
-                        class="bg-black text-white px-4 md:px-6 py-2 md:py-3 text-sm md:text-base rounded hover:bg-gray-800 transition">View
-                        All</button>
-                </div>
-
-                <div id="bestSellerContainer" class="overflow-x-auto scrollbar-hide">
-                    <div class="flex gap-4 md:gap-6 pb-4">
-                        <div class="flex-shrink-0 w-40 md:w-48 lg:w-56">
-                            <div
-                                class="bg-gray-100 h-40 md:h-48 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1593642632505-06dc76b1c458?w=200&h=200&fit=crop"
-                                    alt="Product" class="w-full h-full object-cover">
+                                
+                                <h3 class="text-xs font-bold text-gray-500 uppercase mb-1"><%=product[i].brand.name%></h3>
+                                <h6 class="font-semibold text-sm sm:text-base text-gray-900 mb-2 line-clamp-2 group-hover:underline decoration-1 underline-offset-4"><%=product[i].model%></h6>
+                                
+                                <div class="mt-auto flex items-center justify-between border-t border-gray-100 pt-3">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 line-through">₹<%=product[i].variants[0].price%></span>
+                                        <span class="font-bold text-gray-900">₹<%=product[i].variants[0].price%></span>
+                                    </div>
+                                    <div class="flex text-yellow-400 text-xs">★★★★★</div>
+                                </div>
                             </div>
-                            <h3 class="font-semibold text-xs md:text-sm mb-2 line-clamp-2">ROG Liquid Cooler</h3>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-base md:text-lg font-bold">₹1,68,472</span>
-                                <span class="text-xs md:text-sm text-gray-500 line-through">₹2,50K</span>
-                            </div>
-                            <div class="flex justify-center text-yellow-400 text-sm">★★★★★</div>
-                        </div>
-                    </div>
-                </div>
+                        </a>
+                    <%}%>
+                <%}%>
             </div>
-        </section> -->
+        </div>
+    </section>
 
-        <!-- Our Customers Section -->
-        <!-- <section class="py-8 md:py-12 px-4 md:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">Our Customers</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                    <div class="bg-gray-100 p-4 md:p-6 rounded-lg">
-                        <p class="text-xs md:text-sm text-gray-700 mb-3 md:mb-4">
-                            "As a content creator, i need my work to be faster than my deadlines. i rely on cb-builds
-                            for high-end workstations and they delivered above my expectations."
-                        </p>
-                        <p class="font-semibold text-xs md:text-sm">- Roshan</p>
-                    </div>
-                </div>
-            </div>
-        </section> -->
+    <section class="py-20 sm:py-32 px-4 sm:px-8 bg-neutral-900 bg-dark-grid relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <!-- CTA Section -->
-        <section class="py-12 md:py-16 px-4 md:px-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto text-center">
-                <h1 style="font-family: 'Rubik Burned', system-ui;" class="text-5xl">
-                    YOU CLICK, WE BUILD
-                </h1>
-            </div>
-        </section>
-        <%-include("../../views/partials/user/footer")%>
-            <style>
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
+        <div class="max-w-7xl mx-auto text-center relative z-10">
+            <h1 style="font-family: 'Rubik Burned', system-ui;" class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white drop-shadow-2xl animate-pulse tracking-wide">
+                YOU CLICK, <span class="text-gray-500">WE BUILD</span>
+            </h1>
+            <p class="mt-6 text-gray-400 text-sm sm:text-base tracking-widest uppercase">Precision Assembled. Performance Guaranteed.</p>
+        </div>
+    </section>
 
-                .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            </style>
+    <%-include("../../views/partials/user/footer")%>
 
-            <script>
-                function scrollFlashSales(direction) {
-                    const container = document.getElementById('flashSalesContainer');
-                    const scrollAmount = 300;
-                    container.scrollBy({
-                        left: direction * scrollAmount,
-                        behavior: 'smooth'
-                    });
-                }
+    <script>
+        function scrollFlashSales(direction) {
+            const container = document.getElementById('flashSalesContainer');
+            const scrollAmount = container.offsetWidth / 2; 
+            container.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
 
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("brandsContainer");
+            const inner = container.querySelector(".brands-inner");
+            const scrollSpeed = 0.5; 
 
-
-                function scrollBestSeller(direction) {
-                    const container = document.getElementById('bestSellerContainer');
-                    const scrollAmount = 300;
-                    container.scrollBy({
-                        left: direction * scrollAmount,
-                        behavior: 'smooth'
-                    });
-                }
-            </script>
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const container = document.getElementById("brandsContainer");
-                    const inner = container.querySelector(".brands-inner");
-
-                    // Clone the inner content for seamless scrolling
-                    //   const clone = inner.cloneNode(true);
-                    //   container.appendChild(clone);
-
-                    const scrollSpeed = 0.5; // adjust speed (0.5 = slow, 1 = faster)
-
-                    function smoothScroll() {
-                        container.scrollLeft += scrollSpeed;
-
-                        // Reset scrollLeft seamlessly when reaching the original content width
-                        if (container.scrollLeft >= inner.scrollWidth) {
-                            container.scrollLeft = 0;
-                        }
-
-                        requestAnimationFrame(smoothScroll);
+            function smoothScroll() {
+                if(container && inner) {
+                    container.scrollLeft += scrollSpeed;
+                    if (container.scrollLeft >= inner.scrollWidth - container.offsetWidth) {
+                         // Simple reset logic
+                         container.scrollLeft = 0;
                     }
+                    requestAnimationFrame(smoothScroll);
+                }
+            }
+            // Uncomment to enable auto-scroll
+            // smoothScroll(); 
+        });
+    </script>
 
-                    smoothScroll(); // start scrolling immediately
-                });
-            </script>
+    <script>
+        window.addEventListener("load", function () {
+            const loader = document.getElementById("loader-wrapper");
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+            }, 500);
+        });
 
+        (function createD3Loader() {
+            const width = 150;
+            const height = 150;
+            const radius = 55; 
+            const logoSize = 60; 
+            
+            const svg = d3.select("#d3-container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
 
+            // 1. Center Logo
+            svg.append("image")
+                .attr("xlink:href", "https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png")
+                .attr("width", logoSize)
+                .attr("height", logoSize)
+                .attr("x", -logoSize / 2)
+                .attr("y", -logoSize / 2);
 
+            // 2. Static Orbit Track
+            svg.append("circle")
+                .attr("r", radius)
+                .attr("fill", "none")
+                .attr("stroke", "#333333")
+                .attr("stroke-width", 1)
+                .attr("opacity", 0.5);
 
+            // 3. Orbiting Planet
+            const planet = svg.append("circle")
+                .attr("r", 4)
+                .attr("fill", "#ffffff")
+                .attr("cx", radius)
+                .attr("cy", 0);
 
+            // 4. Second Planet
+            const planet2 = svg.append("circle")
+                .attr("r", 2.5)
+                .attr("fill", "#666666")
+                .attr("cx", radius)
+                .attr("cy", 0);
 
+            d3.timer((elapsed) => {
+                const angle = elapsed * 0.002;
+                planet
+                    .attr("cx", Math.cos(angle) * radius)
+                    .attr("cy", Math.sin(angle) * radius);
+
+                const angle2 = -elapsed * 0.003 + Math.PI;
+                planet2
+                    .attr("cx", Math.cos(angle2) * radius)
+                    .attr("cy", Math.sin(angle2) * radius);
+            });
+        })();
+    </script>
 </body>
-
 </html>

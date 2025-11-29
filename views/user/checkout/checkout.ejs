@@ -313,7 +313,7 @@
                             <!-- Total -->
                             <div class="flex justify-between text-lg font-semibold mb-6 pt-4 border-t">
                                 <span>Total Amount:</span>
-                                <span>₹ <%= totalAmount + deliveryCharge %></span>
+                                <span>₹ <%= totalAmount %></span>
                             </div>
 
                             <!-- Place Order Button -->
@@ -368,7 +368,7 @@
                                            3️⃣ COLLECT PRODUCT DETAILS
                                         ============================================================ */
                                         const productCards = document.querySelectorAll(".border-b");
-                                        const products = Array.from(productCards).map(card => {
+                                        const products = Array.from(document.querySelectorAll("[data-product-id]")).map(card => {
                                             const quantityText = card.querySelector("p")?.textContent.trim();
                                             const quantity = parseInt(quantityText?.split(":")[1]) || 1;
 

@@ -221,7 +221,6 @@ const verifyEmailOtp = async (req, res) => {
         }
         if (String(otp) === String(otpDoc.otp)) {
             const user = req.session.userData;
-            console.log(user);
             let referralCode = user.referralCode;
             let referredUser = null;
             if (referralCode && referralCode.trim() !== "") {
@@ -246,8 +245,6 @@ const verifyEmailOtp = async (req, res) => {
                 })
                 await usage.save();
             }
-
-            console.log(referredUser);
             const saveUserData = new User({
                 fullName: user.fullName,
                 email: user.email,
@@ -255,7 +252,6 @@ const verifyEmailOtp = async (req, res) => {
                 referedBy: referredUser ? referredUser._id : null,
             });
             await saveUserData.save();
-            console.log(saveUserData);
             const refCode = await generateUniqueReferralCode(saveUserData._id.toString());
             saveUserData.referralCode = refCode;
             await saveUserData.save();
@@ -341,7 +337,6 @@ const login = async (req, res) => {
                 message: "User has Signed-In with google account.",
             });
         }
-        console.log(password);
         let comparePassword = await bcrypt.compare(password, findUser.password);
         if (!comparePassword) {
             return res.render("login", { message: "Incorrect Password" });
@@ -580,13 +575,19 @@ const loadLimitedEditions = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
 
-        // Extract filters and sort options from query
+        const page = parseInt(req.query.page) || 1;
+        const limit = 21;
+        const skip = (page - 1) * limit;
+
+        // Extract filters and sort options
         const selectedBrands = req.query.brand;
         const selectedCategories = req.query.category;
         const sort = req.query.sort;
         const sortOption = getSortOption(sort);
+
         const wishlist = await Wishlist.findOne({ userId });
-        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
+        const wish = wishlist?.items?.map(item => String(item.variantId)) ?? [];
+
         // Build filter object
         const filter = { onFlashSale: true, isListed: true };
 
@@ -602,18 +603,24 @@ const loadLimitedEditions = async (req, res) => {
                 : selectedCategories;
         }
 
-        // Fetch products based on filter
+        // Count total products for pagination
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        // Fetch paginated products
         const products = await Product.find(filter)
             .populate("brand", "name")
             .populate("category", "name")
-            .sort(sortOption);
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit);
 
         // Fetch additional data
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
 
-        // Get distinct brands and categories from current product set
+        // Distinct filter lists
         const distinctBrandIds = [...new Set(products.map(p => p.brand?._id))].filter(Boolean);
         const distinctCategoryIds = [...new Set(products.map(p => p.category?._id))].filter(Boolean);
 
@@ -623,22 +630,16 @@ const loadLimitedEditions = async (req, res) => {
         const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
         const filterCategory = categoryList.map(c => c.name);
 
-        // Handle query values (single or array)
-        const selectedBrandsArray =
-            selectedBrands === undefined
-                ? []
-                : Array.isArray(selectedBrands)
-                    ? selectedBrands
-                    : [selectedBrands];
+        // Handle query values consistently
+        const selectedBrandsArray = selectedBrands
+            ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands]
+            : [];
 
-        const selectedCategoriesArray =
-            selectedCategories === undefined
-                ? []
-                : Array.isArray(selectedCategories)
-                    ? selectedCategories
-                    : [selectedCategories];
+        const selectedCategoriesArray = selectedCategories
+            ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories]
+            : [];
 
-        // Render appropriate view
+        // If no products found
         if (products.length === 0) {
             return res.render("noProductFound", {
                 product: products,
@@ -653,6 +654,7 @@ const loadLimitedEditions = async (req, res) => {
             });
         }
 
+        // Render main page
         return res.render("productPages", {
             product: products,
             peripheral: peripherals,
@@ -663,13 +665,18 @@ const loadLimitedEditions = async (req, res) => {
             filterCategory,
             selectedBrands: selectedBrandsArray,
             selectedCategories: selectedCategoriesArray,
-            wish
+            wish,
+            baseRoute: "/shop/limitedEditions",
+            current: page,
+            pages: totalPages
         });
+
     } catch (error) {
         console.error("Error loading limited edition products:", error);
         return res.redirect("/pageNotFound");
     }
 };
+
 
 
 
@@ -916,7 +923,7 @@ export const loadAdresses = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const page = parseInt(req.query.page) || 1;
-        const limit = 3; 
+        const limit = 3;
         const skip = (page - 1) * limit;
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });

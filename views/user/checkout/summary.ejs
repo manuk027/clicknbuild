@@ -115,6 +115,19 @@
                 </div>
             </div>
         </div>
+        <script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Prevent back
+    history.pushState({ page: "summary" }, "", "");
+
+    window.addEventListener("popstate", function (event) {
+        // When user clicks Back:
+        history.pushState({ page: "summary" }, "", "");
+    });
+});
+</script>
+
+
 
         <!-- Footer -->
         <%- include("../../views/partials/user/footer") %>

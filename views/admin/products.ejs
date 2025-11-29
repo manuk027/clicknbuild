@@ -4,368 +4,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-        type="image/png">
+    <title>Product List - Admin Dashboard</title>
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 font-sans text-gray-900">
 
-    <div class="flex min-h-screen">
-        <aside id="sidebar"
-            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
-            <%- include("../../views/partials/admin/sidebar") %>
-        </aside>
+    <%- include("../../views/partials/admin/sidebar") %>
 
-        <div class="flex-1 flex flex-col min-h-screen">
-            <header class="bg-white shadow-sm sticky top-0 z-30">
-                <%- include("../../views/partials/admin/header") %>
-            </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <%- include("../../views/partials/admin/header") %>
+        </header>
 
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <div class="mb-6">
-                    <div class="flex justify-between items-center w-full">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                            PRODUCT LIST
-                        </h1>
-                        <a href="/admin/products/addProducts"
-                            class="flex items-center justify-center gap-2 px-4 py-2.5 border border-black rounded-lg hover:bg-gray-50 hover:text-black transition-colors bg-black text-white">
-                            <span>ADD PRODUCT</span>
-                            <i class="fas fa-plus"></i>
-                        </a>
-                    </div>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+                        PRODUCT LIST
+                    </h1>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <span><a href="/admin">Dashboard</a></span>
-                        <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900">Product</span>
+                        <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                        <span class="text-gray-900 font-medium">Product</span>
                     </div>
                 </div>
+                
+                <a href="/admin/products/addProducts" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-md active:scale-95 w-full sm:w-auto">
+                    <span>ADD PRODUCT</span>
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div class="flex items-center justify-between mb-6 w-full">
-                        <form id="searchForm" action="/admin/products" method="GET" class="flex w-full max-w-md">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
-                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-black" />
-                                <% if (search) { %>
-                                    <button type="button" id="clearSearch"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <% } %>
-                            </div>
-                            <button type="submit"
-                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
-                                Search
+            <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between">
+                <form id="searchForm" action="/admin/products" method="GET" class="flex w-full sm:max-w-md relative">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" id="searchInput" placeholder="Search product..." value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                            class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
+                        <% if (search) { %>
+                            <button type="button" id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                                <i class="fas fa-times"></i>
                             </button>
-                        </form>
+                        <% } %>
                     </div>
-                    <script>
-                        // ✅ Optional: clear search button
-                        const clearSearch = document.getElementById("clearSearch");
-                        if (clearSearch) {
-                            clearSearch.addEventListener("click", () => {
-                                window.location.href = "/admin/products"; // Reset to full list
-                            });
-                        }
+                    <button type="submit" class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        Search
+                    </button>
+                </form>
 
-                        // ✅ Trigger search on pressing Enter
-                        const searchInput = document.getElementById("searchInput");
-                        const searchForm = document.getElementById("searchForm");
-                        if (searchInput && searchForm) {
-                            searchInput.addEventListener("keypress", function (event) {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    searchForm.submit();
-                                }
-                            });
-                        }
-                    </script>
-                    <div class="flex gap-4">
-                        <!-- <div class="relative">
-                            <button id="filtersBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>Filters</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-                            <div id="filtersDropdown"
-                                class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Category</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Availability</a>
-                            </div>
-                        </div> -->
-                        <div class="relative">
-                            <button id="sortBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sort"></i>
-                                <span>SORT</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
+                <div class="relative self-end sm:self-auto">
+                    <button id="sortBtn" class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                        <i class="fas fa-sort text-gray-500"></i>
+                        <span class="font-medium">SORT</span>
+                        <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                    </button>
 
-                            <div id="sortDropdown"
-                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
-                            </div>
-                        </div>
-
-                        <script>
-                            document.getElementById("sortBtn").addEventListener("click", () => {
-                                document.getElementById("sortDropdown").classList.toggle("hidden");
-                            });
-
-                            document.addEventListener("click", (e) => {
-                                if (!document.getElementById("sortBtn").contains(e.target) &&
-                                    !document.getElementById("sortDropdown").contains(e.target)) {
-                                    document.getElementById("sortDropdown").classList.add("hidden");
-                                }
-                            });
-
-                            function applySort(sortType) {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set("sort", sortType);
-                                window.location.href = url.toString();
-                            }
-                        </script>
-
+                    <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                        <a onclick="applySort('newest')" class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border-b border-gray-100">Newest</a>
+                        <a onclick="applySort('oldest')" class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors">Oldest</a>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[800px] ">
-                            <thead class="bg-black text-white text-center">
-                                <tr>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Image
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Brand
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Model
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Category
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Listing
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Edit
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Variants
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody class="divide-y divide-gray-200">
-                                <%for(let i=0; i<product.length; i++){%>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-4 py-4">
-                                            <div class="w-10 h-10 flex-shrink-0 mx-auto">
-                                                <img src="<%=product[i].images[0]%>" alt="<%= product.name %>"
-                                                    class="rounded-full w-full h-full object-cover">
-                                            </div>
-                                        </td>
-
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i].brand?.name%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.model%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=product[i]?.category?.name%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <% if (product[i].isListed) { %>
-                                                <a href="/admin/products/unListProduct?id=<%=product[i]._id%>&page=<%= current %>"
-                                                    class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
-                                                    Unlist
-                                                </a>
-                                                <% } else { %>
-                                                    <a href="/admin/products/listProduct?id=<%=product[i]._id%>&page=<%= current %>"
-                                                        class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
-                                                        List
-                                                    </a>
-                                                    <% } %>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <a class="p-2 text-gray-600 hover:bg-gray-100 rounded"
-                                                href="/admin/products/editProduct?id=<%=product[i]._id%>">
-                                                <i class="fas fa-edit"></i>
-
+            <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-black border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Image</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Brand</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Model</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Category</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Actions</th>
+                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Variants</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <%for(let i=0; i<product.length; i++){%>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="w-12 h-12 mx-auto rounded-full border border-gray-200 overflow-hidden p-1 bg-white">
+                                            <img src="<%=product[i].images[0]%>" alt="<%= product.name %>" class="w-full h-full object-cover rounded-full">
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                        <%=product[i].brand?.name%>
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-sm text-gray-600">
+                                        <%=product[i]?.model%>
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-sm text-gray-600">
+                                        <%=product[i]?.category?.name%>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <% if (product[i].isListed) { %>
+                                            <a href="/admin/products/unListProduct?id=<%=product[i]._id%>&page=<%= current %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                                                Unlist
                                             </a>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <button
-                                                class="text-gray-600 hover:text-gray-900 transition-colors showVariantsBtn"
-                                                data-id="<%= product[i]._id %>">
-                                                <i class="far fa-eye text-lg"></i>
-                                            </button>
+                                        <% } else { %>
+                                            <a href="/admin/products/listProduct?id=<%=product[i]._id%>&page=<%= current %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
+                                                List
+                                            </a>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <a href="/admin/products/editProduct?id=<%=product[i]._id%>" class="text-gray-400 hover:text-black transition-colors text-lg p-2">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <button class="text-blue-500 hover:text-blue-700 transition-colors showVariantsBtn p-2" data-id="<%= product[i]._id %>">
+                                            <i class="far fa-eye text-lg"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <%}%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                                        </td>
-                                    </tr>
-                                    <%}%>
-                            </tbody>
-                        </table>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden mb-6">
+                <%for(let i=0; i<product.length; i++){%>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-full border border-gray-100 p-1 bg-white shadow-sm flex-shrink-0">
+                            <img src="<%=product[i].images[0]%>" alt="<%= product.name %>" class="w-full h-full object-cover rounded-full">
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg"><%=product[i].brand?.name%></h3>
+                            <p class="text-sm text-gray-600 font-medium"><%=product[i]?.model%></p>
+                            <p class="text-xs text-gray-500 mt-1"><%=product[i]?.category?.name%></p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                        <% if (product[i].isListed) { %>
+                            <a href="/admin/products/unListProduct?id=<%=product[i]._id%>&page=<%= current %>" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">
+                                Unlist
+                            </a>
+                        <% } else { %>
+                            <a href="/admin/products/listProduct?id=<%=product[i]._id%>&page=<%= current %>" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 transition-colors">
+                                List
+                            </a>
+                        <% } %>
+
+                        <div class="flex gap-2">
+                            <a href="/admin/products/editProduct?id=<%=product[i]._id%>" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-black hover:text-white transition-all">
+                                <i class="fas fa-edit text-sm"></i>
+                            </a>
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all showVariantsBtn" data-id="<%= product[i]._id %>">
+                                <i class="far fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <% } %>
+            </div>
 
-                <% if (product.length> 0) { %>
-                    <div class="flex justify-center m-6">
-                        <nav aria-label="Dashboard Pagination">
-                            <ul class="flex items-center space-x-2">
+            <% if (product.length > 0) { %>
+            <div class="flex justify-center mt-8 pb-8">
+                <nav aria-label="Page navigation">
+                    <ul class="flex flex-wrap justify-center gap-2">
+                        <% if (current == 1) { %>
+                        <li>
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span>
+                        </li>
+                        <% } else { %>
+                        <li>
+                            <a href="/admin/products/?page=1&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">First</a>
+                        </li>
+                        <% } %>
 
-                                <!-- First Page -->
-                                <% if (current==1) { %>
-                                    <li>
-                                        <span
-                                            class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
-                                    </li>
-                                    <% } else { %>
-                                        <li>
-                                            <a href="/admin/products/?page=1&sort=<%= sort %>"
-                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
-                                        </li>
-                                        <% } %>
+                        <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
+                        <% if (i !== 1) { %>
+                        <li class="hidden sm:block">
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                        </li>
+                        <% } %>
 
-                                            <!-- Ellipsis before -->
-                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                                <% if(i !==1) { %>
-                                                    <li><span
-                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                    </li>
-                                                    <% } %>
+                        <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+                            <% if (i == current) { %>
+                            <li>
+                                <span class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg shadow-sm"><%= i %></span>
+                            </li>
+                            <% } else { %>
+                            <li>
+                                <a href="/admin/products/?page=<%= i %>&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><%= i %></a>
+                            </li>
+                            <% } %>
+                        <% } %>
 
-                                                        <!-- Page Numbers -->
-                                                        <% for(; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                                            <% if (i==current) { %>
-                                                                <li>
-                                                                    <span
-                                                                        class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                                        <%= i %>
-                                                                    </span>
-                                                                </li>
-                                                                <% } else { %>
-                                                                    <li>
-                                                                        <a href="/admin/products/?page=<%= i %>&sort=<%= sort %>"
-                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                            <%= i %>
-                                                                        </a>
-                                                                    </li>
-                                                                    <% } %>
-                                                                        <% if (i==Number(current) + 4 && i < pages) { %>
-                                                                            <li><span
-                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                                            </li>
-                                                                            <% } %>
-                                                                                <% } %>
+                        <% if (i == Number(current) + 4 && i < pages) { %>
+                        <li class="hidden sm:block">
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                        </li>
+                        <% } %>
 
-                                                                                    <!-- Last Page -->
-                                                                                    <% if (current==pages) { %>
-                                                                                        <li>
-                                                                                            <span
-                                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">Last</span>
-                                                                                        </li>
-                                                                                        <% } else { %>
-                                                                                            <li>
-                                                                                                <a href="/admin/products/?page=<%= pages %>&sort=<%= sort %>"
-                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
-                                                                                            </li>
-                                                                                            <% } %>
+                        <% if (current == pages) { %>
+                        <li>
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span>
+                        </li>
+                        <% } else { %>
+                        <li>
+                            <a href="/admin/products/?page=<%= pages %>&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Last</a>
+                        </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
 
-                            </ul>
-                        </nav>
-                    </div>
-                    <% } %>
-            </main>
-        </div>
+        </main>
     </div>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/admin/categoryList.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.querySelectorAll(".showVariantsBtn").forEach(button => {
-            button.addEventListener("click", async () => {
-                const productId = button.dataset.id;
+         // Sort Dropdown Toggle
+        const sortBtn = document.getElementById("sortBtn");
+        const sortDropdown = document.getElementById("sortDropdown");
+        
+        if(sortBtn && sortDropdown){
+            sortBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.toggle("hidden");
+            });
 
-                try {
-                    const res = await fetch(`/admin/ptoducts/viewVariants?id=${productId}`);
-                    const data = await res.json();
-                    if (!data.success) {
-                        return Swal.fire("Error", data.message, "error");
-                    }
-                    const product = data.product;
+            document.addEventListener("click", (e) => {
+                if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                    sortDropdown.classList.add("hidden");
+                }
+            });
+        }
 
-                    if (!product || !product.variants || product.variants.length === 0) {
-                        return Swal.fire("Info", "No variants found for this product.", "info");
-                    }
+        function applySort(sortType) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("sort", sortType);
+            window.location.href = url.toString();
+        }
 
-                    // Build variants table HTML
-                    let variantsHTML = `
-        <table style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th style="border:1px solid #ccc; padding:8px;">Variant</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Quantity</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Price</th>
-                    <th style="border:1px solid #ccc; padding:8px;">Offer</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+        // Search Reset
+        const clearSearch = document.getElementById("clearSearch");
+        if (clearSearch) {
+            clearSearch.addEventListener("click", () => {
+                window.location.href = "/admin/products";
+            });
+        }
 
-                    product.variants.forEach(v => {
-                        variantsHTML += `
-            <tr>
-                <td style="border:1px solid #ccc; padding:8px;">${v.variant}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.quantity}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.price}</td>
-                <td style="border:1px solid #ccc; padding:8px;">${v.offer}</td>
-            </tr>
-        `;
-                    });
+        // Search Enter Key
+        const searchInput = document.getElementById("searchInput");
+        const searchForm = document.getElementById("searchForm");
+        if (searchInput && searchForm) {
+            searchInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    searchForm.submit();
+                }
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="/js/admin/categoryList.js"></script>
+    
+    <script>
+        // Variants Popup Logic
+        document.body.addEventListener('click', async function(e) {
+            const button = e.target.closest('.showVariantsBtn');
+            if (!button) return;
 
-                    variantsHTML += '</tbody></table>';
+            const productId = button.dataset.id;
 
-                    // Show popup
-                    Swal.fire({
-                        title: `Variants of ${product.model}`,
-                        html: variantsHTML,
-                        width: '700px',
-                        showCloseButton: true,
-                        confirmButtonText: 'Close'
-                    });
+            try {
+                const res = await fetch(`/admin/products/viewVariants?id=${productId}`);
+                const data = await res.json();
+                
+                if (!data.success) {
+                    return Swal.fire("Error", data.message, "error");
+                }
+                const product = data.product;
 
-                } catch (error) {
-                    console.error(error);
-                    Swal.fire("Error", "Failed to fetch product variants.", "error");
+                if (!product || !product.variants || product.variants.length === 0) {
+                    return Swal.fire("Info", "No variants found for this product.", "info");
                 }
 
-            });
+                // Build variants table HTML
+                let variantsHTML = `
+                    <div class="overflow-x-auto">
+                        <table style="width:100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr style="background-color: #f3f4f6;">
+                                    <th style="border:1px solid #e5e7eb; padding:10px; font-weight:600;">Variant</th>
+                                    <th style="border:1px solid #e5e7eb; padding:10px; font-weight:600;">Qty</th>
+                                    <th style="border:1px solid #e5e7eb; padding:10px; font-weight:600;">Price</th>
+                                    <th style="border:1px solid #e5e7eb; padding:10px; font-weight:600;">Offer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                product.variants.forEach(v => {
+                    variantsHTML += `
+                        <tr>
+                            <td style="border:1px solid #e5e7eb; padding:10px;">${v.variant}</td>
+                            <td style="border:1px solid #e5e7eb; padding:10px;">${v.quantity}</td>
+                            <td style="border:1px solid #e5e7eb; padding:10px;">${v.price}</td>
+                            <td style="border:1px solid #e5e7eb; padding:10px;">${v.offer}</td>
+                        </tr>
+                    `;
+                });
+
+                variantsHTML += '</tbody></table></div>';
+
+                Swal.fire({
+                    title: `<span class="text-lg font-bold">Variants: ${product.model}</span>`,
+                    html: variantsHTML,
+                    width: '600px',
+                    showCloseButton: true,
+                    confirmButtonText: 'Close',
+                    confirmButtonColor: '#000'
+                });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire("Error", "Failed to fetch product variants.", "error");
+            }
         });
     </script>
-
 </body>
-
 </html>

@@ -4,6 +4,7 @@ import { generateExcelBuffer } from "../../helpers/reportExcel.js";
 import { HttpStatus } from '../../helpers/statusCodes.js'
 
 
+
 export const getDashboardDataService = async (req, res) => {
     try {
         const range = req.query.range || "monthly";
@@ -33,10 +34,11 @@ export const getDashboardDataService = async (req, res) => {
         };
         return res.json({ success: true, orders, summary });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.json({ success: false, message: "Server error" });
     }
 };
+
 
 
 export const loadDashboardService = async (req, res) => {
@@ -49,6 +51,7 @@ export const loadDashboardService = async (req, res) => {
         return res.redirect('/pageNotFound');
     }
 };
+
 
 
 export const downloadPDFService = async (req, res) => {

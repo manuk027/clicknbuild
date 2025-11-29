@@ -29,7 +29,6 @@ const loadOrders = async (req, res) => {
 
 
         const orders = await Order.find().sort(sortOption);
-        console.log(orders);
 
         let rows = [];
 
@@ -147,15 +146,9 @@ const changeStatus = async (req, res) => {
 
 
 
-const loadOrderDetails = async (req, res) => {
-    try {
-        console.log(req.parms.id);
-    } catch (error) {
-
-    }
-}
 
 
 
-export default { loadOrders, changeStatus, loadOrderDetails };
+
+export default { loadOrders, changeStatus,  };
 

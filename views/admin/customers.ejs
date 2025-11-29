@@ -5,418 +5,278 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-        type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-gray-50">
-    <div class="flex min-h-screen">
-        <aside id="sidebar"
-            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
-            <%- include("../../views/partials/admin/sidebar") %>
-        </aside>
+<body class="bg-gray-50 font-sans text-gray-900">
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-h-screen">
+    <%- include("../../views/partials/admin/sidebar") %>
 
-            <header class="bg-white shadow-sm sticky top-0 z-30">
-                <%- include("../../views/partials/admin/header") %>
-            </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <%- include("../../views/partials/admin/header") %>
+        </header>
 
-            <!-- Page Content -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <!-- Page Title & Breadcrumb -->
-                <div class="mb-6">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">CUSTOMER LIST</h1>
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <span><a href="/admin">Dashboard</a></span>
-                        <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900">Customers</span>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            
+            <div class="mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">CUSTOMER LIST</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-900 font-medium">Customers</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-start sm:items-center">
+                
+                <form id="searchForm" action="/admin/customers" method="GET" class="flex w-full sm:max-w-md relative">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" id="searchInput" placeholder="Search customers..."
+                            value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                            class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
+                        <% if (search) { %>
+                            <button type="button" id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        <% } %>
+                    </div>
+                    <button type="submit" class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        Search
+                    </button>
+                </form>
+
+                <div class="relative self-end sm:self-auto">
+                    <button id="sortBtn" class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                        <i class="fas fa-sort text-gray-500"></i>
+                        <span>Sort</span>
+                        <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                    </button>
+
+                    <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                        <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border-b border-gray-100">Newest</a>
+                        <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors">Oldest</a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Search & Filter Bar -->
-                <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div class="flex items-center justify-between mb-6 w-full">
-                        <form id="searchForm" action="/admin/customers" method="GET" class="flex w-full max-w-md">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
-                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-black" />
-                                <% if (search) { %>
-                                    <button type="button" id="clearSearch"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <% } %>
-                            </div>
-                            <button type="submit"
-                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
-                                Search
-                            </button>
-                        </form>
-                    </div>
-                    <script>
-                        // ✅ Optional: clear search button
-                        const clearSearch = document.getElementById("clearSearch");
-                        if (clearSearch) {
-                            clearSearch.addEventListener("click", () => {
-                                window.location.href = "/admin/customers"; // Reset to full list
-                            });
-                        }
-
-                        // ✅ Trigger search on pressing Enter
-                        const searchInput = document.getElementById("searchInput");
-                        const searchForm = document.getElementById("searchForm");
-                        if (searchInput && searchForm) {
-                            searchInput.addEventListener("keypress", function (event) {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    searchForm.submit();
-                                }
-                            });
-                        }
-                    </script>
-                    <div class="flex gap-4">
-
-                        <!-- Filters Button -->
-                        <!-- <div class="relative">
-                            <button id="filtersBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>Filters</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-                            <div id="filtersDropdown"
-                                class="hidden absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Category</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Availability</a>
-                            </div>
-                        </div> -->
-
-
-                        <div class="relative">
-                            <button id="sortBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sort"></i>
-                                <span>SORT</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-
-                            <div id="sortDropdown"
-                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
-                            </div>
-                        </div>
-
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                const sortBtn = document.getElementById("sortBtn");
-                                const sortDropdown = document.getElementById("sortDropdown");
-
-                                sortBtn.addEventListener("click", (e) => {
-                                    e.stopPropagation();
-                                    sortDropdown.classList.toggle("hidden");
-                                });
-
-                                document.addEventListener("click", (e) => {
-                                    if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
-                                        sortDropdown.classList.add("hidden");
-                                    }
-                                });
-
-                                window.applySort = function (sortType) {
-                                    sortDropdown.classList.add("hidden");
-                                    const url = new URL(window.location.href);
-                                    url.searchParams.set("sort", sortType);
-                                    window.location.href = url.toString();
-                                };
-                            });
-                        </script>
-
-
-
-                    </div>
-
-
-
-                </div>
-
-                <!-- Customer Table -->
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[800px]">
-                            <thead class="bg-black text-white">
-                                <tr>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Customer Name</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Phone</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Orders</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Balance</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Status</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        BLOCK/<br>UNBLOCK</th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <%for(let i=0; i<data.length; i++){%>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-4 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <!-- <div class="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div> -->
-                                                <div>
-                                                    <p class="font-medium text-gray-900">
-                                                        <%=data[i].fullName%>
-                                                    </p>
-                                                    <p class="text-sm text-gray-500">
-                                                        <%=data[i].email%>
-                                                    </p>
-                                                </div>
+            <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-black text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Customer Name</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Enail</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Phone</th>
+                                <!-- <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Orders</th> -->
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Balance</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">Action</th>
+                                <!-- <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">View</th> -->
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <% for(let i=0; i<data.length; i++){ %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs">
+                                                <%= data[i].fullName.charAt(0).toUpperCase() %>
                                             </div>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].phoneNumber ?? 1234567890%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].walletBalance%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <%=data[i].walletBalance%>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <span
-                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                <%if(data[i].isBlocked){%>
-                                                    Blocked
-                                                    <%}else{%>
-                                                        Unblocked
-                                                        <%}%>
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <% if (data[i].isBlocked) { %>
-                                                <a href="/admin/unblockCustomers?id=<%= data[i]._id %>"
-                                                    class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
-                                                    Unblock
-                                                </a>
-                                                <% } else { %>
-                                                    <a href="/admin/blockCustomers?id=<%= data[i]._id %>"
-                                                        class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
-                                                        Block
-                                                    </a>
-                                                    <% } %>
-
-
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <button class="text-gray-600 hover:text-gray-900 transition-colors">
-                                                <i class="far fa-eye text-lg"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <%}%>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <!-- Advanced Pagination -->
-                    <% if (customers.length> 0) { %>
-                        <div class="flex justify-center m-6">
-                            <nav aria-label="Dashboard Pagination">
-                                <ul class="flex items-center space-x-2">
-
-                                    <!-- First Page -->
-                                    <% if (current==1) { %>
-                                        <li>
-                                            <span
-                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
-                                        </li>
+                                            <div>
+                                                <p class="font-medium text-gray-900"><%= data[i].fullName %></p>
+                                                
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600"><%= data[i].email %></td>
+                                    <td class="px-6 py-4 text-sm text-gray-600"><%= data[i].phoneNumber ?? 'N/A' %></td>
+                                    <!-- <td class="px-6 py-4 text-sm text-gray-600">-</td> -->
+                                    <td class="px-6 py-4 text-sm text-gray-600">₹<%= data[i].walletBalance %></td>
+                                    <td class="px-6 py-4">
+                                        <% if(data[i].isBlocked){ %>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Blocked</span>
                                         <% } else { %>
-                                            <li>
-                                                <a href="/admin/customers/?page=1&sort=<%= sort %>"
-                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
-                                            </li>
-                                            <% } %>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <% if (data[i].isBlocked) { %>
+                                            <a href="/admin/unblockCustomers?id=<%= data[i]._id %>" class="block-btn inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-colors shadow-sm w-24">UNBLOCK</a>
+                                        <% } else { %>
+                                            <a href="/admin/blockCustomers?id=<%= data[i]._id %>" class="block-btn inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors shadow-sm w-24">BLOCK</a>
+                                        <% } %>
+                                    </td>
+                                    <!-- <td class="px-6 py-4 text-center">
+                                        <button class="text-gray-400 hover:text-black transition-colors p-2">
+                                            <i class="far fa-eye text-lg"></i>
+                                        </button>
+                                    </td> -->
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                                                <!-- Ellipsis before -->
-                                                <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                                    <% if(i !==1) { %>
-                                                        <li><span
-                                                                class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                        </li>
-                                                        <% } %>
-
-                                                            <!-- Page Numbers -->
-                                                            <% for(; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                                                <% if (i==current) { %>
-                                                                    <li>
-                                                                        <span
-                                                                            class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                                            <%= i %>
-                                                                        </span>
-                                                                    </li>
-                                                                    <% } else { %>
-                                                                        <li>
-                                                                            <a href="/admin/customers/?page=<%= i %>&sort=<%= sort %>"
-                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                                <%= i %>
-                                                                            </a>
-                                                                        </li>
-                                                                        <% } %>
-                                                                            <% if (i==Number(current) + 4 && i < pages)
-                                                                                { %>
-                                                                                <li><span
-                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                                                </li>
-                                                                                <% } %>
-                                                                                    <% } %>
-
-                                                                                        <!-- Last Page -->
-                                                                                        <% if (current==pages) { %>
-                                                                                            <li>
-                                                                                                <span
-                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">Last</span>
-                                                                                            </li>
-                                                                                            <% } else { %>
-                                                                                                <li>
-                                                                                                    <a href="/admin/customers/?page=<%= pages %>&sort=<%= sort %>"
-                                                                                                        class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">Last</a>
-                                                                                                </li>
-                                                                                                <% } %>
-
-                                </ul>
-                            </nav>
+            <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
+                <% for(let i=0; i<data.length; i++){ %>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                        
+                        <div class="flex justify-between items-start mb-4 border-b border-gray-100 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">
+                                    <%= data[i].fullName.charAt(0).toUpperCase() %>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900"><%= data[i].fullName %></h3>
+                                    <p class="text-xs text-gray-500 break-all"><%= data[i].email %></p>
+                                </div>
+                            </div>
+                            <% if(data[i].isBlocked){ %>
+                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">Blocked</span>
+                            <% } else { %>
+                                <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">Active</span>
+                            <% } %>
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                            <div>
+                                <span class="text-xs text-gray-500 block mb-1">Phone</span>
+                                <span class="font-medium text-gray-700"><%= data[i].phoneNumber ?? 'N/A' %></span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 block mb-1">Balance</span>
+                                <span class="font-medium text-gray-700">₹<%= data[i].walletBalance %></span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <% if (data[i].isBlocked) { %>
+                                <a href="/admin/unblockCustomers?id=<%= data[i]._id %>" class="block-btn flex-1 py-2 rounded-lg bg-green-600 text-white text-sm font-bold text-center hover:bg-green-700 transition">
+                                    UNBLOCK
+                                </a>
+                            <% } else { %>
+                                <a href="/admin/blockCustomers?id=<%= data[i]._id %>" class="block-btn flex-1 py-2 rounded-lg bg-red-600 text-white text-sm font-bold text-center hover:bg-red-700 transition">
+                                    BLOCK
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <% if (customers.length > 0) { %>
+            <div class="flex justify-center mt-8 pb-8">
+                <nav aria-label="Dashboard Pagination">
+                    <ul class="flex items-center space-x-2">
+                        <% let baseUrl = `/admin/customers?sort=${sort || ""}&search=${search || ""}`; %>
+
+                        <% if (current == 1) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=1" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">First</a></li>
                         <% } %>
 
+                        <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
+                        <% if (i !== 1) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
 
-                </div>
-            </main>
-        </div>
+                        <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+                            <% if (i == current) { %>
+                                <li><span class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg"><%= i %></span></li>
+                            <% } else { %>
+                                <li><a href="<%= baseUrl %>&page=<%= i %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"><%= i %></a></li>
+                            <% } %>
+                        <% } %>
+
+                        <% if (i == Number(current) + 4 && i < pages) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
+
+                        <% if (current == pages) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=<%= pages %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Last</a></li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
+
+        </main>
     </div>
 
-    <!-- Mobile Menu Overlay -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const userBlockButton = document.querySelectorAll('td:nth-child(6) a');
+        // --- Search Logic ---
+        const searchInput = document.getElementById("searchInput");
+        const searchForm = document.getElementById("searchForm");
+        const clearSearch = document.getElementById("clearSearch");
 
-        userBlockButton.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault(); // prevent default link action
-                const userId = new URL(this.href).searchParams.get('id');
-                const isBlocking = this.textContent.trim().toLowerCase() === 'block';
-                const actionText = isBlocking ? 'Block' : 'Unblock';
-
-                Swal.fire({
-                    title: `Are you sure you want to ${actionText} this user?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: ` ${actionText}`
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Redirect to the actual block/unblock route
-                        window.location.href = this.href;
-                    }
-                });
+        if (clearSearch) {
+            clearSearch.addEventListener("click", () => window.location.href = "/admin/customers");
+        }
+        if (searchInput && searchForm) {
+            searchInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") { e.preventDefault(); searchForm.submit(); }
             });
-        });
-    </script>
+        }
 
-    <script>
-        const filtersBtn = document.getElementById('filtersBtn');
-        const filtersDropdown = document.getElementById('filtersDropdown');
-        const sortBtn = document.getElementById('sortBtn');
-        const sortDropdown = document.getElementById('sortDropdown');
+        // --- Sort Dropdown Logic ---
+        const sortBtn = document.getElementById("sortBtn");
+        const sortDropdown = document.getElementById("sortDropdown");
 
-        // Toggle Filters dropdown
-        filtersBtn.addEventListener('click', () => {
-            filtersDropdown.classList.toggle('hidden');
-            sortDropdown.classList.add('hidden'); // close sort dropdown if open
-        });
-
-        // Close dropdowns when clicking outside
-        window.addEventListener('click', (e) => {
-            if (!filtersBtn.contains(e.target) && !filtersDropdown.contains(e.target)) {
-                filtersDropdown.classList.add('hidden');
-            }
-            if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
-                sortDropdown.classList.add('hidden');
-            }
-        });
-    </script>
-    <script>
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        });
-
-        // Block/Unblock toggle functionality
-        const blockButtons = document.querySelectorAll('td:nth-child(6) button');
-        blockButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const isBlocked = this.classList.contains('bg-red-600');
-                const statusBadge = this.closest('tr').querySelector('td:nth-child(5) span');
-
-                if (isBlocked) {
-                    // Change to Block state
-                    this.classList.remove('bg-red-600');
-                    this.classList.add('bg-gray-200', 'hover:bg-gray-300');
-                    this.querySelector('span').textContent = 'BLOCK';
-                    this.querySelector('span').classList.remove('text-white');
-                    this.querySelector('span').classList.add('text-gray-700');
-
-                    // Update status badge
-                    statusBadge.classList.remove('bg-red-100', 'text-red-700');
-                    statusBadge.classList.add('bg-green-100', 'text-green-700');
-                    statusBadge.textContent = 'Active';
-                } else {
-                    // Change to Unblock state
-                    this.classList.remove('bg-gray-200', 'hover:bg-gray-300');
-                    this.classList.add('bg-red-600');
-                    this.querySelector('span').textContent = 'UNBLOCK';
-                    this.querySelector('span').classList.remove('text-gray-700');
-                    this.querySelector('span').classList.add('text-white');
-
-                    // Update status badge
-                    statusBadge.classList.remove('bg-green-100', 'text-green-700');
-                    statusBadge.classList.add('bg-red-100', 'text-red-700');
-                    statusBadge.textContent = 'Blocked';
+        if (sortBtn && sortDropdown) {
+            sortBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.toggle("hidden");
+            });
+            document.addEventListener("click", (e) => {
+                if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                    sortDropdown.classList.add("hidden");
                 }
             });
+        }
+
+        window.applySort = (sortType) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set("sort", sortType);
+            window.location.href = url.toString();
+        };
+
+        // --- Block/Unblock SweetAlert Logic (Unified for Table & Cards) ---
+        document.body.addEventListener('click', function (e) {
+            const btn = e.target.closest('.block-btn');
+            
+            if (btn) {
+                e.preventDefault(); 
+                const href = btn.getAttribute('href');
+                const isBlocking = btn.textContent.trim().toUpperCase() === 'BLOCK';
+                const actionText = isBlocking ? 'Block' : 'Unblock';
+                const actionColor = isBlocking ? '#d33' : '#10b981';
+
+                Swal.fire({
+                    title: `Are you sure?`,
+                    text: `Do you really want to ${actionText.toLowerCase()} this customer?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: actionColor,
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: `Yes, ${actionText}!`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = href;
+                    }
+                });
+            }
         });
     </script>
 </body>
-
 </html>

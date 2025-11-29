@@ -85,13 +85,13 @@ export const removeItemService = async (req, res) => {
 }
 
 
+
 export const updateCountService = async (req, res) => {
     const userId = req.user?._id || req.session.user;
 
     try {
         const { action } = req.body;
         const { variantId } = req.params;
-        console.log(variantId);
         if (!userId)
             return res.status(401).json({ success: false, message: "User not logged in." });
         if (!variantId || !["inc", "dec"].includes(action))
@@ -104,7 +104,6 @@ export const updateCountService = async (req, res) => {
             return res.status(404).json({ success: false, message: "Item not found." });
         const product = await Product.findById(item.productId).populate("category");
         const variant = product.variants.id(variantId);
-        console.log(variant);
         if (!variant)
             return res.status(404).json({ success: false, message: "Variant not found." });
         if (action === "inc") {

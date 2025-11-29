@@ -37,7 +37,6 @@ export const loadWalletService = async (req, res) => {
 export const createOrderService = async (req, res) => {
     try {
         const { amount } = req.body;
-        console.log(amount);
         const options = {
             amount: amount * 100,
             currency: "INR",
@@ -61,7 +60,6 @@ export const createOrderService = async (req, res) => {
 export const verifyPaymentService = async (req, res) => {
     try {
         const { paymentData, amount } = req.body;
-        console.log(paymentData);
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, } = paymentData;
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto.createHmac("sha256", process.env.RZP_TEST_SECRET).update(sign).digest("hex");

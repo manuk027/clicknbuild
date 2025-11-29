@@ -1,130 +1,176 @@
-<!-- <aside id="sidebar" 
-    class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden"> -->
+<aside id="sidebar" 
+    class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto shadow-2xl z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col justify-between">
 
-    <!-- Logo -->
-    <div class="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white flex items-center justify-center">
-        <div class="w-14 sm:w-20 h-14 sm:h-20 bg-black rounded flex items-center justify-center overflow-hidden">
-            <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" alt="Logo" class="w-full h-full object-contain object-center">
+    <div>
+        <div class="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white flex items-center justify-center">
+            <button id="sidebarCloseBtn" class="lg:hidden absolute top-4 right-4 text-gray-500 hover:text-red-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+
+            <div class="w-14 sm:w-20 h-14 sm:h-20 bg-black rounded flex items-center justify-center overflow-hidden">
+                <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" alt="Logo" class="w-full h-full object-contain object-center">
+            </div>
         </div>
+
+        <nav class="p-2 sm:p-4 space-y-1 sm:space-y-2">
+            <a href="/admin" class="nav-link flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors active:bg-gray-100">
+                <i class="fas fa-chart-line w-5"></i>
+                <span class="text-sm sm:text-base">Dashboard</span>
+            </a>
+
+            <a href="/admin/products" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-box w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Products</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <a href="/admin/brands" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-computer w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Brands</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <a href="/admin/orders" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-list w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Order List</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <a href="/admin/customers" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-user w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Customer</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <!-- <a href="/admin/sales" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-receipt w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Sales</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a> -->
+
+            <a href="/admin/category" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-th w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Category</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <a href="/admin/coupons" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-ticket-alt w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Coupons</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a>
+
+            <!-- <a href="/admin/banner" class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <i class="fas fa-image w-5 flex-shrink-0"></i>
+                    <span class="text-sm sm:text-base truncate">Banner</span>
+                </div>
+                <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
+            </a> -->
+        </nav>
     </div>
 
-    <!-- Navigation Menu -->
-    <nav class="p-2 sm:p-4 space-y-1 sm:space-y-2">
-        <a href="/admin"
-            class="nav-link flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors active bg-gray-100">
-            <i class="fas fa-chart-line w-5"></i>
-            <span class="text-sm sm:text-base">Dashboard</span>
-        </a>
-
-        <a href="/admin/products"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-box w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Products</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/brands"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-computer w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Brands</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/orders"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-list w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Order List</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/customers"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-user w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Customer</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/sales"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-receipt w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Sales</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/category"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-th w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Category</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/coupons"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-ticket-alt w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Coupons</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-
-        <a href="/admin/banner"
-            class="nav-link flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <div class="flex items-center gap-3 min-w-0">
-                <i class="fas fa-image w-5 flex-shrink-0"></i>
-                <span class="text-sm sm:text-base truncate">Banner</span>
-            </div>
-            <i class="fas fa-chevron-right w-4 flex-shrink-0"></i>
-        </a>
-    </nav>
-
-    <!-- Footer Section -->
     <div class="p-2 sm:p-4 border-t border-gray-200 space-y-2 sticky bottom-0 bg-white">
-        <button
-            class="w-full px-3 sm:px-4 py-2 border-2 border-black rounded-lg text-black font-medium text-sm sm:text-base hover:bg-black hover:text-white transition-colors">
+        <button class="w-full px-3 sm:px-4 py-2 border-2 border-black rounded-lg text-black font-medium text-sm sm:text-base hover:bg-black hover:text-white transition-colors">
             Account
         </button>
-        <a href="/admin/logout"
-            class="w-full px-3 sm:px-4 py-2 bg-black text-white rounded-lg font-medium text-sm sm:text-base text-center hover:bg-gray-800 transition-colors inline-block">
+        <a href="/admin/logout" class="w-full px-3 sm:px-4 py-2 bg-black text-white rounded-lg font-medium text-sm sm:text-base text-center hover:bg-gray-800 transition-colors inline-block">
             Logout
         </a>
     </div>
-<!-- </aside> -->
+</aside>
+
+<div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden glass-effect"></div>
 
 <script>
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
+    document.addEventListener('DOMContentLoaded', () => {
+        // We look for the button that is inside HEADER.ejs
+        const menuToggle = document.getElementById('menuToggle');
+        
+        // We look for the close button inside SIDEBAR.ejs
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
 
-    menuToggle?.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-    });
-
-    // Close sidebar when clicking outside (mobile)
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth < 1024) {
-            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        function toggleSidebar() {
+            // Logic: If hidden, show it. If shown, hide it.
+            // On mobile, sidebar starts with '-translate-x-full' (hidden left)
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            
+            if (isClosed) {
+                // Open Sidebar
+                sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.remove('hidden');
+            } else {
+                // Close Sidebar
                 sidebar.classList.add('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
             }
         }
-    });
 
-    // Show sidebar on desktop resize
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) {
-            sidebar.classList.remove('-translate-x-full');
+        // Event Listener for the Header Hamburger Button
+        if (menuToggle) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
+            });
         } else {
-            sidebar.classList.add('-translate-x-full');
+            console.error("Sidebar Script: 'menuToggle' button not found. Make sure header.ejs is included and has a button with id='menuToggle'");
         }
+
+        // Event Listener for the Sidebar Close Button (X)
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toggleSidebar();
+            });
+        }
+
+        // Event Listener for Overlay (Click outside to close)
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                // Only close if currently open
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            });
+        }
+
+        // Close when clicking outside (fallback)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024) {
+                const isOpen = !sidebar.classList.contains('-translate-x-full');
+                // If open, and click is NOT on sidebar and NOT on toggle button
+                if (isOpen && !sidebar.contains(e.target) && (!menuToggle || !menuToggle.contains(e.target))) {
+                    toggleSidebar();
+                }
+            }
+        });
+
+        // Reset on window resize (restore desktop view)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+            } else {
+                // On mobile, default to closed
+                sidebar.classList.add('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+            }
+        });
     });
 </script>

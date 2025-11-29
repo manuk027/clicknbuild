@@ -6,26 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Brand - Admin Dashboard</title>
   <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 </head>
 
-<body class="bg-gray-50">
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-     <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
-    <%- include("../../views/partials/admin/sidebar") %>
-  </aside>
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col min-h-screen">
-      <!-- Header -->
-      <%- include("../../views/partials/admin/header") %>
+<body class="bg-gray-50 font-sans text-gray-900">
 
-      <!-- Page Content -->
-      <main class="flex-1 p-4 sm:p-6 lg:p-8">
+  <%- include("../../views/partials/admin/sidebar") %>
+
+  <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+    
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <%- include("../../views/partials/admin/header") %>
+    </header>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        
         <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">EDIT BRAND</h2>
         <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <a href="/admin" class="hover:text-gray-800">Dashboard</a>
@@ -35,9 +34,8 @@
           <span class="text-gray-900">Edit</span>
         </div>
 
-        <!-- Edit Form -->
         <form id="editBrandForm" enctype="multipart/form-data">
-          <!-- Brand Name -->
+          
           <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <label for="brandName" class="block text-sm font-medium text-gray-700 mb-2">Brand Name</label>
             <input type="text" id="brandName" name="brandName" value="<%= brand.name %>"
@@ -46,13 +44,11 @@
             <p id="brandName-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
           </div>
 
-          <!-- Brand Image -->
           <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Brand Image</h2>
 
             <input type="file" name="brandImage" id="brandImageInput" accept="image/*" class="hidden">
 
-            <!-- Upload box -->
             <div id="uploadContainer"
               class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50 hover:border-blue-400 transition cursor-pointer <%= brand.image ? 'hidden' : '' %>">
               <i class="fas fa-image text-4xl text-blue-400 mb-2"></i>
@@ -62,48 +58,48 @@
                 Image</button>
             </div>
 
-            <!-- Preview -->
             <div id="previewContainer"
               class="mt-4 relative w-48 h-48 <%= brand.image ? '' : 'hidden' %>">
               <img id="previewImage" src="<%= brand.image %>"
                 class="w-full h-full object-cover rounded-lg border border-gray-300" />
               <button type="button" id="removeImageBtn"
-                class="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-700">
+                class="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-700 shadow-md">
                 &times;
               </button>
             </div>
           </div>
 
-          <!-- Cropper Modal -->
-          <div id="cropModal"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-            <div class="bg-white p-4 rounded-lg w-96 h-96 relative flex flex-col">
-              <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
-              <div class="flex-1 overflow-hidden">
-                <img id="cropperImage" class="w-full h-full object-contain" />
-              </div>
-              <div class="flex justify-end gap-2 mt-2">
-                <button id="cropModalCancel"
-                  class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg">Cancel</button>
-                <button id="cropModalConfirm"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg">Crop</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <div class="flex justify-end pt-4">
+          <div class="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+            <a href="/admin/brands"
+              class="px-6 sm:px-8 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm sm:text-base text-center">
+              Cancel
+            </a>
             <button type="submit"
               class="px-6 sm:px-8 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium text-sm sm:text-base">
               Update Brand
             </button>
           </div>
         </form>
-      </main>
+
+    </main>
+  </div>
+
+  <div id="cropModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[80]">
+    <div class="bg-white p-4 rounded-lg w-96 h-96 max-w-[95%] relative flex flex-col">
+      <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
+      <div class="flex-1 overflow-hidden bg-gray-100">
+        <img id="cropperImage" class="w-full h-full object-contain" />
+      </div>
+      <div class="flex justify-end gap-2 mt-2">
+        <button type="button" id="cropModalCancel"
+          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+        <button type="button" id="cropModalConfirm"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Crop</button>
+      </div>
     </div>
   </div>
 
-  <!-- JS Libraries -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -125,11 +121,15 @@
     let cropper;
 
     // Open file picker
-    uploadBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      brandImageInput.click();
-    });
-    uploadContainer?.addEventListener("click", () => brandImageInput.click());
+    if(uploadBtn) {
+        uploadBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            brandImageInput.click();
+        });
+    }
+    if(uploadContainer) {
+        uploadContainer.addEventListener("click", () => brandImageInput.click());
+    }
 
     // Handle image selection
     brandImageInput.addEventListener("change", (e) => {
@@ -172,7 +172,7 @@
     });
 
     cropModalCancel.addEventListener("click", () => {
-      cropper.destroy();
+      if(cropper) cropper.destroy();
       cropModal.classList.add("hidden");
       brandImageInput.value = "";
     });

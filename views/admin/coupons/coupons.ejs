@@ -5,324 +5,243 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brand List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-        type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 font-sans text-gray-900">
 
-    <div class="flex min-h-screen">
-        <aside id="sidebar"
-            class="fixed left-0 top-0 h-screen w-64 bg-white overflow-y-auto sticky shadow-lg z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden">
-            <%- include("../../views/partials/admin/sidebar") %>
-        </aside>
+    <%- include("../../views/partials/admin/sidebar") %>
 
-        <div class="flex-1 flex flex-col min-h-screen">
-            <header class="bg-white shadow-sm sticky top-0 z-30">
-                <%- include("../../views/partials/admin/header") %>
-            </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <%- include("../../views/partials/admin/header") %>
+        </header>
 
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <div class="mb-6">
-                    <div class="flex justify-between items-center w-full">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                            BRAND LIST
-                        </h1>
-                        <a href="/admin/coupons/addCoupons"
-                            class="flex items-center justify-center gap-2 px-4 py-2.5 border border-black rounded-lg hover:bg-gray-50 hover:text-black transition-colors bg-black text-white">
-                            <span>ADD COUPON</span>
-                            <i class="fas fa-plus"></i>
-                        </a>
-                    </div>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+                        BRAND LIST
+                    </h1>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <span><a href="/admin">Dashboard</a></span>
+                        <span><a href="/admin" class="hover:text-black transition-colors">Dashboard</a></span>
                         <i class="fas fa-chevron-right text-xs"></i>
-                        <span class="text-gray-900">Brand</span>
+                        <span class="text-gray-900 font-medium">Brand</span>
                     </div>
                 </div>
+                
+                <a href="/admin/coupons/addCoupons" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-md active:scale-95 w-full sm:w-auto">
+                    <span>ADD COUPON</span>
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 mb-6 ">
-                    <div class="flex items-center justify-between mb-6 w-full">
-                        <form id="searchForm" action="/admin/coupons" method="GET" class="flex w-full max-w-md">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" name="search" id="searchInput" placeholder="Search brand..."
-                                    value="<%= typeof search !== 'undefined' ? search : '' %>" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-black" />
-                                <% if (search) { %>
-                                    <button type="button" id="clearSearch"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <% } %>
-                            </div>
-                            <button type="submit"
-                                class="ml-3 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
-                                Search
+            <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-start sm:items-center">
+                
+                <form id="searchForm" action="/admin/coupons" method="GET" class="flex w-full sm:max-w-md relative">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="search" id="searchInput" placeholder="Search brand..."
+                            value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                            class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
+                        <% if (search) { %>
+                            <button type="button" id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                                <i class="fas fa-times"></i>
                             </button>
-                        </form>
+                        <% } %>
                     </div>
-                    <script>
-                        const clearSearch = document.getElementById("clearSearch");
-                        if (clearSearch) {
-                            clearSearch.addEventListener("click", () => {
-                                window.location.href = "/admin/coupons"; // Reset to full list
-                            });
-                        }
+                    <button type="submit" class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        Search
+                    </button>
+                </form>
 
-                        // ✅ Trigger search on pressing Enter
-                        const searchInput = document.getElementById("searchInput");
-                        const searchForm = document.getElementById("searchForm");
-                        if (searchInput && searchForm) {
-                            searchInput.addEventListener("keypress", function (event) {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    searchForm.submit();
-                                }
-                            });
-                        }
-                    </script>
+                <div class="relative self-end sm:self-auto">
+                    <button id="sortBtn" class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                        <i class="fas fa-sort text-gray-500"></i>
+                        <span>Sort</span>
+                        <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                    </button>
 
+                    <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                        <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border-b border-gray-100">Newest</a>
+                        <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors">Oldest</a>
+                    </div>
+                </div>
+            </div>
 
+            <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-black text-white text-center">
+                            <tr>
+                                <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Name</th>
+                                <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Code</th>
+                                <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Min Purchase</th>
+                                <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Percentage</th>
+                                <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Listing</th>
+                                <!-- <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider">Edit</th> -->
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white text-center">
+                            <% data.slice().forEach((coupon, index)=> { %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-4 font-medium text-gray-900"><%= coupon.name %></td>
+                                    <td class="px-4 py-4 text-gray-600 font-mono text-sm"><%= coupon.code %></td>
+                                    <td class="px-4 py-4 text-gray-700">₹<%= coupon.minimumPurchase %></td>
+                                    <td class="px-4 py-4 text-gray-700 font-bold"><%= coupon.discount %>%</td>
+                                    <td class="px-4 py-4">
+                                        <% if (coupon.isListed) { %>
+                                            <a href="/admin/coupons/unlistCoupon?id=<%= coupon._id %>&page=<%= current %>"
+                                                class="inline-flex items-center justify-center w-20 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold hover:bg-red-200 transition-colors">
+                                                Unlist
+                                            </a>
+                                        <% } else { %>
+                                            <a href="/admin/coupons/listCoupon?id=<%= coupon._id %>&page=<%= current %>"
+                                                class="inline-flex items-center justify-center w-20 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold hover:bg-green-200 transition-colors">
+                                                List
+                                            </a>
+                                        <% } %>
+                                    </td>
+                                    <!-- <td class="px-4 py-4">
+                                        <a href="/admin/coupons/editBrand?id=<%=coupon._id%>" class="text-gray-500 hover:text-black transition-colors p-2 inline-block">
+                                            <i class="fas fa-edit text-lg"></i>
+                                        </a>
+                                    </td> -->
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <div class="flex gap-4">
-                        <!-- <div class="relative">
-                            <button id="filtersBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>Filters</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-                            <div id="filtersDropdown"
-                                class="hidden absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Price</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Category</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">Availability</a>
+            <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
+                <% data.slice().forEach((coupon, index)=> { %>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col relative">
+                        
+                        <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
+                            <div>
+                                <h3 class="font-bold text-gray-900"><%= coupon.name %></h3>
+                                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-wide mt-1 inline-block">
+                                    <%= coupon.code %>
+                                </span>
                             </div>
-                        </div> -->
-                        <div class="relative">
-                            <button id="sortBtn"
-                                class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-sort"></i>
-                                <span>SORT</span>
-                                <i class="fas fa-chevron-down text-sm ml-1"></i>
-                            </button>
-
-                            <div id="sortDropdown"
-                                class="hidden absolute mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                                <a onclick="applySort('newest')" class="block px-4 py-2 hover:bg-gray-100">Newest</a>
-                                <a onclick="applySort('oldest')" class="block px-4 py-2 hover:bg-gray-100">Oldest</a>
-                            </div>
+                            <span class="text-sm font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                                <%= coupon.discount %>% OFF
+                            </span>
                         </div>
 
-                        <script>
-                            document.getElementById("sortBtn").addEventListener("click", () => {
-                                document.getElementById("sortDropdown").classList.toggle("hidden");
-                            });
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                            <div>
+                                <span class="text-xs text-gray-500 block mb-1">Min Purchase</span>
+                                <span class="font-medium text-gray-700">₹<%= coupon.minimumPurchase %></span>
+                            </div>
+                            </div>
 
-                            document.addEventListener("click", (e) => {
-                                if (!document.getElementById("sortBtn").contains(e.target) &&
-                                    !document.getElementById("sortDropdown").contains(e.target)) {
-                                    document.getElementById("sortDropdown").classList.add("hidden");
-                                }
-                            });
+                        <div class="flex gap-3 mt-auto pt-2">
+                            <% if (coupon.isListed) { %>
+                                <a href="/admin/coupons/unlistCoupon?id=<%= coupon._id %>&page=<%= current %>"
+                                    class="flex-1 text-center py-2 rounded-lg bg-red-50 text-red-700 text-xs font-bold border border-red-100 hover:bg-red-100 transition">
+                                    Unlist
+                                </a>
+                            <% } else { %>
+                                <a href="/admin/coupons/listCoupon?id=<%= coupon._id %>&page=<%= current %>"
+                                    class="flex-1 text-center py-2 rounded-lg bg-green-50 text-green-700 text-xs font-bold border border-green-100 hover:bg-green-100 transition">
+                                    List
+                                </a>
+                            <% } %>
 
-                            function applySort(sortType) {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set("sort", sortType);
-                                window.location.href = url.toString();
-                            }
-                        </script>
-
+                            <!-- <a href="/admin/coupons/editBrand?id=<%=coupon._id%>" class="w-10 h-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-600 hover:bg-black hover:text-white transition">
+                                <i class="fas fa-edit"></i>
+                            </a> -->
+                        </div>
                     </div>
-                </div>
-                <script>
-                    // Wait until the DOM is loaded
-                    document.addEventListener("DOMContentLoaded", () => {
-                        const filtersBtn = document.getElementById("filtersBtn");
-                        const filtersDropdown = document.getElementById("filtersDropdown");
-                        const sortBtn = document.getElementById("sortBtn");
-                        const sortDropdown = document.getElementById("sortDropdown");
+                <% }) %>
+            </div>
 
-                        // Toggle Filters dropdown
-                        filtersBtn.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            filtersDropdown.classList.toggle("hidden");
-                            sortDropdown.classList.add("hidden"); // close sort if open
-                        });
+            <% if (coupon.length > 0) { %>
+            <div class="flex justify-center mt-8 pb-8">
+                <nav aria-label="Dashboard Pagination">
+                    <ul class="flex items-center space-x-2">
+                        <% let baseUrl = `/admin/coupons?sort=${sort || ""}&search=${search || ""}`; %>
 
-                        // Toggle Sort dropdown
-                        sortBtn.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            sortDropdown.classList.toggle("hidden");
-                            filtersDropdown.classList.add("hidden"); // close filters if open
-                        });
+                        <% if (current == 1) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=1" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">First</a></li>
+                        <% } %>
 
-                        // Close dropdowns when clicking outside
-                        document.addEventListener("click", () => {
-                            filtersDropdown.classList.add("hidden");
-                            sortDropdown.classList.add("hidden");
-                        });
+                        <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
+                        <% if (i !== 1) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
 
-                        // Prevent dropdown click from closing itself
-                        filtersDropdown.addEventListener("click", (e) => e.stopPropagation());
-                        sortDropdown.addEventListener("click", (e) => e.stopPropagation());
-                    });
-                </script>
+                        <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+                            <% if (i == current) { %>
+                                <li><span class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg"><%= i %></span></li>
+                            <% } else { %>
+                                <li><a href="<%= baseUrl %>&page=<%= i %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"><%= i %></a></li>
+                            <% } %>
+                        <% } %>
 
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[800px] border border-gray-200 mx-auto">
-                            <thead class="bg-black text-white text-center">
-                                <tr>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Name
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Code
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Minimum Purchase
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Percentage
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Listing
-                                    </th>
-                                    <th
-                                        class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                                        Edit
-                                    </th>
-                                </tr>
-                            </thead>
+                        <% if (i == Number(current) + 4 && i < pages) { %>
+                            <li class="hidden sm:block"><span class="px-3 py-2 text-sm text-gray-500">...</span></li>
+                        <% } %>
 
-                            <tbody class="divide-y divide-gray-200 text-center">
-                                <% data.slice().forEach((coupon, index)=> { %>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-4 py-4">
-                                            <%=coupon.name%>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <%=coupon.code%>
-                                        </td>
+                        <% if (current == pages) { %>
+                            <li><span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span></li>
+                        <% } else { %>
+                            <li><a href="<%= baseUrl %>&page=<%= pages %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Last</a></li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
 
-                                        <td class="px-4 py-4">
-                                            <%=coupon.minimumPurchase%>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <%=coupon.discount%>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-700">
-                                            <% if (coupon.isListed) { %>
-                                                <a href="/admin/coupons/unlistCoupon?id=<%= coupon._id %>&page=<%= current %>"
-                                                    class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
-                                                    Unlist
-                                                </a>
-                                                <% } else { %>
-                                                    <a href="/admin/coupons/listCoupon?id=<%= coupon._id %>&page=<%= current %>"
-                                                        class="inline-flex items-center justify-center w-20 h-8 rounded-full bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
-                                                        List
-                                                    </a>
-                                                    <% } %>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <div class="flex justify-center items-center space-x-2">
-                                                <a class="p-2 text-gray-600 hover:bg-gray-100 rounded"
-                                                    href="/admin/coupons/editBrand?id=<%=coupon._id%>">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-
-                <% if (coupon.length> 0) { %>
-                    <div class="flex justify-center m-6">
-                        <nav aria-label="Dashboard Pagination">
-                            <ul class="flex items-center space-x-2">
-                                <% if (current==1) { %>
-                                    <li>
-                                        <span
-                                            class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">First</span>
-                                    </li>
-                                    <% } else { %>
-                                        <li>
-                                            <a href="/admin/coupons/?page=1&sort=<%= sort %>"
-                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">First</a>
-                                        </li>
-                                        <% } %>
-                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
-                                                <% if (i !==1) { %>
-                                                    <li>
-                                                        <span
-                                                            class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                    </li>
-                                                    <% } %>
-                                                        <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
-                                                            <% if (i==current) { %>
-                                                                <li>
-                                                                    <span
-                                                                        class="px-3 py-1.5 text-sm font-medium text-white bg-black border border-gray-300 rounded-md">
-                                                                        <%= i %>
-                                                                    </span>
-                                                                </li>
-                                                                <% } else { %>
-                                                                    <li>
-                                                                        <a href="/admin/brands/?page=<%= i %>&sort=<%= sort %>"
-                                                                            class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                            <%= i %>
-                                                                        </a>
-
-                                                                    </li>
-                                                                    <% } %>
-                                                                        <% if (i==Number(current) + 4 && i < pages) { %>
-                                                                            <li><span
-                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-500">...</span>
-                                                                            </li>
-                                                                            <% } %>
-                                                                                <% } %>
-
-                                                                                    <!-- Last Page -->
-                                                                                    <% if (current==pages) { %>
-                                                                                        <li>
-                                                                                            <span
-                                                                                                class="px-3 py-1.5 text-sm font-medium text-gray-400 border border-gray-300 rounded-md cursor-not-allowed">Last</span>
-                                                                                        </li>
-                                                                                        <% } else { %>
-                                                                                            <li>
-                                                                                                <a href="/admin/brands/?page=<%= pages %>&sort=<%= sort %>"
-                                                                                                    class="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-                                                                                                    Last
-                                                                                                </a>
-
-                                                                                            </li>
-                                                                                            <% } %>
-                            </ul>
-                        </nav>
-                    </div>
-                    <% } %>
-            </main>
-        </div>
+        </main>
     </div>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+    <script>
+        // --- Search Logic ---
+        const searchInput = document.getElementById("searchInput");
+        const searchForm = document.getElementById("searchForm");
+        const clearSearch = document.getElementById("clearSearch");
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/admin/categoryList.js"></script>
+        if (clearSearch) {
+            clearSearch.addEventListener("click", () => window.location.href = "/admin/coupons");
+        }
+        if (searchInput && searchForm) {
+            searchInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") { e.preventDefault(); searchForm.submit(); }
+            });
+        }
+
+        // --- Sort Logic ---
+        const sortBtn = document.getElementById('sortBtn');
+        const sortDropdown = document.getElementById('sortDropdown');
+
+        if(sortBtn && sortDropdown){
+            sortBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.toggle("hidden");
+            });
+            window.addEventListener('click', (e) => {
+                if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                    sortDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        window.applySort = (sortType) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set("sort", sortType);
+            window.location.href = url.toString();
+        }
+    </script>
 </body>
-
 </html>
