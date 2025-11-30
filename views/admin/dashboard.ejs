@@ -245,7 +245,7 @@
 
         tbody.innerHTML += `
         <tr class="hover:bg-gray-50 transition">
-          <td class="py-3 px-2 font-medium text-gray-700">#${o.orderId.substring(0,8)}...</td>
+          <td class="py-3 px-2 font-medium text-gray-700">#${o.orderId}</td>
           <td class="py-3 px-2 text-gray-600">${new Date(o.createdAt).toLocaleDateString()}</td>
           <td class="py-3 px-2 text-gray-600">₹${subTotal}</td>
           <td class="py-3 px-2 text-red-500">₹${discount}</td>

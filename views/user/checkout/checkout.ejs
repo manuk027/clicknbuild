@@ -20,20 +20,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Left: Order Summary -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
+                    <%if(coupon.length>=1){%>
                     <form id="couponForm">
-
-
                         <div class="space-y-4 mb-6">
                             <% for (let i=0; i < coupon.length; i++) { %>
-
                                 <label class="block cursor-pointer">
-
                                     <input type="radio" name="couponId" value="<%= coupon[i].couponId._id %>"
                                         class="peer hidden" />
-
-                                    <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300
-                    peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
-
+                                    <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
                                         <div class="flex items-center gap-3">
                                             <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
                                                 alt="Coupon" class="w-10 h-10 rounded-lg">
@@ -67,6 +61,11 @@
                         </div>
 
                     </form>
+                    <%}else {%>
+                         <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
+                            <p>No coupons found!</p>
+                         </div>
+                        <%}%>
                     <script>
                         document.getElementById("couponForm").addEventListener("submit", async function (e) {
                             e.preventDefault();
