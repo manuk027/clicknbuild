@@ -13,6 +13,7 @@ import crypto from 'crypto';
 import Wallet from '../../models/walletSchema.js';
 import { v4 as uuidv4 } from "uuid";
 import { HttpStatus } from "../../helpers/statusCodes.js";
+// import Wallet from '../../models/walletSchema.js';
 
 
 
@@ -50,10 +51,6 @@ export const loadCheckoutService = async (req, res) => {
         }
 
         const unUsedCoupons = await CouponUsage.find({ userId, used: false }).populate("couponId");
-
-        // =====================================================
-        // APPLY OFFER LOGIC FOR EVERY PRODUCT (best offer wins)
-        // =====================================================
         let filteredItem = [];
         let totalOriginalPrice = 0;
         let totalAmount = 0;
@@ -111,13 +108,8 @@ export const loadCheckoutService = async (req, res) => {
 
         const noCPNAmount = Number(totalAmount.toFixed(2));
         let deliveryCharge = totalAmount >= 50000 ? 0 : 199;
-
-        // ================================
-        // APPLY COUPON
-        // ================================
         let coupon;
         let couponOffer = 0;
-
         if (appliedCoupon) {
             coupon = await Coupon.findById(appliedCoupon);
 
@@ -132,14 +124,12 @@ export const loadCheckoutService = async (req, res) => {
             couponOffer = (totalAmount * coupon.discount) / 100;
             totalAmount -= couponOffer;
         }
-
-        // Format numbers to 2 decimals
         couponOffer = Number(couponOffer.toFixed(2));
         totalAmount = Number(totalAmount.toFixed(2));
         deliveryCharge = Number(deliveryCharge.toFixed(2));
-
         const finalPayable = Number((totalAmount + deliveryCharge).toFixed(2));
 
+        const wallet = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
         return res.render("checkout", {
             user,
             peripheral,
@@ -152,16 +142,14 @@ export const loadCheckoutService = async (req, res) => {
             coupon: unUsedCoupons,
             appliedCoupon: coupon || null,
             couponOffer,
-            noCPNAmount
+            noCPNAmount,
+            walletBalance: wallet.currentBalance,
         });
-
     } catch (error) {
         console.error("Error loading checkout:", error);
         return res.redirect("/pageNotFound");
     }
 };
-
-
 
 
 

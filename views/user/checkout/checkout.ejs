@@ -21,127 +21,129 @@
                 <!-- Left: Order Summary -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <%if(coupon.length>=1){%>
-                    <form id="couponForm">
-                        <div class="space-y-4 mb-6">
-                            <% for (let i=0; i < coupon.length; i++) { %>
-                                <label class="block cursor-pointer">
-                                    <input type="radio" name="couponId" value="<%= coupon[i].couponId._id %>"
-                                        class="peer hidden" />
-                                    <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
-                                        <div class="flex items-center gap-3">
-                                            <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
-                                                alt="Coupon" class="w-10 h-10 rounded-lg">
+                        <form id="couponForm">
+                            <div class="space-y-4 mb-6">
+                                <% for (let i=0; i < coupon.length; i++) { %>
+                                    <label class="block cursor-pointer">
+                                        <input type="radio" name="couponId" value="<%= coupon[i].couponId._id %>"
+                                            class="peer hidden" />
+                                        <div
+                                            class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
+                                            <div class="flex items-center gap-3">
+                                                <img src="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+                                                    alt="Coupon" class="w-10 h-10 rounded-lg">
 
-                                            <span class="text-sm text-gray-600">
-                                                <%= coupon[i].couponId.discount %>% off on products above ₹
-                                                    <%=coupon[i].couponId.minimumPurchase %>
+                                                <span class="text-sm text-gray-600">
+                                                    <%= coupon[i].couponId.discount %>% off on products above ₹
+                                                        <%=coupon[i].couponId.minimumPurchase %>
+                                                </span>
+                                            </div>
+
+                                            <span class="text-lg font-semibold">
+                                                <%= coupon[i].couponId.name %>
                                             </span>
+
                                         </div>
 
-                                        <span class="text-lg font-semibold">
-                                            <%= coupon[i].couponId.name %>
-                                        </span>
+                                    </label>
 
-                                    </div>
+                                    <% } %>
+                            </div>
 
-                                </label>
+                            <div class="mt-4 items-center flex gap-3">
+                                <button type="submit"
+                                    class="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
+                                    Apply Coupon
+                                </button>
+                                <a href="/checkout"
+                                    class="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-black transition text-center">
+                                    Remove Coupon
+                                </a>
+                            </div>
 
-                                <% } %>
-                        </div>
+                        </form>
+                        <%}else {%>
+                            <div
+                                class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
+                                <p>No coupons found!</p>
+                            </div>
+                            <%}%>
+                                <script>
+                                    document.getElementById("couponForm").addEventListener("submit", async function (e) {
+                                        e.preventDefault();
 
-                        <div class="mt-4 items-center flex gap-3">
-                            <button type="submit"
-                                class="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
-                                Apply Coupon
-                            </button>
-                            <a href="/checkout"
-                                class="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-black transition text-center">
-                                Remove Coupon
-                            </a>
-                        </div>
+                                        const selectedCoupon = document.querySelector('input[name="couponId"]:checked');
 
-                    </form>
-                    <%}else {%>
-                         <div class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
-                            <p>No coupons found!</p>
-                         </div>
-                        <%}%>
-                    <script>
-                        document.getElementById("couponForm").addEventListener("submit", async function (e) {
-                            e.preventDefault();
+                                        if (!selectedCoupon) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Please select a coupon!",
+                                                confirmButtonColor: "#000"
+                                            });
+                                            return;
+                                        }
 
-                            const selectedCoupon = document.querySelector('input[name="couponId"]:checked');
+                                        const couponId = selectedCoupon.value;
 
-                            if (!selectedCoupon) {
-                                Swal.fire({
-                                    icon: "warning",
-                                    title: "Please select a coupon!",
-                                    confirmButtonColor: "#000"
-                                });
-                                return;
-                            }
+                                        try {
+                                            const response = await fetch("/checkout", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ couponId })
+                                            });
 
-                            const couponId = selectedCoupon.value;
+                                            const contentType = response.headers.get("content-type");
 
-                            try {
-                                const response = await fetch("/checkout", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ couponId })
-                                });
+                                            // =============================
+                                            // CASE 1 → JSON Response
+                                            // =============================
+                                            if (contentType && contentType.includes("application/json")) {
+                                                const data = await response.json();
 
-                                const contentType = response.headers.get("content-type");
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Coupon Applied!",
+                                                        text: data.message || "Coupon successfully applied.",
+                                                        confirmButtonColor: "#000"
+                                                    }).then(() => window.location.reload());
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Cannot Apply Coupon",
+                                                        text: data.message || "Something went wrong.",
+                                                        confirmButtonColor: "#000"
+                                                    });
+                                                }
 
-                                // =============================
-                                // CASE 1 → JSON Response
-                                // =============================
-                                if (contentType && contentType.includes("application/json")) {
-                                    const data = await response.json();
+                                                return;
+                                            }
 
-                                    if (data.success) {
-                                        Swal.fire({
-                                            icon: "success",
-                                            title: "Coupon Applied!",
-                                            text: data.message || "Coupon successfully applied.",
-                                            confirmButtonColor: "#000"
-                                        }).then(() => window.location.reload());
-                                    } else {
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "Cannot Apply Coupon",
-                                            text: data.message || "Something went wrong.",
-                                            confirmButtonColor: "#000"
-                                        });
-                                    }
+                                            // =============================
+                                            // CASE 2 → HTML Response (res.render)
+                                            // =============================
+                                            const html = await response.text();
 
-                                    return;
-                                }
+                                            // Replace the full page with the returned HTML
+                                            document.open();
+                                            document.write(html);
+                                            document.close();
 
-                                // =============================
-                                // CASE 2 → HTML Response (res.render)
-                                // =============================
-                                const html = await response.text();
-
-                                // Replace the full page with the returned HTML
-                                document.open();
-                                document.write(html);
-                                document.close();
-
-                            } catch (error) {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "Network Error",
-                                    text: "Please try again.",
-                                    confirmButtonColor: "#000"
-                                });
-                            }
-                        });
-                    </script>
+                                        } catch (error) {
+                                            Swal.fire({
+                                                icon: "error",
+                                                title: "Network Error",
+                                                text: "Please try again.",
+                                                confirmButtonColor: "#000"
+                                            });
+                                        }
+                                    });
+                                </script>
 
 
 
 
-                    <!-- <button
+                                <!-- <button
                                 class="w-full bg-black text-white py-4 rounded-xl font-medium flex items-center justify-between px-6 hover:bg-gray-800 transition">
                                 <span>View all coupons</span>
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,11 +246,28 @@
                             <span class="ml-3 font-medium">Online Payment</span>
                         </label>
 
-                        <label
-                            class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition mt-4">
-                            <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black">
-                            <span class="ml-3 font-medium">Wallet</span>
-                        </label>
+                        <% const isLowBalance=walletBalance < totalAmount; %>
+
+                            <label class="flex items-center p-4 border rounded-xl transition mt-4 w-full 
+    <%= isLowBalance ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer hover:bg-gray-50' %>">
+
+                                <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black"
+                                    <%=isLowBalance ? 'disabled' : '' %>
+                                >
+
+                                <div class="flex-1 flex justify-between items-center ml-3">
+                                    <span class="font-medium">Wallet</span>
+
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-medium">₹<%= walletBalance %></span>
+                                        <% if(isLowBalance){ %>
+                                            <span
+                                                class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">Insufficient</span>
+                                            <% } %>
+                                    </div>
+                                </div>
+
+                            </label>
 
                     </div>
                 </div>

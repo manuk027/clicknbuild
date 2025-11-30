@@ -11,15 +11,35 @@ export const getDashboardDataService = async (req, res) => {
         const from = req.query.from;
         const to = req.query.to;
         const orders = await getFilteredOrders({ range, from, to });
+        let productMap = {};
+        let categoryMap = {};
+        let brandMap = {};
         orders.forEach(order => {
             let discount = 0;
-
             order.items.forEach(item => {
                 const itemDiscount = (item.price - item.salePrice) * item.quantity;
-                discount += itemDiscount;
+                const qty = item.quantity || 0;
+                const pName = item.name || item.productName || (item.productId && item.productId.name) || "Unknown Product";
+                productMap[pName] = (productMap[pName] || 0) + qty;
+                const catRaw = item.category || (item.productId && item.productId.category);
+                const cName = (catRaw && catRaw.name) ? catRaw.name : (catRaw || "Uncategorized");
+                categoryMap[cName] = (categoryMap[cName] || 0) + qty;
+                const bName = pName.split(' ')[0] || "No Brand";
+                brandMap[bName] = (brandMap[bName] || 0) + qty;
             });
             order.computedDiscount = discount;
         });
+        const getTop5 = (map) => {
+            return Object.entries(map)
+                .map(([name, totalSold]) => ({ name, totalSold }))
+                .sort((a, b) => b.totalSold - a.totalSold)
+                .slice(0, 10);
+        };
+        const bestSelling = {
+            products: getTop5(productMap),
+            categories: getTop5(categoryMap),
+            brands: getTop5(brandMap)
+        };
         const summary = {
             orderCount: orders.length,
             totalSales: orders.reduce((sum, o) => {
@@ -32,9 +52,9 @@ export const getDashboardDataService = async (req, res) => {
                 return sum + discount;
             }, 0),
         };
-        return res.json({ success: true, orders, summary });
+        return res.json({ success: true, orders, summary, bestSelling });
     } catch (error) {
-        console.error(error);
+        console.error("Dashboard Service Error:", error);
         return res.json({ success: false, message: "Server error" });
     }
 };

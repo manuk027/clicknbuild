@@ -229,6 +229,8 @@
                             <div class="flex flex-wrap gap-2">
                                 <a onclick="applySort('newest')"
                                     class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (!locals.sort || locals.sort === 'newest') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Newest</a>
+                                <a onclick="applySort('oldest')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (!locals.sort || locals.sort === 'oldest') ? 'text-black  bg-gray-50' : 'text-gray-600' %>">Oldest</a>
                                 <a onclick="applySort('priceAsc')"
                                     class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'priceAsc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Price:
                                     Low - High</a>
@@ -238,6 +240,9 @@
                                 <a onclick="applySort('nameAsc')"
                                     class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'nameAsc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Name:
                                     A - Z</a>
+                                <a onclick="applySort('nameDesc')"
+                                    class="cursor-pointer px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 transition <%= (locals.sort === 'nameDesc') ? 'text-black font-semibold bg-gray-50' : 'text-gray-600' %>">Name:
+                                    Z - A</a>
                             </div>
                         </div>
                     </div>
@@ -269,7 +274,7 @@
                                                 data-images='<%- JSON.stringify(product[i].images) %>'>
                                         </a>
                                         <button
-                                            onclick="addToWishlist('<%= product[i]._id %>', '<%= product[i].variants[0]._id %>', <%= i %>)"
+                                            onclick="addToWishlist('<%= product[i]._id %>', '<%= product[i].variants[0]._id %>', <%=i%>)"
                                             class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition bg-white hover:bg-gray-100 shadow-sm z-10">
 
                                             <svg xmlns="http://www.w3.org/2000/svg"
