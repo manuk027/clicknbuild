@@ -13,7 +13,6 @@ import router from './routes/index.js';
 
 
 
-
 dotenv.config();
 connectDB();
 const app = express();

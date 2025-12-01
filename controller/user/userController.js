@@ -15,6 +15,7 @@ import Wishlist from '../../models/wishlistSchema.js';
 import { generateUniqueReferralCode } from '../../helpers/referalCode.js'
 import Coupon from '../../models/couponSchema.js';
 import { generateCouponCode } from '../../helpers/coupon.js'
+import { HttpStatus } from '../../helpers/statusCodes.js';
 
 
 
@@ -25,37 +26,26 @@ dotenv.config();
 const loadHomepage = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
-        const userData = await User.findById(userId);
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        const brand = await Brand.find();
-        const product = await Product.find({ isListed: true }).populate("brand", "name");
-        if (!userId) {
-            return res.render("home", { user: null, peripheral: peripheral, component: component, brand: brand, product: product });
+        const fetchPeripheral = Category.find({ isPeripheral: true, isListed: true }).lean();
+        const fetchComponent = Category.find({ isComponent: true, isListed: true }).lean();
+        const fetchBrands = Brand.find().lean();
+        const fetchProducts = Product.find({ isListed: true }).populate("brand", "name").lean();
+        const [peripheral, component, brand, product] = await Promise.all([fetchPeripheral, fetchComponent, fetchBrands, fetchProducts]);
+        let currentUser = null;
+        if (userId) {
+            const userData = await User.findById(userId).lean();
+            if (userData) {
+                if (userData.isBlocked) {
+                    if (req.session) delete req.session.user;
+                } else {
+                    currentUser = userData;
+                }
+            }
         }
-        if (!userData || userData.isBlocked) {
-            delete req.session.user;
-
-            return res.render("home", {
-                user: null,
-                peripheral,
-                component,
-                brand,
-                product
-            });
-        } else {
-            return res.render("home", {
-                user: userData,
-                peripheral,
-                component,
-                brand,
-                product
-            });
-        }
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server error");
+        return res.render('home', { user: currentUser, peripheral, component, brand, product, });
+    } catch (error) {
+        console.error("Error loading homepage: ", error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("errorPage", { message: "Internal Server Error", statusCode: HttpStatus.INTERNAL_SERVER_ERROR, user: null, peripheral: [], component: [], brand: [], product: [] });
     }
 };
 
