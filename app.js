@@ -4,21 +4,12 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import userRouter from "./routes/userRouter.js";
-import adminRouter from "./routes/adminRouter.js";
-import cartRouter from "./routes/User/cartRouter.js"
-import wishlistRouter from "./routes/User/wishlistRouter.js";
-import checkoutRouter from "./routes/User/chekoutRouter.js";
-import orderRouter from './routes/User/orderRouter.js';
-import profileRouter from './routes/User/profileRouter.js';
-import invoiceRouter from './routes/User/invoiceRouter.js';
-import couponRouter from "./routes/admin/couponRouter.js";
-import walletRouter from './routes/User/walletRouter.js';
 import session from "express-session";
 import nocache from "nocache";
 import passport from "./config/passport.js";
 import cors from 'cors';
 import { errorHandler } from "./middleware/errorHandler.js";
+import router from './routes/index.js';
 
 
 
@@ -54,6 +45,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
+
 //setting views
 app.set("view engine", "ejs");
 app.set("views", [
@@ -65,20 +57,13 @@ app.set("views", [
   path.join(__dirname, 'views/admin/coupons'),
 ]);
 
+
+
 app.use(express.static(path.join(__dirname, "public")));
-
-app.use("/", userRouter);
-app.use("/admin", couponRouter);
-app.use("/admin", adminRouter);
-app.use("/cart", cartRouter);
-app.use("/wishlist", wishlistRouter);
-app.use("/checkout", checkoutRouter);
-app.use("/order", orderRouter);
-app.use('/wallet', walletRouter);
-app.use("/", profileRouter);
-app.use("/", invoiceRouter);
-
+app.use('/', router);
 app.use(errorHandler);
+
+
 
 app.listen(process.env.PORT, () => {
   console.log(`http://localhost:${process.env.PORT}`);
