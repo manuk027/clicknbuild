@@ -205,14 +205,14 @@ export const loadSummaryService = async (req, res) => {
         for (const prod of products) {
             const productDoc = await Product.findById(prod.productId).populate("brand category").lean();
             if (!productDoc) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product not found" });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product out of stock" });
             }
             const brand = productDoc.brand?.name;
             const category = productDoc.category?.name;
             const model = productDoc.model;
             const variantData = productDoc.variants.find((v) => v._id.toString() === prod.variantId.toString());
             if (!variantData) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid variant selected" });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variant out of stock" });
             }
             if (variantData.quantity < prod.quantity) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: `Insufficient stock for ${prod.name}. Available: ${variantData.quantity}`, });
