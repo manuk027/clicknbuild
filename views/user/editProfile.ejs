@@ -327,7 +327,6 @@
             const phoneNumber = phoneNumberInput.value.trim();
 
             if (!validateFullName(fullName) || !validatePhoneNumber(phoneNumber)) {
-                Swal.fire("Validation Error", "Please fix the errors before saving", "warning");
                 return;
             }
 

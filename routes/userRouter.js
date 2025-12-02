@@ -69,7 +69,7 @@ router.get('/editProfile', auth.userAuth, userController.loadEditProfile);
 router.put('/editProfile', userController.updateProfile);
 
 router.get('/editPassword', auth.userAuth, userController.loadEditPassword)
-router.put('/editPassword', userController.editPassword);
+router.put('/editPassword', auth.userAuth, userController.editPassword);
 
 router.get('/addresses', userController.loadAdresses);
 

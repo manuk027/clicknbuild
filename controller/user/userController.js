@@ -893,7 +893,11 @@ const updateProfile = async (req, res) => {
 
 
 
-
+/**
+ @desc    Load the edit password section
+ @route   GET /editPassword
+ @access  Private
+ */
 const loadEditPassword = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
@@ -908,30 +912,47 @@ const loadEditPassword = async (req, res, next) => {
 };
 
 
-
+/**
+ @desc    Edit the password in database
+ @route   PUT /editPassword
+ @access  Private
+ */
 const editPassword = async (req, res) => {
     try {
-        const userId = req.user?._id || req.session?.user
+        const userId = req.user?._id || req.session?.user;
         const { oldPassword, newPassword } = req.body;
-        if (!userId) {
-            return res.redirect('/login');
+        if (!oldPassword || !newPassword) {
+            return res.json({ success: false, message: "Old password and new password are required." });
+        }
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[^\s]{8,}$/;
+        if (!strongPasswordRegex.test(newPassword)) {
+            return res.json({ success: false, message: "New password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special symbol." });
         }
         let user = await User.findById(userId);
-        const pass = await bcrypt.compare(oldPassword, user.password);
-        if (!pass) {
-            return res.status(404).json({ success: false, message: "Incorrect password." })
-        }
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.json({ success: false, message: "User not found." });
         }
-        user.password = newPassword;
+        const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+        if (!isOldPasswordCorrect) {
+            return res.json({ success: false, message: "Incorrect old password." });
+        }
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+            return res.json({ success: false, message: "New password cannot be the same as the old password." });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
         await user.save();
-        return res.json({ success: true, message: "Profile updated successfully", user: user })
+        return res.json({ success: true, message: "Password updated successfully." });
     } catch (error) {
-        console.error("Error updating the profile:", error);
-        return res.redirect('/pageNotFound');
+        console.error("Error updating password:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while updating password."
+        });
     }
 };
+
 
 
 
