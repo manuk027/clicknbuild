@@ -40,7 +40,7 @@ router.get('/auth/google/callback', nocache(), (req, res, next) => {
 
 
 
-router.get('/login', nocache(), userController.loadLogin);
+router.get('/login', userController.loadLogin);
 router.post('/login', nocache(), userController.login);
 router.get('/logout', userController.logout);
 
@@ -64,11 +64,11 @@ router.post('/emailOTP', userController.verify);
 router.get('/newPassword/:email', userController.loadUpdatePassword);
 router.patch('/newPassword/:email', userController.updatePassword)
 
-router.get('/profile', userController.loadProfilePage);
-router.get('/editProfile', userController.loadEditProfile);
+router.get('/profile', auth.userAuth, userController.loadProfilePage);
+router.get('/editProfile', auth.userAuth, userController.loadEditProfile);
 router.put('/editProfile', userController.updateProfile);
 
-router.get('/editPassword', userController.loadEditPassword)
+router.get('/editPassword', auth.userAuth, userController.loadEditPassword)
 router.put('/editPassword', userController.editPassword);
 
 router.get('/addresses', userController.loadAdresses);

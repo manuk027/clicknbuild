@@ -52,36 +52,41 @@
                     <%=product.model%>
                 </p>
 
-                <div class="text-3xl sm:text-4xl font-bold">₹<%=product.variants[index].offer%></div>
-                <div class="text-xl sm:text-2xl line-through">₹<%=product.variants[index].price%></div>
+                <div class="text-3xl sm:text-4xl font-bold">₹<%=selectedVariant.offer%></div>
+                <div class="text-xl sm:text-2xl line-through">₹<%=selectedVariant.price%></div>
 
                 <div>
                     <label class="block text-sm font-medium mb-3">Choose Variant</label>
                     <div class="flex flex-wrap gap-3">
-                        <% for (let i=0; i < product.variants.length; i++) { %>
-                            <a href="/product?id=<%= product._id %>&variant=<%= i %>" 
-                               class="color-btn px-4 sm:px-6 py-2 text-sm sm:text-base border-2 rounded 
-                               <%= i === index ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700' %>">
-                                <%= product.variants[i].variant %>
-                            </a>
-                        <% } %>
-                    </div>
+    <% for (let i = 0; i < product.variants.length; i++) { %>
+        <a href="/product?id=<%= product._id %>&variant=<%= product.variants[i]._id %>"
+           class="color-btn px-4 sm:px-6 py-2 text-sm sm:text-base border-2 rounded 
+           <%= product.variants[i]._id.toString() === selectedVariant._id.toString()
+                ? 'border-black bg-black text-white'
+                : 'border-gray-300 bg-white text-gray-700' 
+           %>">
+
+            <%= product.variants[i].variant %>
+        </a>
+    <% } %>
+</div>
+
                 </div>
 
-                <% if(product.variants[index].quantity <= 10 && product.variants[index].quantity >= 1) { %>
+                <% if(selectedVariant.quantity <= 10 && selectedVariant.quantity >= 1) { %>
                     <div>
                         <p class="text-red-900">
-                            <%=product.variants[index].quantity%> items left.
+                            <%=selectedVariant.quantity%> items left.
                         </p>
                     </div>
-                <% } else if(product.variants[index].quantity === 0) { %>
+                <% } else if(selectedVariant.quantity === 0) { %>
                     <p class="text-red-900">
                         Product out of Stock.
                     </p>
                 <% } %>
 
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-                    <% if(product.variants[index].quantity > 0) { %>
+                    <% if(selectedVariant.quantity > 0) { %>
                         <button id="add-to-cart-btn"
                             class="flex-1 bg-black text-white py-3 px-6 rounded-full hover:bg-gray-800 transition text-sm sm:text-base font-medium">
                             Add to Cart
@@ -89,10 +94,10 @@
                     <% } %>
                     
                     <button id="wishlist-btn"
-                        onclick="addToWishlist('<%= product._id %>', '<%= product.variants[index]._id %>')"
+                        onclick="addToWishlist('<%= product._id %>', '<%=selectedVariant._id %>')"
                         class="sm:w-auto p-3 border-2 rounded-full transition 
-                        <%= wish.includes(product.variants[index]._id.toString()) ? 'border-transparent text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500' %>">
-                        <i class="<%= wish.includes(product.variants[index]._id.toString()) ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-700' %> text-lg transition-all duration-300 ease-in-out"></i>
+                        <%= wish.includes(selectedVariant._id.toString()) ? 'border-transparent text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500' %>">
+                        <i class="<%= wish.includes(selectedVariant._id.toString()) ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-700' %> text-lg transition-all duration-300 ease-in-out"></i>
                     </button>
                 </div>
             </div>
@@ -262,7 +267,7 @@
                     event.preventDefault();
 
                     const productId = "<%= product._id %>";
-                    const variantId = "<%= product.variants[index]._id %>";
+                    const variantId = "<%= selectedVariant._id %>";
 
                     try {
                         const response = await fetch("/cart/add", {

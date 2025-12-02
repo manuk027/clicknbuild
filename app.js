@@ -62,6 +62,16 @@ app.set("views", [
 app.use(express.static(path.join(__dirname, "public")));
 app.use(customLogger);
 app.use('/', router);
+// 404 Handler - must come after all routes
+app.use((req, res) => {
+    res.status(404).render("errorPage", {
+        statusCode: 404,
+        message: "Page Not Found"
+    });
+});
+
+
+
 app.use(errorHandler);
 
 

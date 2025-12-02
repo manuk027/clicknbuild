@@ -1,7 +1,7 @@
 import { loadCheckoutService, addAddressService, loadSummaryService, createOrderService, verifyPaymentService, getTransactionDetailsService } from '../../services/User/checkoutService.js';
 
-export const loadCheckout = async (req, res) => {
-    await loadCheckoutService(req, res);
+export const loadCheckout = async (req, res, next) => {
+    await loadCheckoutService(req, res, next);
 }
 
 

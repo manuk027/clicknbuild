@@ -15,10 +15,10 @@
   <!-- Main Content -->
   <main class="flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-16">
     <h1 class="text-[120px] sm:text-[140px] font-extrabold mb-6 tracking-widest">
-      <%=statusCode??"500"%>
+      <%= statusCode ? statusCode : "500" %>
     </h1>
     <p class="text-lg sm:text-xl text-gray-600 mb-8">
-      <%=message ?? "Intenal Error Occurred" %>
+      <%= message ?? "Internal Error Occurred" %>
     </p>
     <a href="/"
       class="bg-black text-white px-6 sm:px-8 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors">

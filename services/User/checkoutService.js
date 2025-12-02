@@ -21,7 +21,7 @@ const transactionId = uuidv4();
 
 
 
-export const loadCheckoutService = async (req, res) => {
+export const loadCheckoutService = async (req, res, next) => {
     const userId = req.user?._id || req.session?.user;
 
     try {
@@ -143,11 +143,11 @@ export const loadCheckoutService = async (req, res) => {
             appliedCoupon: coupon || null,
             couponOffer,
             noCPNAmount,
-            walletBalance: wallet.currentBalance,
+            walletBalance: wallet ? wallet.walletBalance : 0,
         });
     } catch (error) {
         console.error("Error loading checkout:", error);
-        return res.redirect("/pageNotFound");
+        next();
     }
 };
 

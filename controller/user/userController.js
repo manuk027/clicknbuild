@@ -3,7 +3,6 @@ import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js";
 import Brand from "../../models/brandSchema.js";
 import CouponUsage from '../../models/couponUsage.js';
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import emailOtp from "../../models/otp.js";
 import getSortOption from "../../helpers/productSort.js";
@@ -15,7 +14,9 @@ import Wishlist from '../../models/wishlistSchema.js';
 import { generateUniqueReferralCode } from '../../helpers/referalCode.js'
 import Coupon from '../../models/couponSchema.js';
 import { generateCouponCode } from '../../helpers/coupon.js'
-import { HttpStatus } from '../../helpers/statusCodes.js';
+// import { HttpStatus } from '../../helpers/statusCodes.js';
+import { generateOtp } from '../../helpers/otpGenerator.js';
+import { sendEmail } from '../../helpers/otpMailer.js';
 
 
 
@@ -23,7 +24,7 @@ dotenv.config();
 
 
 
-const loadHomepage = async (req, res) => {
+const loadHomepage = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const fetchPeripheral = Category.find({ isPeripheral: true, isListed: true }).lean();
@@ -52,13 +53,13 @@ const loadHomepage = async (req, res) => {
 
 
 
-const loadErrorPage = async (req, res) => {
+const loadErrorPage = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const userData = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        return res.render("errorPage");
+        return res.render("errorPage", { statusCode: 404, message: "Page Not found." });
     } catch (err) {
         res.redirect("/pageNotFound");
     }
@@ -66,12 +67,12 @@ const loadErrorPage = async (req, res) => {
 
 
 
-const loadSignup = async (req, res) => {
+const loadSignup = async (req, res, next) => {
     try {
         if (req.user?._id || req.session?.user) {
             return res.redirect('/')
         }
-        // const referralCode = req.query.refToken || '';
+        const referralCode = req.query.refToken || '';
         return res.render("signup", { message: null, referralCode, });
     } catch (error) {
         console.error("Error loading the signup page");
@@ -81,7 +82,7 @@ const loadSignup = async (req, res) => {
 
 
 
-const loadSignin = async (req, res) => {
+const loadSignin = async (req, res, next) => {
     try {
         if (req.user?._id || req.session?.user) {
             return res.redirect('/')
@@ -95,97 +96,22 @@ const loadSignin = async (req, res) => {
 
 
 
-async function generateOtp(email) {
-    await emailOtp.deleteMany({ email });
-    let otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const verificationOTP = new emailOtp({
-        otp: otp,
-        email: email,
-    })
-    await verificationOTP.save()
-    return otp;
-}
-
-
-
-async function sendEmail(email, otp, userName) {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            port: 587,
-            secre: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD,
-            },
-        });
-        const info = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "Verify you account",
-            text: `Your OTP is ${otp}`,
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; margin: 0; padding: 40px 0; text-align: center;">
-                    <div style="background-color: #ffffff; width: 90%; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
-    
-                        <!-- Header -->
-                        <div style="background-color: #1e293b; padding: 20px;">
-                            <img src="cid:logo" alt="ClickNBuild Logo" style="width: 100px; height: auto;">
-                    </div>
-
-                    <!-- Content -->
-                    <div style="padding: 30px; text-align: center;">
-                    <h2 style="color: #1e293b; margin-bottom: 10px;">Email Verification</h2>
-                    <p style="color: #475569; font-size: 15px;">Dear ${userName},</p>
-                    <p style="color: #475569; font-size: 15px;">
-                        Thank you for registering with <strong>clickNbuild</strong>.<br>
-                        Please use the OTP below to verify your account.
-                    </p>
-
-                    <!-- OTP Box -->
-                    <div style="display: inline-block; background-color: #e2e8f0; color: #000; padding: 12px 25px; border-radius: 8px; font-size: 22px; font-weight: bold; letter-spacing: 3px; margin: 20px 0;">
-                    ${otp}
-                    </div>
-
-                    <p style="color: #475569; font-size: 14px;">This OTP is valid for <strong>2 minutes</strong>.</p>
-                    <p style="color: #94a3b8; font-size: 13px;">If you didn’t request this, please ignore this email.</p>
-                </div>
-
-                <!-- Footer -->
-                <div style="background-color: #f8fafc; color: #64748b; text-align: center; padding: 15px; font-size: 13px;"> 
-                    &copy; 2025 clickNbuild. All rights reserved.
-                </div>
-
-            </div>
-        </div>`,
-            attachments: [
-                {
-                    filename: "logo.png",
-                    path: "public/images/logo.png",
-                    cid: "logo",
-                },
-            ],
-        });
-        return info.accepted.length > 0;
-    } catch (error) {
-        console.error("Error seending email : ", error);
-    }
-}
-
-
-
-const signup = async (req, res) => {
+const signup = async (req, res, next) => {
     try {
         const { fullName, email, password, confirmPassword, referralCode } = req.body;
+        const renderSignup = (message) => res.render("signup", { message, referralCode: referralCode || '' });
         if (password !== confirmPassword) {
-            return res.render("signup", { message: "Password do not match." });
+            return renderSignup("Password do not match");
         }
-        const findUser = await User.findOne({ email });
-        if (findUser) {
-            return res.render("signup", {
-                message: "User with the same email already exist.",
-            });
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return renderSignup("User with the same email already exists.");
+        }
+        if (referralCode) {
+            const validRefferal = await User.findOne({ referralCode });
+            if (!validRefferal) {
+                return renderSignup("Invalid referral code, Check the referralcode.");
+            }
         }
         const otp = await generateOtp(email);
         const emailSent = await sendEmail(email, otp, fullName);
@@ -194,59 +120,56 @@ const signup = async (req, res) => {
         }
         req.session.userOtp = otp;
         req.session.userData = { fullName, email, password, referralCode };
-        res.render("emailOTPVerification", { email: email });
-    } catch (err) {
-        console.error("Signup Error", err);
-        res.redirect("/pageNotFound");
+        res.render("emailOTPVerification", { email });
+    } catch (error) {
+        console.error("Signup Error", error);
+        next(error);
     }
 };
 
 
 
-const verifyEmailOtp = async (req, res) => {
+const verifyEmailOtp = async (req, res, next) => {
     try {
         const { otp, email, } = req.body;
-        let otpDoc = await emailOtp.findOne({ email: email });
-        if (!otpDoc) {
-            return res.status(400).json({ success: false, message: "OTP expired." });
+        let fetchOTP = await emailOtp.findOne({ email });
+        if (!fetchOTP) {
+            return res.json({ success: false, message: "OTP expired." });
         }
-        if (String(otp) === String(otpDoc.otp)) {
-            const user = req.session.userData;
-            let referralCode = user.referralCode;
+        if (String(otp) === String(fetchOTP.otp)) {
+            const userData = req.session.userData;
             let referredUser = null;
-            if (referralCode && referralCode.trim() !== "") {
-                referredUser = await User.findOne({ referralCode: referralCode.trim() });
+            if (userData.referralCode && userData.referralCode.trim() !== "") {
+                referredUser = await User.findOne({ referralCode: userData.referralCode.trim() });
+                if (referredUser) {
+                    const coupon = new Coupon({
+                        name: `REFERRAL`,
+                        code: generateCouponCode(),
+                        userId: referredUser._id,
+                        discount: 10,
+                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                        minimumPurchase: 20000,
+                        isListed: true,
+                    });
+                    await coupon.save();
+                    const usage = new CouponUsage({
+                        userId: referredUser._id,
+                        couponId: coupon._id,
+                        used: false,
+                    }).save();
+                }
             }
-            if (referredUser) {
-                const coupon = new Coupon({
-                    name: `REFERRAL`,
-                    code: generateCouponCode(),
-                    userId: referredUser._id,
-                    discount: 10,
-                    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                    minimumPurchase: 20000,
-                    isListed: true,
-                });
 
-                await coupon.save();
-                const usage = new CouponUsage({
-                    userId: referredUser._id,
-                    couponId: coupon._id,
-                    used: false,
-                })
-                await usage.save();
-            }
-            const saveUserData = new User({
-                fullName: user.fullName,
-                email: user.email,
-                password: user.password,
+            const newUser = new User({
+                fullName: userData.fullName,
+                email: userData.email,
+                password: userData.password,
                 referedBy: referredUser ? referredUser._id : null,
             });
-            await saveUserData.save();
-            const refCode = await generateUniqueReferralCode(saveUserData._id.toString());
-            saveUserData.referralCode = refCode;
-            await saveUserData.save();
-            req.session.user = saveUserData._id;
+            await newUser.save();
+            newUser.referralCode = await generateUniqueReferralCode(newUser._id.toString());
+            await newUser.save();
+            req.session.user = newUser._id;
             await emailOtp.deleteMany({ email });
             return res.json({ success: true, redirectUrl: "/" });
         } else {
@@ -254,67 +177,60 @@ const verifyEmailOtp = async (req, res) => {
         }
     } catch (error) {
         console.error("Error verifying OTP", error);
-        res.status(500).json({ success: false, message: "An error occured" });
+        next(error);
     }
 };
 
 
 
-const resendOTP = async (req, res) => {
+const resendOTP = async (req, res, next) => {
     try {
         const user = req.session.userData;
         if (!user || !user.email) {
-            return res.status(400).json({ success: false, message: "User session not found." });
+            return res.json({ success: false, message: "User session not found." });
         }
-
         const { fullName, email } = user;
         await emailOtp.deleteMany({ email });
         const otp = await generateOtp(email);
         const emailSent = await sendEmail(email, otp, fullName);
-
-        if (emailSent) {
-            return res.status(200).json({
-                success: true,
-                message: "OTP resent successfully.",
-            });
-        } else {
-            return res.status(500).json({
-                success: false,
-                message: "Failed to resend OTP.",
-            });
+        if (!emailSent) {
+            return res.json({ success: false, message: "Failed to resend OTP.", });
         }
+        return res.json({ success: true, message: "OTP resent successfully.", });
     } catch (error) {
         console.error("Error resending OTP:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error.",
-        });
+        next(error);
     }
 };
 
 
 
-const loadLogin = async (req, res) => {
+const loadLogin = async (req, res, next) => {
     try {
         if (req.user?._id || req.session?.user) {
             return res.redirect('/')
         }
-        if (!req.session.user) {
-            return res.render("login", { message: null });
-        } else {
-            res.redirect("/");
-        }
+        return res.render('login', { message: null });
     } catch (error) {
         res.redirect("pageNotFound");
+        next(error);
     }
 };
 
 
 
-const login = async (req, res) => {
+/** 
+@desc Logs a user in either with credential or google auth.
+@route POST/login
+@access Public
+*/
+const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        const findUser = await User.findOne({ isAdmin: false, email: email, });
+        if (!email || !password) {
+            return res.render('login', { message: "Enter email and password" });
+        }
+        const findUser = await User.findOne({ isAdmin: false, email, });
         if (!findUser) {
             return res.render("login", { message: "User does not exist" });
         }
@@ -337,29 +253,34 @@ const login = async (req, res) => {
         return res.redirect("/");
     } catch (error) {
         console.error("login error", error)
-        res.render("login", { message: "Login failed, please try again" })
+        next(error);
     }
 };
 
 
 
+/**
+ @desc    Log out the current user by destroying the session.
+ @route   GET /logout
+ @access  Private
+ */
 const logout = async (req, res) => {
-    try {
-        req.session.destroy((err) => {
-            if (err) {
-                console.error("Sesssion destroy error", err);
-                return res.redirect('/pageNotFound');
-            }
-            return res.redirect("/");
-        });
-    } catch (error) {
-        console.error("logout error", error);
-        res.redirect('/pageNotFound');
-    }
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Sesssion destroy error", err);
+            return res.redirect('/pageNotFound');
+        }
+        return res.redirect("/");
+    });
 };
 
 
 
+/**
+ @desc    Shows all the products and category of Peripherals
+ @route   GET /pheripheral/:name
+ @access  Public
+ */
 const loadPeripheral = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
@@ -371,56 +292,41 @@ const loadPeripheral = async (req, res) => {
         const limit = 21;
         const skip = (page - 1) * limit;
         const wishlist = await Wishlist.findOne({ userId });
-        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
-        const category = await Category.findOne({ name: peripheral });
+        const wish = wishlist?.items?.map(item => item.variantId.toString()) ?? [];
+        const category = await Category.findOne({ name: peripheral, isListed: true });
         if (!category) return res.redirect("/pageNotFound");
         const sortOption = getSortOption(sort);
         const userData = await User.findById(userId);
         let productFilter = { category: category._id, isListed: true };
         if (selectedBrands) {
             const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
-            const brandIds = await Brand.find({ name: { $in: brandNames } }).distinct("_id");
+            const brandIds = await Brand.find({ name: { $in: brandNames }, isListed: true }).distinct("_id");
+            if (brandIds.length === 0) return res.redirect("/pageNotFound");
             productFilter.brand = { $in: brandIds };
         }
         if (selectedCategories) {
             const categoryNames = Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories];
-            const categoryIds = await Category.find({ name: { $in: categoryNames } }).distinct("_id");
+            const categoryIds = await Category.find({ name: { $in: categoryNames }, isListed: true }).distinct("_id");
+            if (categoryIds.length === 0) return res.redirect("/pageNotFound");
             productFilter.category = { $in: categoryIds };
         }
         const totalProducts = await Product.countDocuments(productFilter);
-        const product = await Product.find(productFilter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
+        const rawProducts = await Product.find(productFilter).populate({ path: "brand", select: "name isListed", match: { isListed: true } }).populate({ path: "category", select: "name isListed", match: { isListed: true } }).sort(sortOption).skip(skip).limit(limit);
+        const product = rawProducts.filter(p => p.brand && p.category);
         const totalPages = Math.ceil(totalProducts / limit);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
         const fullProducts = await Product.find({ category: category._id, isListed: true }).select("brand category");
         const distinctBrandIds = [...new Set(fullProducts.map(p => p.brand?.toString()))].filter(Boolean);
         const distinctCategoryIds = [...new Set(fullProducts.map(p => p.category?.toString()))].filter(Boolean);
-        const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
+        const brand = await Brand.find({ _id: { $in: distinctBrandIds }, isListed: true });
         const filterBrand = brand.map(b => b.name);
-        const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
+        const categoryList = await Category.find({ _id: { $in: distinctCategoryIds }, isListed: true });
         const filterCategory = categoryList.map(c => c.name);
         if (product.length === 0) {
             return res.render("noProductFound", { product, peripheral: peripherals, component, brand, user: userData, });
         }
-        res.render("productPages", {
-            product,
-            peripheral: peripherals,
-            component,
-            brand,
-            user: userData,
-            filterBrand,
-            filterCategory,
-            selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands],
-            selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories],
-            route: "peripheral",
-            name: peripheral,
-            wish,
-            baseRoute: `/peripheral/${peripheral}`,
-            current: page,
-            pages: totalPages,
-            totalProducts,
-            sort,
-        });
+        res.render("productPages", { product, peripheral: peripherals, component, brand, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], route: "peripheral", name: peripheral, wish, baseRoute: `/peripheral/${peripheral}`, current: page, pages: totalPages, totalProducts, sort });
     } catch (error) {
         console.error("Error loading peripherals:", error);
         return res.redirect("/pageNotFound");
@@ -429,58 +335,189 @@ const loadPeripheral = async (req, res) => {
 
 
 
-const loadComponent = async (req, res) => {
+/**
+ @desc    Shows all the products and category of Components
+ @route   GET /component/:name
+ @access  Public
+ */
+const loadComponent = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const componentName = req.params.name;
+
         const sort = req.query.sort || "default";
         const selectedBrands = req.query.brand;
         const selectedCategories = req.query.category;
-        const page = parseInt(req.query.page) || 1;
+
+        const page = Number(req.query.page) || 1;
         const limit = 21;
         const skip = (page - 1) * limit;
-        const category = await Category.findOne({ name: componentName });
+
+        // Category must be listed
+        const category = await Category.findOne({
+            name: componentName,
+            isListed: true
+        });
         if (!category) return res.redirect("/pageNotFound");
+
+        // Wishlist
         const wishlist = await Wishlist.findOne({ userId });
-        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
+        const wish = wishlist?.items?.map(item => item.variantId.toString()) ?? [];
+
         const sortOption = getSortOption(sort);
-        const filter = { category: category._id, isListed: true };
+
+        // Base filter — products must be listed & belong to listed category
+        const filter = {
+            category: category._id,
+            isListed: true
+        };
+
+        // BRAND FILTER — only listed brands allowed
         if (selectedBrands) {
-            const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
-            const brandIds = await Brand.find({ name: { $in: brandNames } }).distinct("_id");
+            const brandNames = Array.isArray(selectedBrands)
+                ? selectedBrands
+                : [selectedBrands];
+
+            const brandIds = await Brand.find({
+                name: { $in: brandNames },
+                isListed: true            // enforce visibility
+            }).distinct("_id");
+
+            // User manually entered unlisted brand → block
+            if (brandIds.length === 0) return res.redirect("/pageNotFound");
+
             filter.brand = { $in: brandIds };
         }
+
+        // CATEGORY FILTER — must be listed
         if (selectedCategories) {
-            const categoryNames = Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories];
-            const categoryIds = await Category.find({ name: { $in: categoryNames } }).distinct("_id");
+            const categoryNames = Array.isArray(selectedCategories)
+                ? selectedCategories
+                : [selectedCategories];
+
+            const categoryIds = await Category.find({
+                name: { $in: categoryNames },
+                isListed: true
+            }).distinct("_id");
+
+            // Invalid or unlisted category typed in URL → block
+            if (categoryIds.length === 0) return res.redirect("/pageNotFound");
+
             filter.category = { $in: categoryIds };
         }
+
+        // Count total products
         const totalProducts = await Product.countDocuments(filter);
-        const products = await Product.find(filter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
+
+        // Fetch products but exclude unlisted brands/categories via populate
+        const rawProducts = await Product.find(filter)
+            .populate({
+                path: "brand",
+                select: "name isListed",
+                match: { isListed: true }
+            })
+            .populate({
+                path: "category",
+                select: "name isListed",
+                match: { isListed: true }
+            })
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit);
+
+        // Remove products whose listed brand/category didn't match
+        const product = rawProducts.filter(p => p.brand && p.category);
+
         const totalPages = Math.ceil(totalProducts / limit);
-        const peripherals = await Category.find({ isPeripheral: true, isListed: true });
-        const components = await Category.find({ isComponent: true, isListed: true });
-        const fullProducts = await Product.find({ category: category._id, isListed: true }).select("brand category");
+
+        // Sidebar categories
+        const peripheral = await Category.find({
+            isPeripheral: true,
+            isListed: true
+        });
+
+        const components = await Category.find({
+            isComponent: true,
+            isListed: true
+        });
+
+        // Extract available brands/categories from listed products only
+        const fullProducts = await Product.find({
+            category: category._id,
+            isListed: true
+        }).select("brand category");
+
         const distinctBrandIds = [...new Set(fullProducts.map(p => p.brand?.toString()))].filter(Boolean);
         const distinctCategoryIds = [...new Set(fullProducts.map(p => p.category?.toString()))].filter(Boolean);
-        const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
+
+        // Only listed brands in filter list
+        const brand = await Brand.find({
+            _id: { $in: distinctBrandIds },
+            isListed: true
+        });
+
         const filterBrand = brand.map(b => b.name);
-        const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
-        const filterCategory = categoryList.map(c => c.name);
+
+        // Only listed categories in sidebar filter
+        const categoryDocs = await Category.find({
+            _id: { $in: distinctCategoryIds },
+            isListed: true
+        });
+
+        const filterCategory = categoryDocs.map(c => c.name);
+
         const userData = await User.findById(userId);
-        if (products.length === 0) {
-            return res.render("noProductFound", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: [], selectedCategories: [], });
+
+        // If no products left after filtering
+        if (product.length === 0) {
+            return res.render("noProductFound", {
+                product,
+                peripheral,
+                component: components,
+                brand,
+                user: userData
+            });
         }
-        res.render("productPages", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], route: "component", name: componentName, wish, baseRoute: `/component/${componentName}`, current: page, pages: totalPages, totalProducts, sort, });
+
+        // Render component page
+        res.render("productPages", {
+            product,
+            peripheral,
+            component: components,
+            brand,
+            user: userData,
+            filterBrand,
+            filterCategory,
+            selectedBrands: Array.isArray(selectedBrands)
+                ? selectedBrands
+                : [selectedBrands],
+            selectedCategories: Array.isArray(selectedCategories)
+                ? selectedCategories
+                : [selectedCategories],
+            route: "component",
+            name: componentName,
+            wish,
+            baseRoute: `/component/${componentName}`,
+            current: page,
+            pages: totalPages,
+            totalProducts,
+            sort
+        });
+
     } catch (error) {
         console.error("Error loading components:", error);
-        return res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
 
 
-const loadAllProducts = async (req, res) => {
+/**
+ @desc    Shows all the products
+ @route   GET /shop
+ @access  Public
+ */
+const loadAllProducts = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const page = parseInt(req.query.page) || 1;
@@ -528,150 +565,108 @@ const loadAllProducts = async (req, res) => {
         res.render("productPages", { product: allProducts, peripheral: peripherals, component: components, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/shop", });
     } catch (error) {
         console.error("Error loading all products:", error);
-        return res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
 
-
-const loadProductDetails = async (req, res) => {
+/**
+ @desc    Shows details of the product
+ @route   GET /product
+ @access  Public
+ */
+const loadProductDetails = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
-        const variant = parseInt(req.query.variant) || 0;
+        const variantId = req.query.variant || null;
+        const prodId = req.query.id;
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
         const wishlist = await Wishlist.findOne({ userId });
-        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
-        const prodId = req.query.id;
-        const product = await Product.findOne({ _id: prodId, isListed: true }).populate({ path: "category", match: { isListed: true }, select: "name isListed" }).populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
+        const wish = wishlist?.items?.map(item => item.variantId.toString()) ?? [];
+        const product = await Product.findOne({ _id: prodId, isListed: true })
+            .populate({ path: "category", match: { isListed: true }, select: "name isListed" })
+            .populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
         if (!product || !product.brand || !product.category) {
             return res.redirect("/pageNotFound");
         }
-        const recommendedProducts = await Product.find({ category: product.category._id, isListed: true, })
+        let selectedVariant;
+        if (variantId) {
+            selectedVariant = product.variants.find(v => v._id.toString() === variantId);
+            if (!selectedVariant) {
+                return res.redirect("/pageNotFound");
+            }
+        } else {
+            selectedVariant = product.variants[0];
+        }
+        const recommendedProducts = await Product.find({ category: product.category._id, isListed: true })
             .populate({ path: "brand", match: { isListed: true }, select: "name" })
             .populate({ path: "category", match: { isListed: true }, select: "name" })
-            .limit(4)
-            .then(prods => prods.filter(p => p.brand && p.category));
-        return res.render("productDetails", { product, peripheral: peripherals, component: components, user: userData, recommendedProducts, index: variant, wish });
+            .limit(4).then(prods => prods.filter(p => p.brand && p.category));
+        return res.render("productDetails", { product, selectedVariant, peripheral: peripherals, component: components, user: userData, recommendedProducts, wish });
     } catch (error) {
         console.error("Error loading the product details page:", error);
-        return res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
 
-
+/**
+ @desc    Show all the flash sale product
+ @route   GET /shop/limitedEdition
+ @access  Public
+ */
 const loadLimitedEditions = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
-
         const page = parseInt(req.query.page) || 1;
         const limit = 21;
         const skip = (page - 1) * limit;
-
-        // Extract filters and sort options
         const selectedBrands = req.query.brand;
         const selectedCategories = req.query.category;
         const sort = req.query.sort;
         const sortOption = getSortOption(sort);
-
         const wishlist = await Wishlist.findOne({ userId });
         const wish = wishlist?.items?.map(item => String(item.variantId)) ?? [];
-
-        // Build filter object
         const filter = { onFlashSale: true, isListed: true };
-
         if (selectedBrands) {
-            filter["brand.name"] = Array.isArray(selectedBrands)
-                ? { $in: selectedBrands }
-                : selectedBrands;
+            filter["brand.name"] = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
         }
-
         if (selectedCategories) {
-            filter["category.name"] = Array.isArray(selectedCategories)
-                ? { $in: selectedCategories }
-                : selectedCategories;
+            filter["category.name"] = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
         }
-
-        // Count total products for pagination
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
-
-        // Fetch paginated products
-        const products = await Product.find(filter)
-            .populate("brand", "name")
-            .populate("category", "name")
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limit);
-
-        // Fetch additional data
+        const products = await Product.find(filter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
-
-        // Distinct filter lists
         const distinctBrandIds = [...new Set(products.map(p => p.brand?._id))].filter(Boolean);
         const distinctCategoryIds = [...new Set(products.map(p => p.category?._id))].filter(Boolean);
-
         const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
         const filterBrand = brand.map(b => b.name);
-
         const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
         const filterCategory = categoryList.map(c => c.name);
-
-        // Handle query values consistently
-        const selectedBrandsArray = selectedBrands
-            ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands]
-            : [];
-
-        const selectedCategoriesArray = selectedCategories
-            ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories]
-            : [];
-
-        // If no products found
+        const selectedBrandsArray = selectedBrands ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands] : [];
+        const selectedCategoriesArray = selectedCategories ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories] : [];
         if (products.length === 0) {
-            return res.render("noProductFound", {
-                product: products,
-                peripheral: peripherals,
-                component: components,
-                brand,
-                user: userData,
-                filterBrand,
-                filterCategory,
-                selectedBrands: selectedBrandsArray,
-                selectedCategories: selectedCategoriesArray,
-            });
+            return res.render("noProductFound", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, });
         }
-
-        // Render main page
-        return res.render("productPages", {
-            product: products,
-            peripheral: peripherals,
-            component: components,
-            brand,
-            user: userData,
-            filterBrand,
-            filterCategory,
-            selectedBrands: selectedBrandsArray,
-            selectedCategories: selectedCategoriesArray,
-            wish,
-            baseRoute: "/shop/limitedEditions",
-            current: page,
-            pages: totalPages
-        });
-
+        return res.render("productPages", { product: products, peripheral: peripherals, component: components, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, baseRoute: "/shop/limitedEditions", current: page, pages: totalPages });
     } catch (error) {
         console.error("Error loading limited edition products:", error);
-        return res.redirect("/pageNotFound");
+        next(error)
     }
 };
 
 
-
-
-const loadSearchedProducts = async (req, res) => {
+/**
+ @desc    Load the product based on the search(brand, cateogory and name)
+ @route   GET /product
+ @access  Public
+ */
+const loadSearchedProducts = async (req, res, next) => {
     try {
         const searchQuery = req.query.search?.trim() || "";
         const userId = req.user?._id || req.session?.user;
@@ -692,7 +687,7 @@ const loadSearchedProducts = async (req, res) => {
         const matchedCategories = await Category.find({ name: { $regex: searchQuery, $options: "i" }, isListed: true }).distinct("_id");
         const sortOption = getSortOption(sort);
         let productFilter = {
-            isListed: true, $or: [{ model: { $regex: searchQuery, $options: "i" } }, { description: { $regex: searchQuery, $options: "i" } }, { brand: { $in: matchedBrands } }, { category: { $in: matchedCategories } },],
+            isListed: true, $or: [{ model: { $regex: searchQuery, $options: "i" } }, { brand: { $in: matchedBrands } }, { category: { $in: matchedCategories } },],
         };
         if (selectedBrands) {
             const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
@@ -707,24 +702,29 @@ const loadSearchedProducts = async (req, res) => {
         const totalProducts = await Product.countDocuments(productFilter);
         const products = await Product.find(productFilter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
         const totalPages = Math.ceil(totalProducts / limit);
-        const distinctBrandIds = await Product.distinct("brand", { isListed: true });
-        const distinctCategoryIds = await Product.distinct("category", { isListed: true });
-        let filterBrand = await Brand.find({ _id: { $in: distinctBrandIds } }, { name: 1, _id: 0 });
+        const resultBrandIds = [...new Set(products.map(p => p.brand?._id))];
+        const resultCategoryIds = [...new Set(products.map(p => p.category?._id))];
+        let filterBrand = await Brand.find({ _id: { $in: resultBrandIds } }, { name: 1 });
         filterBrand = filterBrand.map(b => b.name);
-        let filterCategory = await Category.find({ _id: { $in: distinctCategoryIds } }, { name: 1, _id: 0 });
+        let filterCategory = await Category.find({ _id: { $in: resultCategoryIds } }, { name: 1 });
         filterCategory = filterCategory.map(c => c.name);
+
         if (products.length === 0) {
             return res.render("noProductFound", { product: [], peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], searchQuery, });
         }
         return res.render("productPages", { product: products, peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/products" });
     } catch (error) {
         console.error("Error loading search results:", error);
-        return res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
 
-
+/**
+ @desc    Load the forgot password page
+ @route   GET /forgotPassword
+ @access  Public
+ */
 const loadForgotPassword = async (req, res) => {
     try {
         return res.render('forgotPassword', { message: null });
@@ -761,12 +761,13 @@ const sendOtp = async (req, res) => {
 const verify = async (req, res) => {
     try {
         const { otp, email } = req.body;
-        let otpDoc = await emailOtp.findOne({ email: email });
+        let otpDoc = await emailOtp.findOne({ email });
         if (!otpDoc) {
             return res.status(400).json({ success: false, message: "OTP expired." });
         }
         if (String(otp) === String(otpDoc.otp)) {
             await emailOtp.deleteMany({ email });
+            req.session.allowedResetEmail = email;
             return res.json({ success: true, redirectUrl: `/newPassword/${email}` });
         } else {
             return res.status(400).json({ success: false, message: "Invalid OTP." });
@@ -779,10 +780,14 @@ const verify = async (req, res) => {
 
 
 
+
 const loadUpdatePassword = async (req, res) => {
     try {
         const email = req.params.email;
-        return res.render('changePassword', { email: email });
+        if (req.session.allowedResetEmail !== email) {
+            return res.redirect('/forgotPassword');
+        }
+        return res.render('changePassword', { email });
     } catch (error) {
         console.error("Error loading the otp change page: ", error);
         return res.redirect('/pageNotFound');
@@ -791,14 +796,18 @@ const loadUpdatePassword = async (req, res) => {
 
 
 
+
 const updatePassword = async (req, res) => {
     try {
         const email = req.params.email;
+        if (req.session.allowedResetEmail !== email) {
+            return res.status(403).json({ success: false, message: "Unauthorized request" });
+        }
         const { newPassword } = req.body;
-
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({ email });
         user.password = newPassword;
         await user.save();
+        req.session.allowedResetEmail = null;
         return res.status(200).json({ success: true });
     } catch (error) {
         console.error("Error updating the password:", error);
@@ -808,77 +817,93 @@ const updatePassword = async (req, res) => {
 
 
 
-const loadProfilePage = async (req, res) => {
+/**
+ @desc    Load the user profile section
+ @route   GET /profile
+ @access  Private
+ */
+const loadProfilePage = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        if (!user) {
-            return res.redirect('/login');
-        } else {
-            return res.render('profile', { peripheral, component, user, breadcrumbs: "Profile" });
-        }
+        return res.render('profile', { peripheral, component, user, breadcrumbs: "Profile" });
+
     } catch (error) {
         console.error("Error loading the profile page: ", error);
-        return res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
 
-
-const loadEditProfile = async (req, res) => {
+/**
+ @desc    Load the user profile section
+ @route   GET /editProfile
+ @access  Private
+ */
+const loadEditProfile = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        if (!user) {
-            return res.redirect('/login');
-        } else {
-            return res.render('editProfile', { peripheral, component, user, breadcrumbs: "Profile" });
-        }
+        return res.render('editProfile', { peripheral, component, user, breadcrumbs: "Profile" });
     } catch (error) {
         console.error("Error loading the edit profile page: ", error);
-        return res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
 
-
+/**
+ @desc    Update the profile in database
+ @route   PUT /editProfile
+ @access  Private
+ */
 const updateProfile = async (req, res) => {
     try {
-        const userId = req.user?._id || req.session?.user
-        const { fullName, phoneNumber, profileImage } = req.body;
+        const userId = req.user?._id || req.session?.user;
         if (!userId) {
             return res.redirect('/login');
         }
-        let user = await User.findByIdAndUpdate(userId, { $set: { fullName: fullName, phoneNumber: phoneNumber, profilePhoto: profileImage } });
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+        const { fullName, phoneNumber, profileImage } = req.body;
+        const nameRegex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+        if (fullName && !nameRegex.test(fullName.trim())) {
+            return res.json({ success: false, message: "Full name should contain only letters and spaces." });
         }
-        return res.json({ success: true, message: "Profile updated successfully", user: user })
+        const phoneRegex = /^[0-9]{10}$/;
+        if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+            return res.json({ success: false, message: "Phone number must be 10 digits and contain only numbers." });
+        }
+        const updateData = {};
+        if (fullName) updateData.fullName = fullName.trim();
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (profileImage) updateData.profilePhoto = profileImage;
+        const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+        return res.json({ success: true, message: "Profile updated successfully", user });
     } catch (error) {
         console.error("Error updating the profile:", error);
-        return res.redirect('/pageNotFound');
+        return res.json({ success: false, message: "Server error while updating profile" });
     }
 };
 
 
 
-const loadEditPassword = async (req, res) => {
+
+const loadEditPassword = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const user = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        if (!user) {
-            return res.redirect('/login');
-        }
         return res.render('editPassword', { peripheral, component, user, breadcrumbs: "Profile" });
     } catch (error) {
         console.error("Error loading the editpassword page.");
-        return res.render('/pageNotFound');
+        next(error);
     }
 };
 
