@@ -45,7 +45,8 @@ const loadHomepage = async (req, res) => {
         return res.render('home', { user: currentUser, peripheral, component, brand, product, });
     } catch (error) {
         console.error("Error loading homepage: ", error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("errorPage", { message: "Internal Server Error", statusCode: HttpStatus.INTERNAL_SERVER_ERROR, user: null, peripheral: [], component: [], brand: [], product: [] });
+        next(error);
+
     }
 };
 
@@ -57,7 +58,7 @@ const loadErrorPage = async (req, res) => {
         const userData = await User.findById(userId);
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
-        return res.render("errorPage", { user: userData, peripheral: peripheral, component: component });
+        return res.render("errorPage");
     } catch (err) {
         res.redirect("/pageNotFound");
     }
@@ -70,11 +71,11 @@ const loadSignup = async (req, res) => {
         if (req.user?._id || req.session?.user) {
             return res.redirect('/')
         }
-        const referralCode = req.query.refToken || '';
+        // const referralCode = req.query.refToken || '';
         return res.render("signup", { message: null, referralCode, });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server error");
+    } catch (error) {
+        console.error("Error loading the signup page");
+        next(error);
     }
 };
 
@@ -86,9 +87,9 @@ const loadSignin = async (req, res) => {
             return res.redirect('/')
         }
         return res.render("signin");
-    } catch (err) {
+    } catch (error) {
         console.error(err);
-        res.status(500).send("Server error");
+        next(error);
     }
 };
 

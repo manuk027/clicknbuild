@@ -10,6 +10,7 @@ import passport from "./config/passport.js";
 import cors from 'cors';
 import { errorHandler } from "./middleware/errorHandler.js";
 import router from './routes/index.js';
+import { customLogger } from "./middleware/logger.js";
 
 
 
@@ -59,6 +60,7 @@ app.set("views", [
 
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(customLogger);
 app.use('/', router);
 app.use(errorHandler);
 
