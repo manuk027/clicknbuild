@@ -14,7 +14,7 @@ import Wishlist from '../../models/wishlistSchema.js';
 import { generateUniqueReferralCode } from '../../helpers/referalCode.js'
 import Coupon from '../../models/couponSchema.js';
 import { generateCouponCode } from '../../helpers/coupon.js'
-// import { HttpStatus } from '../../helpers/statusCodes.js';
+import { HttpStatus } from '../../helpers/statusCodes.js';
 import { generateOtp } from '../../helpers/otpGenerator.js';
 import { sendEmail } from '../../helpers/otpMailer.js';
 
@@ -922,31 +922,31 @@ const editPassword = async (req, res) => {
         const userId = req.user?._id || req.session?.user;
         const { oldPassword, newPassword } = req.body;
         if (!oldPassword || !newPassword) {
-            return res.json({ success: false, message: "Old password and new password are required." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Old password and new password are required." });
         }
         const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[^\s]{8,}$/;
         if (!strongPasswordRegex.test(newPassword)) {
-            return res.json({ success: false, message: "New password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special symbol." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "New password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special symbol." });
         }
         let user = await User.findById(userId);
         if (!user) {
-            return res.json({ success: false, message: "User not found." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "User not found." });
         }
         const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
         if (!isOldPasswordCorrect) {
-            return res.json({ success: false, message: "Incorrect old password." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Incorrect old password." });
         }
         const isSamePassword = await bcrypt.compare(newPassword, user.password);
         if (isSamePassword) {
-            return res.json({ success: false, message: "New password cannot be the same as the old password." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "New password cannot be the same as the old password." });
         }
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         await user.save();
-        return res.json({ success: true, message: "Password updated successfully." });
+        return res.status(HttpStatus.OK).json({ success: true, message: "Password updated successfully." });
     } catch (error) {
         console.error("Error updating password:", error);
-        return res.status(500).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Server error while updating password."
         });
@@ -955,181 +955,194 @@ const editPassword = async (req, res) => {
 
 
 
-
-export const loadAdresses = async (req, res) => {
+/**
+ @desc    Load the address page on the uer side
+ @route   GET /addresses
+ @access  Private
+ */
+export const loadAdresses = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const page = parseInt(req.query.page) || 1;
         const limit = 3;
         const skip = (page - 1) * limit;
-        const user = await User.findById(userId);
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        const addressDoc = await Address.findOne({ userId });
+        const [user, peripheral, component, addressDoc] = await Promise.all([User.findById(userId), Category.find({ isPeripheral: true, isListed: true }), Category.find({ isComponent: true, isListed: true }), Address.findOne({ userId })])
+        const renderData = { peripheral, component, user, breadcrumbs: "Address" };
         if (!addressDoc || addressDoc.address.length === 0) {
-            return res.render("addresses", { peripheral, component, user, breadcrumbs: "Address", address: [], current: 1, pages: 1, });
+            return res.render("addresses", { ...renderData, address: [], current: 1, pages: 1, });
         }
         const totalAddresses = addressDoc.address.length;
         const totalPages = Math.ceil(totalAddresses / limit);
         const paginatedAddresses = addressDoc.address.slice(skip, skip + limit);
-        return res.render("addresses", { peripheral, component, user, breadcrumbs: "Address", address: paginatedAddresses, current: page, pages: totalPages, });
+        return res.render("addresses", { ...renderData, address: paginatedAddresses, current: page, pages: totalPages, });
     } catch (error) {
         console.error("Error loading the address page:", error);
-        return res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
 
 
-
-const loadAddAdresses = async (req, res) => {
+/**
+ @desc    Load the address adding page on the uer side
+ @route   GET /address
+ @access  Private
+ */
+const loadAddAdresses = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.redirect('/login');
-        }
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        const address = await Address.find({ userId: userId });
-        return res.render('addAddress', { peripheral, component, user, breadcrumbs: "Address", address });
+        const [user, peripheral, component,] = await Promise.all([User.findById(userId), Category.find({ isPeripheral: true, isListed: true }), Category.find({ isComponent: true, isListed: false })])
+        return res.render('addAddress', { peripheral, component, user, breadcrumbs: "Address", });
     } catch (error) {
         console.error("Error loading the address adding page: ", error);
-        return res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
 
 
+/**
+ @desc    Add the address to the collection verifying the data
+ @route   POST /address
+ @access  Private
+ */
 const addAddress = async (req, res) => {
     try {
-        const userId = req.user?._id || req.session?.user;
-        if (!userId) {
-            return res.redirect('/login');
+        const userId = req.user?.id || req.session?.user;
+        const { fullName, mobileNumber, address, district, state, city, pinCode, landmark } = req.body;
+        const letterRegex = /^[A-Za-z ]+$/;
+        const phoneRegex = /^\d{10}$/;
+        const pinRegex = /^\d{6}$/;
+        if (!fullName || !letterRegex.test(fullName)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Full name must contain only letters." });
         }
-        const newAddress = req.body;
-        if (!newAddress) {
-            return res.json({ success: false, message: "Address not added. Please try again." });
+        if (!mobileNumber || !phoneRegex.test(mobileNumber)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Phone number must be 10 digits." });
         }
+        if (!address) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Address cannot be empty." });
+        }
+        if (!district || !letterRegex.test(district)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "District must contain only letters." });
+        }
+        if (!state || !letterRegex.test(state)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "State must contain only letters." });
+        }
+        if (!city || !letterRegex.test(city)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "City must contain only letters." });
+        }
+        if (!pinCode || !pinRegex.test(pinCode)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Pincode must be 6 digits and should not contain any other characters." });
+        }
+        const newAddress = { fullName, phoneNumber: mobileNumber, address, district, state, city, pincode: pinCode, landmark };
         const existingAddress = await Address.findOne({ userId });
         if (existingAddress) {
-            existingAddress.address.push({
-                fullName: newAddress.fullName,
-                phoneNumber: newAddress.mobileNumber,
-                address: newAddress.address,
-                district: newAddress.district,
-                state: newAddress.state,
-                city: newAddress.city,
-                pincode: newAddress.pinCode,
-                landmark: newAddress.landmark,
-            });
-
+            existingAddress.address.push(newAddress);
             await existingAddress.save();
         } else {
-            const address = new Address({
-                userId,
-                address: [{
-                    fullName: newAddress.fullName,
-                    phoneNumber: newAddress.mobileNumber,
-                    address: newAddress.address,
-                    district: newAddress.district,
-                    state: newAddress.state,
-                    city: newAddress.city,
-                    pincode: newAddress.pinCode,
-                    landmark: newAddress.landmark,
-                }],
-            });
-            await address.save();
+            await Address.create({ userId, address: [newAddress], });
         }
-        return res.status(200).json({ success: true, message: "Address added successfully" });
+        return res.status(HttpStatus.OK).json({ success: true, message: "Address added successfully." });
     } catch (error) {
         console.error("Error adding new address:", error);
-        return res.redirect('/pageNotFound');
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Something went wrong, please try again." });
     }
 };
 
 
 
-const loadEditAddress = async (req, res) => {
+/**
+ @desc    load the edit address page
+ @route   GET /editAddress/:address
+ @access  Private
+ */
+export const loadEditAddress = async (req, res, next) => {
     try {
-        const userId = req.user?._id || req.session?.user
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.redirect('/login');
-        }
+        const userId = req.user?._id || req.session?.user;
         const addressId = req.params.address;
-        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
-        const component = await Category.find({ isComponent: true, isListed: true });
-        let address = await Address.find({ userId: userId });
-        address = address[0].address.find(addr => addr._id.toString() === addressId);
-        return res.render('editAddress', { peripheral, component, user, breadcrumbs: "Address", address });
+        if (!userId) return res.redirect("/login");
+        const [user, peripheral, component, addressDoc] = await Promise.all([User.findById(userId), Category.find({ isPeripheral: true, isListed: true }), Category.find({ isComponent: true, isListed: true }), Address.findOne({ userId })]);
+        if (!addressDoc) return res.redirect("/addresses");
+        const address = addressDoc.address.find(addr => addr._id.toString() === addressId);
+        if (!address) return res.redirect("/addresses");
+        return res.render("editAddress", { peripheral, component, user, breadcrumbs: "Address", address });
     } catch (error) {
-        console.error("Error loading  the address editing page:", error);
-        return res.redirect('/pageNotFound');
+        console.error("Error loading the address editing page:", error);
+        next(error);
     }
 };
 
 
 
+/**
+ @desc    Edit the address in the collection verifying the data
+ @route   PUT /editAddress/:address
+ @access  Private
+ */
 const editAddress = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
-        if (!userId) {
-            return res.redirect("/login");
-        }
         const addressId = req.params.address;
-        const editedAddress = req.body;
-        const userAddressDoc = await Address.findOne({ userId: new mongoose.Types.ObjectId(userId) });
-        if (!userAddressDoc) {
-            return res.status(404).json({ success: false, message: "User address record not found" });
+        const { fullName, mobileNumber, address, district, state, city, pinCode, landmark, } = req.body;
+        const letterRegex = /^[A-Za-z ]+$/;
+        const phoneRegex = /^\d{10}$/;
+        const pinRegex = /^\d{6}$/;
+        if (!fullName || !letterRegex.test(fullName)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Full name must contain only letters." });
         }
-        const result = await Address.findOneAndUpdate(
-            {
-                userId: new mongoose.Types.ObjectId(userId),
-                "address._id": new mongoose.Types.ObjectId(addressId)
-            },
-            {
-                $set: {
-                    "address.$.fullName": editedAddress.fullName,
-                    "address.$.phoneNumber": editedAddress.mobileNumber,
-                    "address.$.address": editedAddress.address,
-                    "address.$.district": editedAddress.district,
-                    "address.$.state": editedAddress.state,
-                    "address.$.city": editedAddress.city,
-                    "address.$.pincode": editedAddress.pinCode,
-                    "address.$.landmark": editedAddress.landmark,
-                    "address.$.updatedAt": new Date(),
-                }
-            },
-            { new: true }
-        );
-        return res.status(200).json({
-            success: true,
-            message: "Address updated successfully",
-        });
+        if (!mobileNumber || !phoneRegex.test(mobileNumber)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Phone number must be 10 digits." });
+        }
+        if (!address) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Address cannot be empty." });
+        }
+        if (!district || !letterRegex.test(district)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "District must contain only letters." });
+        }
+        if (!state || !letterRegex.test(state)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "State must contain only letters." });
+        }
+        if (!city || !letterRegex.test(city)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "City must contain only letters." });
+        }
+        if (!pinCode || !pinRegex.test(pinCode)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Pincode must be 6 digits and should not contain any other characters." });
+        }
+        const addressDoc = await Address.find({ userId, "address._id": addressId });
+        if (!addressDoc) {
+            return res.status(400).json({ success: false, message: "Address not found or does not belong to this user." });
+        }
+        await Address.updateOne(
+            { userId, "address._id": addressId },
+            { $set: { "address.$.fullName": fullName, "address.$.phoneNumber": mobileNumber, "address.$.address": address, "address.$.district": district, "address.$.state": state, "address.$.city": city, "address.$.pincode": pinCode, "address.$.landmark": landmark, "address.$.updatedAt": new Date(), } }
+        )
+        return res.status(HttpStatus.OK).json({ success: true, message: "Address updated successfully" });
     } catch (error) {
         console.error("Error editing the address:", error);
-        return res.redirect("/pageNotFound");
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
     }
 };
 
 
 
+/**
+ @desc    Delete the address in the collection verifying the data
+ @route   DELETE /deleteAddress/:address
+ @access  Private
+ */
 const deleteAddress = async (req, res) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const addressId = req.params.address;
-        const result = await Address.updateOne(
-            { userId: userId },
-            { $pull: { address: { _id: addressId } } }
-        );
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ success: false, message: "Address not found" });
+        const addressDoc = await Address.findOne({ userId, "address._id": addressId });
+        if (!addressDoc) {
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Address not found or not associated with this user." });
         }
-        res.status(200).json({ success: true, message: "Address deleted successfully" });
+        await Address.updateOne({ userId }, { $pull: { address: { _id: addressId } } });
+        return res.status(HttpStatus.OK).json({ success: true, message: "Address deleted successfully" });
     } catch (error) {
         console.error("Error deleting address:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
     }
 };
 

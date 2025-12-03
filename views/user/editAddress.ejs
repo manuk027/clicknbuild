@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>clickNbuild</title>
-  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+    type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -13,277 +14,280 @@
 <body class="bg-gray-50 font-sans text-gray-900">
   <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
 
-  <!-- Mobile Sidebar Toggle Button (visible only on mobile) -->
-  <div class="lg:hidden fixed top-4 left-4 z-50">
-    <button id="mobileSidebarBtn" class="bg-white p-2 rounded-lg shadow-md">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-  </div>
+    <!-- Mobile Sidebar Toggle Button (visible only on mobile) -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+      <button id="mobileSidebarBtn" class="bg-white p-2 rounded-lg shadow-md">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
 
-  <!-- Sidebar Overlay (mobile only) -->
-  <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+    <!-- Sidebar Overlay (mobile only) -->
+    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
 
-  <div class="flex flex-col lg:flex-row min-h-screen">
-    <!-- Sidebar -->
-    <%- include("../../views/partials/user/sidebar") %>
+    <div class="flex flex-col lg:flex-row min-h-screen">
+      <!-- Sidebar -->
+      <%- include("../../views/partials/user/sidebar") %>
 
-    <!-- Main Content -->
-    <main class="flex-1 w-full p-4 sm:p-6 lg:p-10 max-w-6xl mx-auto">
-      <!-- Breadcrumb -->
-      <nav class="mb-6 text-sm">
-        <ol class="flex flex-wrap items-center space-x-2 text-gray-600">
-          <li><a href="#" class="hover:text-gray-900">Profile</a></li>
-          <li><span>></span></li>
-          <li><a href="/addresses" class="hover:text-gray-900">Address</a></li>
-          <li><span>></span></li>
-          <li class="text-gray-900 font-medium">Edit</li>
-        </ol>
-      </nav>
+        <!-- Main Content -->
+        <main class="flex-1 w-full p-4 sm:p-6 lg:p-10 max-w-6xl mx-auto">
+          <!-- Breadcrumb -->
+          <nav class="mb-6 text-sm">
+            <ol class="flex flex-wrap items-center space-x-2 text-gray-600">
+              <li><a href="#" class="hover:text-gray-900">Profile</a></li>
+              <li><span>></span></li>
+              <li><a href="/addresses" class="hover:text-gray-900">Address</a></li>
+              <li><span>></span></li>
+              <li class="text-gray-900 font-medium">Edit</li>
+            </ol>
+          </nav>
 
-      <!-- Add New Address Card -->
-      <div class="bg-white rounded-2xl shadow-md p-5 sm:p-8">
-        <h1 class="text-2xl sm:text-3xl font-bold mb-8 text-center sm:text-left">Edit Address</h1>
+          <!-- Add New Address Card -->
+          <div class="bg-white rounded-2xl shadow-md p-5 sm:p-8">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-8 text-center sm:text-left">Edit Address</h1>
 
-        <form id="addressForm" class="space-y-10">
-          <!-- Personal Information Section -->
-          <div>
-            <h2 class="text-lg font-semibold mb-4 sm:mb-6 pb-2 border-b">Personal Information</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Full Name -->
+            <form id="addressForm" class="space-y-10">
+              <!-- Personal Information Section -->
               <div>
-                <label class="block text-sm font-medium mb-2">Full name</label>
-                <input type="text" id="fullName" value="<%=address.fullName%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="fullNameError" class="text-red-500 text-sm mt-1 hidden">Full name is required</span>
+                <h2 class="text-lg font-semibold mb-4 sm:mb-6 pb-2 border-b">Personal Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Full Name -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">Full name</label>
+                    <input type="text" id="fullName" value="<%=address.fullName%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="fullNameError" class="text-red-500 text-sm mt-1 hidden">Full name is required</span>
+                  </div>
+
+                  <!-- Mobile Number -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">Mobile Number</label>
+                    <input type="tel" id="mobileNumber" value="<%=address.phoneNumber%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="mobileError" class="text-red-500 text-sm mt-1 hidden">Valid mobile number is
+                      required</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Mobile Number -->
+              <!-- Address Section -->
               <div>
-                <label class="block text-sm font-medium mb-2">Mobile Number</label>
-                <input type="tel" id="mobileNumber" value="<%=address.phoneNumber%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="mobileError" class="text-red-500 text-sm mt-1 hidden">Valid mobile number is required</span>
+                <h2 class="text-lg font-semibold mb-4 sm:mb-6 pb-2 border-b">Address</h2>
+
+                <!-- Full Address -->
+                <div class="mb-6">
+                  <label class="block text-sm font-medium mb-2">Address</label>
+                  <textarea id="address" rows="3"
+                    class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"><%=address.address%></textarea>
+                  <span id="addressError" class="text-red-500 text-sm mt-1 hidden"></span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <!-- District -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">District</label>
+                    <input type="text" id="district" value="<%=address.district%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="districtError" class="text-red-500 text-sm mt-1 hidden">District is required</span>
+                  </div>
+
+                  <!-- State -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">State</label>
+                    <input type="text" id="state" value="<%=address.state%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="stateError" class="text-red-500 text-sm mt-1 hidden">State is required</span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <!-- City -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">City</label>
+                    <input type="text" id="city" value="<%=address.city%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="cityError" class="text-red-500 text-sm mt-1 hidden">City is required</span>
+                  </div>
+
+                  <!-- Pin Code -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2">Pin Code</label>
+                    <input type="text" id="pinCode" value="<%=address.pincode%>"
+                      class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <span id="pinCodeError" class="text-red-500 text-sm mt-1 hidden">Valid pin code is required</span>
+                  </div>
+                </div>
+
+                <!-- Landmark (Optional) -->
+                <div class="mb-8">
+                  <label class="block text-sm font-medium mb-2">Landmark (optional)</label>
+                  <input type="text" id="landmark" value="<%=address.landmark%>"
+                    class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                  <a type="button" id="cancelBtn" href="/addresses"
+                    class="px-8 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors w-full sm:w-auto text-center">
+                    Cancel
+                  </a>
+                  <button type="submit" id="addAddressBtn"
+                    class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors w-full sm:w-auto text-center">
+                    Save Address
+                  </button>
+                </div>
               </div>
-            </div>
+            </form>
           </div>
+        </main>
+    </div>
 
-          <!-- Address Section -->
-          <div>
-            <h2 class="text-lg font-semibold mb-4 sm:mb-6 pb-2 border-b">Address</h2>
+    <%- include("../../views/partials/user/footer") %>
 
-            <!-- Full Address -->
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2">Address</label>
-              <textarea id="address" rows="3" 
-                class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"><%=address.address%></textarea>
-              <span id="addressError" class="text-red-500 text-sm mt-1 hidden"></span>
-            </div>
+      <script>
+        // Form Validation and Submission
+        const addressForm = document.getElementById('addressForm');
+        const cancelBtn = document.getElementById('cancelBtn');
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <!-- District -->
-              <div>
-                <label class="block text-sm font-medium mb-2">District</label>
-                <input type="text" id="district" value="<%=address.district%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="districtError" class="text-red-500 text-sm mt-1 hidden">District is required</span>
-              </div>
-
-              <!-- State -->
-              <div>
-                <label class="block text-sm font-medium mb-2">State</label>
-                <input type="text" id="state" value="<%=address.state%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="stateError" class="text-red-500 text-sm mt-1 hidden">State is required</span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <!-- City -->
-              <div>
-                <label class="block text-sm font-medium mb-2">City</label>
-                <input type="text" id="city" value="<%=address.city%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="cityError" class="text-red-500 text-sm mt-1 hidden">City is required</span>
-              </div>
-
-              <!-- Pin Code -->
-              <div>
-                <label class="block text-sm font-medium mb-2">Pin Code</label>
-                <input type="text" id="pinCode" value="<%=address.pincode%>"
-                  class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <span id="pinCodeError" class="text-red-500 text-sm mt-1 hidden">Valid pin code is required</span>
-              </div>
-            </div>
-
-            <!-- Landmark (Optional) -->
-            <div class="mb-8">
-              <label class="block text-sm font-medium mb-2">Landmark (optional)</label>
-              <input type="text" id="landmark" value="<%=address.landmark%>"
-                class="w-full px-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300">
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-end">
-              <a type="button" id="cancelBtn" href="/addresses"
-                class="px-8 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors w-full sm:w-auto text-center">
-                Cancel
-            </a>
-              <button type="submit" id="addAddressBtn"
-                class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors w-full sm:w-auto text-center">
-                Save Address
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </main>
-  </div>
-
-  <%- include("../../views/partials/user/footer") %>
-
-  <script>
-    // Mobile Sidebar Toggle
-    const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const userSidebar = document.getElementById('userSidebar');
-
-    mobileSidebarBtn.addEventListener('click', () => {
-      userSidebar.classList.remove('hidden');
-      userSidebar.classList.add('fixed', 'inset-y-0', 'left-0', 'z-50', 'overflow-y-auto', 'w-72');
-      sidebarOverlay.classList.remove('hidden');
-    });
-
-    sidebarOverlay.addEventListener('click', () => {
-      userSidebar.classList.add('hidden');
-      sidebarOverlay.classList.add('hidden');
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) {
-        userSidebar.classList.remove('hidden');
-        sidebarOverlay.classList.add('hidden');
-      }
-    });
-
-    // Form Validation and Submission
-    const addressForm = document.getElementById('addressForm');
-    const cancelBtn = document.getElementById('cancelBtn');
-
-    // Cancel button
-    cancelBtn.addEventListener('click', () => {
-      window.history.back();
-    });
-
-    // Form submission
-    addressForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // Get form values
-      const fullName = document.getElementById('fullName').value.trim();
-      const mobileNumber = document.getElementById('mobileNumber').value.trim();
-      const address = document.getElementById('address').value.trim();
-      const district = document.getElementById('district').value.trim();
-      const state = document.getElementById('state').value.trim();
-      const city = document.getElementById('city').value.trim();
-      const pinCode = document.getElementById('pinCode').value.trim();
-      const landmark = document.getElementById('landmark').value.trim();
-
-      // Reset error messages
-      document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
-
-      // Validation
-      let isValid = true;
-
-      if (!fullName) {
-        document.getElementById('fullNameError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!mobileNumber || !/^[+]?[\d\s-]{10,}$/.test(mobileNumber)) {
-        document.getElementById('mobileError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!address) {
-        document.getElementById('addressError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!district) {
-        document.getElementById('districtError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!state) {
-        document.getElementById('stateError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!city) {
-        document.getElementById('cityError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!pinCode || !/^\d{6}$/.test(pinCode)) {
-        document.getElementById('pinCodeError').classList.remove('hidden');
-        isValid = false;
-      }
-
-      if (!isValid) return;
-
-      // Prepare form data
-      const formData = {
-        fullName,
-        mobileNumber,
-        address,
-        district,
-        state,
-        city,
-        pinCode,
-        landmark
-      };
-      try {
-        // Make API call (replace with your actual endpoint)
-        const response = await fetch('/editAddress/<%=address._id%>', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+          window.history.back();
         });
 
-        const data = await response.json();
+        // Regex Rules
+        const nameRegex = /^[A-Za-z ]+$/;
+        const phoneRegex = /^\d{10}$/;
+        const letterRegex = /^[A-Za-z ]+$/;
+        const pinRegex = /^\d{6}$/;
 
-        if (data.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Address Edited!',
-            text: 'Your address has been edited.',
-            confirmButtonColor: '#000000',
-            confirmButtonText: 'Ok'
-          }).then(() => {
-            window.location.href = '/addresses';
-          });
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Address Not Edited!',
-            text: data.message || 'Unable to edit address. Please try again.',
-            confirmButtonColor: '#000000'
-          });
-        }
-      } catch (error) {
-        console.error('Error adding address:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Server Error',
-          text: 'Unable to connect to the server. Please try again later.',
-          confirmButtonColor: '#000000'
+        addressForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          // Get form values
+          const fullName = document.getElementById('fullName').value.trim();
+          const mobileNumber = document.getElementById('mobileNumber').value.trim();
+          const address = document.getElementById('address').value.trim();
+          const district = document.getElementById('district').value.trim();
+          const state = document.getElementById('state').value.trim();
+          const city = document.getElementById('city').value.trim();
+          const pinCode = document.getElementById('pinCode').value.trim();
+          const landmark = document.getElementById('landmark').value.trim();
+
+          // Reset error messages
+          document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
+
+          let isValid = true;
+
+          // Full Name Validation
+          if (!fullName || !nameRegex.test(fullName)) {
+            document.getElementById('fullNameError').innerText =
+              "Full name should contain only letters.";
+            document.getElementById('fullNameError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // Mobile Number Validation
+          if (!phoneRegex.test(mobileNumber)) {
+            document.getElementById('mobileError').innerText =
+              "Mobile number must be exactly 10 digits.";
+            document.getElementById('mobileError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // Address Validation
+          if (!address) {
+            document.getElementById('addressError').innerText =
+              "Address cannot be empty.";
+            document.getElementById('addressError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // District Validation
+          if (!district || !letterRegex.test(district)) {
+            document.getElementById('districtError').innerText =
+              "District should contain only letters.";
+            document.getElementById('districtError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // State Validation
+          if (!state || !letterRegex.test(state)) {
+            document.getElementById('stateError').innerText =
+              "State should contain only letters.";
+            document.getElementById('stateError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // City Validation
+          if (!city || !letterRegex.test(city)) {
+            document.getElementById('cityError').innerText =
+              "City should contain only letters.";
+            document.getElementById('cityError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          // Pin Code Validation
+          if (!pinRegex.test(pinCode)) {
+            document.getElementById('pinCodeError').innerText =
+              "Pincode must be exactly 6 digits.";
+            document.getElementById('pinCodeError').classList.remove('hidden');
+            isValid = false;
+          }
+
+          if (!isValid) return;
+
+          // Prepare form data
+          const formData = {
+            fullName,
+            mobileNumber,
+            address,
+            district,
+            state,
+            city,
+            pinCode,
+            landmark
+          };
+
+          try {
+            const response = await fetch('/editAddress/<%=address._id%>', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Address Updated!',
+                text: 'Your address has been successfully updated.',
+                confirmButtonColor: '#000000'
+              }).then(() => {
+                window.location.href = '/addresses';
+              });
+            } else {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Update Failed',
+                text: data.message || 'Unable to update address.',
+                confirmButtonColor: '#000000'
+              });
+            }
+
+          } catch (error) {
+            console.error('Error updating address:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Server Error',
+              text: 'Please try again later.',
+              confirmButtonColor: '#000000'
+            });
+          }
         });
-      }
-    });
-  </script>
+
+      </script>
 </body>
 
 </html>

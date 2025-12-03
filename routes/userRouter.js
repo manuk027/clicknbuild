@@ -71,13 +71,13 @@ router.put('/editProfile', userController.updateProfile);
 router.get('/editPassword', auth.userAuth, userController.loadEditPassword)
 router.put('/editPassword', auth.userAuth, userController.editPassword);
 
-router.get('/addresses', userController.loadAdresses);
+router.get('/addresses', auth.userAuth, userController.loadAdresses);
 
-router.get('/address', userController.loadAddAdresses)
-router.post('/address', userController.addAddress)
+router.get('/address', auth.userAuth, userController.loadAddAdresses)
+router.post('/address', auth.userAuth, userController.addAddress)
 
-router.get('/editAddress/:address', userController.loadEditAddress);
-router.put('/editAddress/:address', userController.editAddress);
+router.get('/editAddress/:address', auth.userAuth, userController.loadEditAddress);
+router.put('/editAddress/:address', auth.userAuth, userController.editAddress);
 router.delete('/deleteAddress/:address', userController.deleteAddress);
 router.post('/cart/add', userController.addToCart);
 export default router; 
