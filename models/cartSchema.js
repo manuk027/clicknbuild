@@ -12,6 +12,7 @@ const itemSchema = new Schema({
     // SKU: { type: String, required: true, },
     max: { type: Number, default: 5 },
     quantity: { type: Number, default: 1, },
+    unitPrice: { type: Number, defualt: 0, },
     subTotal: { type: Number, default: 0, },
     addedAt: { type: Date, default: Date.now, }
 })

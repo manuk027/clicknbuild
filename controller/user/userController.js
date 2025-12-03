@@ -1147,103 +1147,65 @@ const deleteAddress = async (req, res) => {
 };
 
 
-
+/**
+ @desc    Add product to the cart and update the quantity
+ @route   POST /cart/add
+ @access  Private
+ */
 export const addToCart = async (req, res) => {
     try {
         const userId = req.user?._id || req.session.user;
-        if (!userId) {
-            return res.status(401).json({ success: false, message: "User not logged in." });
-        }
+        if (!userId) return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "User not logged in." });
         const { productId, variantId, quantity } = req.body;
+        const addQty = Number(quantity);
+        const maxLimit = 5;
         if (!productId || !variantId || !quantity) {
-            return res.status(400).json({ success: false, message: "Invalid product details." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Missing product details, please try again." });
         }
         if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId)) {
-            return res.status(400).json({ success: false, message: "Invalid product or variant ID." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid product or variant selected." });
         }
         const product = await Product.findById(productId).populate("category").populate("brand");
-        if (!product) return res.status(404).json({ success: false, message: "Product not found." });
-
+        if (!product) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "The selected product not found." });
         const variant = product.variants.id(variantId);
-        if (!variant) return res.status(404).json({ success: false, message: "Variant not found." });
+        if (!variant) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "The product variant is no longer available." });
         if (!product.isListed || !product.category?.isListed || !product.brand?.isListed) {
-            return res.status(400).json({ success: false, message: "This product is unavailable for purchase." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently unavailable for purchase." });
         }
         if (variant.quantity <= 0) {
-            return res.status(400).json({ success: false, message: "This product is currently out of stock." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently out of stock." });
         }
         let cart = await Cart.findOne({ userId });
         if (!cart) cart = new Cart({ userId, items: [], totalCartValue: 0 });
-        const addQty = Number(quantity);
-        const maxLimit = 5;
-        const existingItem = cart.items.find(
-            (item) =>
-                item.productId.toString() === productId.toString() &&
-                item.variantId.toString() === variantId.toString()
-        );
-        if (existingItem) {
-            if (existingItem.quantity >= variant.quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: "No more items available.",
-                });
-            }
-            const newQty = existingItem.quantity + addQty;
+        const existingItem = cart.items.find((item) => item.productId.toString() === productId.toString() && item.variantId.toString() === variantId.toString());
+        const checkQuantity = (newQty) => {
             if (newQty > variant.quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Only ${variant.quantity} units available in stock.`,
-                });
+                return `Only ${variant.quantity} units(s) left in stock`;
             }
             if (newQty > maxLimit) {
-                return res.status(400).json({
-                    success: false,
-                    message: `You can only add up to ${maxLimit} units of this product.`,
-                });
+                return `You can purchase a maximum of ${maxLimit} units of this product`;
             }
+            return null;
+        };
+        if (existingItem) {
+            const newQty = existingItem.quantity + addQty;
+            const qtyError = checkQuantity(newQty);
+            if (qtyError) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: qtyError });
             existingItem.quantity = newQty;
             existingItem.subTotal = variant.offer * newQty;
+        } else {
+            const qtyError = checkQuantity(addQty);
+            if (qtyError) return res.status(400).json({ success: false, message: qtyError });
+            cart.items.push({ productId, variantId, quantity: addQty, subTotal: variant.offer * addQty, max: maxLimit, unitPrice: variant.offer })
         }
-        else {
-            if (addQty > variant.quantity)
-                return res.status(400).json({
-                    success: false,
-                    message: `Only ${variant.quantity} units available in stock.`,
-                });
-
-            if (addQty > maxLimit)
-                return res.status(400).json({
-                    success: false,
-                    message: `You can only add up to ${maxLimit} units of this product.`,
-                });
-            cart.items.push({
-                productId,
-                variantId,
-                quantity: addQty,
-                subTotal: variant.offer * addQty,
-                max: maxLimit,
-            });
-        }
-        cart.totalAmount = cart.items.reduce((sum, i) => sum + i.subTotal, 0);
-        await Wishlist.updateOne(
-            { userId },
-            { $pull: { items: { variantId: new mongoose.Types.ObjectId(variantId) } } }
-        );
+        cart.tottalAmount = cart.items.reduce((sum, item) => sum += item.subTotal, 0);
+        await Wishlist.updateOne({ userId }, { $pull: { items: { variantId: variantId } } });
         await cart.save();
-        return res.status(200).json({
-            success: true,
-            message: existingItem
-                ? "Product quantity updated in cart."
-                : "Product added to cart successfully.",
-            total: cart.totalAmoount,
-            cart,
-        });
+        return res.status(HttpStatus.OK).json({ success: true, message: existingItem ? "Product quantity updated in your cart." : "Product succeessfully added to your cart.", total: cart.totalAmount, cart });
+
     } catch (error) {
         console.error("Error adding product to cart:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error while adding product to cart.",
-        });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Something went wrong, please try again later.", });
     }
 };
 

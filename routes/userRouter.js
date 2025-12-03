@@ -78,6 +78,6 @@ router.post('/address', auth.userAuth, userController.addAddress)
 
 router.get('/editAddress/:address', auth.userAuth, userController.loadEditAddress);
 router.put('/editAddress/:address', auth.userAuth, userController.editAddress);
-router.delete('/deleteAddress/:address', userController.deleteAddress);
+router.delete('/deleteAddress/:address', auth.userAuth, userController.deleteAddress);
 router.post('/cart/add', userController.addToCart);
 export default router; 
