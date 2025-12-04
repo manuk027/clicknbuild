@@ -1,20 +1,19 @@
 //importing necessary modules and functions
 import User from "../../models/userSchema.js";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import { loadDashboardService } from "../../services/admin/dashboardService.js";
+import { HttpStatus } from "../../helpers/statusCodes.js";
 
 
 //function to load the error page
 const loadErrorPage = async (req, res) => {
-    res.render('adminErrorPage');
+    res.render('errorPage', { statusCode: HttpStatus.NOT_FOUND, message: "Page not found." });
 };
 
 
 
 const loadLogin = async (req, res) => {
     if (req.session.admin) {
-        return res.redirect('/admin/');
+        return res.redirect('/admin');
     }
     res.render('adminLogin', { message: null });
 }
@@ -22,47 +21,47 @@ const loadLogin = async (req, res) => {
 
 
 //function to login user
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const admin = await User.findOne({ email: email, isAdmin: true });
-        if (!admin) {
-            return res.render('adminLogin', { message: "Admin not found" });
-        }
-        const passwordMatch = await bcrypt.compare(password, admin.password);
-        if (!passwordMatch) {
-            return res.render('adminLogin', { message: "Invalid credentials" });
-        }
+        if (!admin) return res.render('adminLogin', { message: "Invalid Credentials." });
+        const isMatch = await bcrypt.compare(password, admin.password);
+        if (!isMatch) return res.render('adminLogin', { message: "Invalid Credentials." });
         req.session.admin = admin._id;
         return res.redirect('/admin');
     } catch (error) {
-        console.error("user login", error);
-        return res.redirect('/pageNotFound');
+        console.error("Error user logging : ", error);
+        next(error);
     }
 }
 
 
 
 //function to load dashboard
-const loadDashboard = async (req, res) => {
-    await loadDashboardService(req, res);
+const loadDashboard = async (req, res, next) => {
+    try {
+        if (req.session.admin) {
+            return res.render('dashboard');
+        }
+    } catch (error) {
+        console.error("Error loading the dashboard: ", error);
+        next(error)
+    }
 }
 
 
 
 //function to logout user
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
     try {
-        req.session.destroy(err => {
-            if (err) {
-                console.error("Error destroying session", err);
-                return res.redirect("/pageNotFound");
-            }
+        req.session.destroy(error => {
+            if (error) return next(error);
             res.redirect('/admin/login');
-        })
+        });
     } catch (error) {
-        console.error('unexpected error during logout', error);
-        res.redirect('/pageNotFound');
+        console.error('Error logging out the user', error);
+        next(error);
     }
 }
 

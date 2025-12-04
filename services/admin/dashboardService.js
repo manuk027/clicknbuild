@@ -61,18 +61,6 @@ export const getDashboardDataService = async (req, res) => {
 
 
 
-export const loadDashboardService = async (req, res) => {
-    try {
-        if (req.session.admin) {
-            return res.render('dashboard');
-        }
-    } catch (error) {
-        console.error("Error loading the dashboard: ", error);
-        return res.redirect('/pageNotFound');
-    }
-};
-
-
 
 export const downloadPDFService = async (req, res) => {
     const range = req.query.range || "monthly";

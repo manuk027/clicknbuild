@@ -23,7 +23,7 @@ router.get('/report', auth.adminAuth, reportController.getDashboardData);
 router.get('/report/download.pdf', auth.adminAuth, reportController.downloadPDF);
 router.get('/report/download.xlsx', auth.adminAuth, reportController.downloadExcel);
 
-router.get('/logout', adminController.logout);
+router.get('/logout', auth.adminAuth, adminController.logout);
 
 
 //cutomer Routes
