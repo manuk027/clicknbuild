@@ -1,6 +1,7 @@
 export const errorHandler = (err, req, res, next) => {
     console.log("ERROR:", err);
 
+    // ----- Default Error Setup -----
     err.statusCode = err.statusCode || 500;
     err.status = err.status || "error";
 
@@ -31,24 +32,33 @@ export const errorHandler = (err, req, res, next) => {
         err.statusCode = 401;
     }
 
-    // ------------ HTML vs JSON Handling ------------
+    // ------------ Decide JSON or HTML ------------
     const wantsJSON =
-        req.xhr ||                                // AJAX calls
+        req.xhr ||
         req.headers.accept?.includes("application/json") ||
-        req.originalUrl.startsWith("/api");       // Your API routes
+        req.originalUrl.startsWith("/api");
 
-    // If the request expects JSON -> return JSON
+    // API → send real error message
     if (wantsJSON) {
         return res.status(err.statusCode).json({
             success: false,
             status: err.status,
-            message: err.message,
+            message: err.message, // APIs need real error
         });
     }
 
-    // Otherwise -> render your HTML error page
+    // ------------ HTML Error Page (Safe Message Only) ------------
+    const userSafeMessage =
+        err.statusCode === 404
+            ? "Page Not Found"
+            : err.statusCode === 401
+                ? "Unauthorized Access"
+                : err.statusCode === 400
+                    ? "Bad Request"
+                    : "Something went wrong. Please try again later.";
+
     return res.status(err.statusCode).render("errorPage", {
-        message: err.message,
+        message: userSafeMessage,
         statusCode: err.statusCode,
     });
 };

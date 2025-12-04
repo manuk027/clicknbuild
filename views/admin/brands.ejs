@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brand List - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
-    
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,242 +17,328 @@
 
     <%- include("../../views/partials/admin/sidebar") %>
 
-    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
-        
-        <header class="bg-white shadow-sm sticky top-0 z-30">
-            <%- include("../../views/partials/admin/header") %>
-        </header>
+        <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
-            
-            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-                        BRAND LIST
-                    </h1>
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
-                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-                        <span class="text-gray-900 font-medium">Brand</span>
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <%- include("../../views/partials/admin/header") %>
+            </header>
+
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+                <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+                            BRAND LIST
+                        </h1>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
+                            <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                            <span class="text-gray-900 font-medium">Brand</span>
+                        </div>
                     </div>
-                </div>
-                
-                <a href="/admin/brands/addBrand" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-md active:scale-95 w-full sm:w-auto">
-                    <span>ADD BRAND</span>
-                    <i class="fas fa-plus"></i>
-                </a>
-            </div>
 
-            <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between">
-                <form id="searchForm" action="/admin/brands" method="GET" class="flex w-full sm:max-w-md relative">
-                    <div class="relative w-full">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" name="search" id="searchInput" placeholder="Search brand..." value="<%= typeof search !== 'undefined' ? search : '' %>" 
-                            class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
-                        <% if (search) { %>
-                        <button type="button" id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
-                            <i class="fas fa-times"></i>
+                    <a href="/admin/brands/addBrand"
+                        class="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-md active:scale-95 w-full sm:w-auto">
+                        <span>ADD BRAND</span>
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between">
+                    <form id="searchForm" action="/admin/brands" method="GET" class="flex w-full sm:max-w-md relative">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" name="search" id="searchInput" placeholder="Search brand..."
+                                value="<%= typeof search !== 'undefined' ? search : '' %>"
+                                class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow" />
+                            <% if (search) { %>
+                                <button type="button" id="clearSearch"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <% } %>
+                        </div>
+                        <button type="submit"
+                            class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                            Search
                         </button>
-                        <% } %>
-                    </div>
-                    <button type="submit" class="ml-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-                        Search
-                    </button>
-                </form>
+                    </form>
 
-                <div class="relative self-end sm:self-auto">
-                    <button id="sortBtn" class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
-                        <i class="fas fa-sort text-gray-500"></i>
-                        <span class="font-medium">SORT</span>
-                        <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
-                    </button>
+                    <div class="relative self-end sm:self-auto">
+                        <button id="sortBtn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                            <i class="fas fa-sort text-gray-500"></i>
+                            <span class="font-medium">SORT</span>
+                            <i class="fas fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                        </button>
 
-                    <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-                        <a onclick="applySort('newest')" class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border-b border-gray-100">Newest</a>
-                        <a onclick="applySort('oldest')" class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors">Oldest</a>
+                        <div id="sortDropdown"
+                            class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <a onclick="applySort('newest')"
+                                class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border-b border-gray-100">Newest</a>
+                            <a onclick="applySort('oldest')"
+                                class="block px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors">Oldest</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full whitespace-nowrap">
-                        <thead class="bg-black border-b border-gray-200">
-                            <tr>
-                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Image</th>
-                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Brand Name</th>
-                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Sales</th>
-                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Status</th>
-                                <th class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            <% data.slice().forEach((brand, index)=> { %>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-center">
-                                    <div class="w-12 h-12 mx-auto rounded-full border border-gray-200 overflow-hidden p-1 bg-white">
-                                        <img src="<%=brand.image%>" alt="<%= brand.name %>" class="w-full h-full object-cover rounded-full">
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">
-                                    <%=brand.name%>
-                                </td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500">
-                                    0
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <% if (brand.isListed) { %>
-                                    <a href="/admin/brands/unlistBrand?id=<%= brand._id %>&page=<%= current %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full whitespace-nowrap">
+                            <thead class="bg-black border-b border-gray-200">
+                                <tr>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">
+                                        Image</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">
+                                        Brand Name</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">
+                                        Sales</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-center">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                <% data.slice().forEach((brand, index)=> { %>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-center">
+                                            <div
+                                                class="w-12 h-12 mx-auto rounded-full border border-gray-200 overflow-hidden p-1 bg-white">
+                                                <img src="<%=brand.image%>" alt="<%= brand.name %>"
+                                                    class="w-full h-full object-cover rounded-full">
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                            <%=brand.name%>
+                                        </td>
+                                        <td class="px-6 py-4 text-center text-sm text-gray-500">
+                                            0
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <% if (brand.isListed) { %>
+                                                <a href="/admin/brands/unlistBrand?id=<%= brand._id %>&page=<%= current %>"
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
+                                                    Unlist
+                                                </a>
+                                                <% } else { %>
+                                                    <a href="/admin/brands/listBrand?id=<%= brand._id %>&page=<%= current %>"
+                                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
+                                                        List
+                                                    </a>
+                                                    <% } %>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <a href="/admin/brands/editBrand?id=<%=brand._id%>"
+                                                class="text-gray-400 hover:text-black transition-colors text-lg p-2">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden mb-6">
+                    <% data.slice().forEach((brand, index)=> { %>
+                        <div
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 rounded-full border border-gray-100 p-1 bg-white mb-3 shadow-sm">
+                                <img src="<%=brand.image%>" alt="<%= brand.name %>"
+                                    class="w-full h-full object-cover rounded-full">
+                            </div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">
+                                <%=brand.name%>
+                            </h3>
+                            <p class="text-xs text-gray-500 mb-4">Sales: 0</p>
+
+                            <div class="w-full flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                                <% if (brand.isListed) { %>
+                                    <button onclick="confirmListAction('<%= brand._id %>', '<%= current %>', false)"
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 transition-colors">
                                         Unlist
-                                    </a>
+                                    </button>
+
                                     <% } else { %>
-                                    <a href="/admin/brands/listBrand?id=<%= brand._id %>&page=<%= current %>" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
-                                        List
-                                    </a>
-                                    <% } %>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <a href="/admin/brands/editBrand?id=<%=brand._id%>" class="text-gray-400 hover:text-black transition-colors text-lg p-2">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+                                        <button onclick="confirmListAction('<%= brand._id %>', '<%= current %>', true)"
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
+                                            List
+                                        </button>
+
+                                        <% } %>
+
+                                            <a href="/admin/brands/editBrand?id=<%=brand._id%>"
+                                                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-black hover:text-white transition-all">
+                                                <i class="fas fa-edit text-sm"></i>
+                                            </a>
+                            </div>
+                        </div>
+                        <% }) %>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden mb-6">
-                <% data.slice().forEach((brand, index)=> { %>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                    <div class="w-16 h-16 rounded-full border border-gray-100 p-1 bg-white mb-3 shadow-sm">
-                        <img src="<%=brand.image%>" alt="<%= brand.name %>" class="w-full h-full object-cover rounded-full">
+                <% if (brand.length> 0) { %>
+                    <div class="flex justify-center mt-8 pb-8">
+                        <nav aria-label="Page navigation">
+                            <ul class="flex flex-wrap justify-center gap-2">
+                                <% if (current==1) { %>
+                                    <li>
+                                        <span
+                                            class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span>
+                                    </li>
+                                    <% } else { %>
+                                        <li>
+                                            <a href="/admin/brands/?page=1&sort=<%= sort %>"
+                                                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">First</a>
+                                        </li>
+                                        <% } %>
+
+                                            <% let i=(Number(current)> 5 ? Number(current) - 4 : 1); %>
+                                                <% if (i !==1) { %>
+                                                    <li class="hidden sm:block">
+                                                        <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <% for (; i <=(Number(current) + 4) && i <=pages; i++) { %>
+                                                            <% if (i==current) { %>
+                                                                <li>
+                                                                    <span
+                                                                        class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg shadow-sm">
+                                                                        <%= i %>
+                                                                    </span>
+                                                                </li>
+                                                                <% } else { %>
+                                                                    <li>
+                                                                        <a href="/admin/brands/?page=<%= i %>&sort=<%= sort %>"
+                                                                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                                                                            <%= i %>
+                                                                        </a>
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% } %>
+
+                                                                            <% if (i==Number(current) + 4 && i < pages)
+                                                                                { %>
+                                                                                <li class="hidden sm:block">
+                                                                                    <span
+                                                                                        class="px-3 py-2 text-sm text-gray-500">...</span>
+                                                                                </li>
+                                                                                <% } %>
+
+                                                                                    <% if (current==pages) { %>
+                                                                                        <li>
+                                                                                            <span
+                                                                                                class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span>
+                                                                                        </li>
+                                                                                        <% } else { %>
+                                                                                            <li>
+                                                                                                <a href="/admin/brands/?page=<%= pages %>&sort=<%= sort %>"
+                                                                                                    class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Last</a>
+                                                                                            </li>
+                                                                                            <% } %>
+                            </ul>
+                        </nav>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-1"><%=brand.name%></h3>
-                    <p class="text-xs text-gray-500 mb-4">Sales: 0</p>
-                    
-                    <div class="w-full flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
-                        <% if (brand.isListed) { %>
-                            <a href="/admin/brands/unlistBrand?id=<%= brand._id %>&page=<%= current %>" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors">
-                                Unlist
-                            </a>
-                        <% } else { %>
-                            <a href="/admin/brands/listBrand?id=<%= brand._id %>&page=<%= current %>" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 transition-colors">
-                                List
-                            </a>
-                        <% } %>
+                    <% } %>
 
-                        <a href="/admin/brands/editBrand?id=<%=brand._id%>" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-black hover:text-white transition-all">
-                            <i class="fas fa-edit text-sm"></i>
-                        </a>
-                    </div>
-                </div>
-                <% }) %>
-            </div>
+            </main>
+        </div>
 
-            <% if (brand.length > 0) { %>
-            <div class="flex justify-center mt-8 pb-8">
-                <nav aria-label="Page navigation">
-                    <ul class="flex flex-wrap justify-center gap-2">
-                        <% if (current == 1) { %>
-                        <li>
-                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">First</span>
-                        </li>
-                        <% } else { %>
-                        <li>
-                            <a href="/admin/brands/?page=1&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">First</a>
-                        </li>
-                        <% } %>
+        <script>
+            // Sort Dropdown Toggle
+            const sortBtn = document.getElementById("sortBtn");
+            const sortDropdown = document.getElementById("sortDropdown");
 
-                        <% let i = (Number(current) > 5 ? Number(current) - 4 : 1); %>
-                        <% if (i !== 1) { %>
-                        <li class="hidden sm:block">
-                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
-                        </li>
-                        <% } %>
+            if (sortBtn && sortDropdown) {
+                sortBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    sortDropdown.classList.toggle("hidden");
+                });
 
-                        <% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
-                            <% if (i == current) { %>
-                            <li>
-                                <span class="px-4 py-2 text-sm font-bold text-white bg-black border border-black rounded-lg shadow-sm"><%= i %></span>
-                            </li>
-                            <% } else { %>
-                            <li>
-                                <a href="/admin/brands/?page=<%= i %>&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><%= i %></a>
-                            </li>
-                            <% } %>
-                        <% } %>
+                document.addEventListener("click", (e) => {
+                    if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                        sortDropdown.classList.add("hidden");
+                    }
+                });
+            }
 
-                        <% if (i == Number(current) + 4 && i < pages) { %>
-                        <li class="hidden sm:block">
-                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
-                        </li>
-                        <% } %>
+            function applySort(sortType) {
+                const url = new URL(window.location.href);
+                url.searchParams.set("sort", sortType);
+                window.location.href = url.toString();
+            }
 
-                        <% if (current == pages) { %>
-                        <li>
-                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">Last</span>
-                        </li>
-                        <% } else { %>
-                        <li>
-                            <a href="/admin/brands/?page=<%= pages %>&sort=<%= sort %>" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Last</a>
-                        </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            </div>
-            <% } %>
-            
-        </main>
-    </div>
+            // Search Reset
+            const clearSearch = document.getElementById("clearSearch");
+            if (clearSearch) {
+                clearSearch.addEventListener("click", () => {
+                    window.location.href = "/admin/brands";
+                });
+            }
 
-    <script>
-        // Sort Dropdown Toggle
-        const sortBtn = document.getElementById("sortBtn");
-        const sortDropdown = document.getElementById("sortDropdown");
-        
-        if(sortBtn && sortDropdown){
-            sortBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                sortDropdown.classList.toggle("hidden");
-            });
+            // Search Enter Key
+            const searchInput = document.getElementById("searchInput");
+            const searchForm = document.getElementById("searchForm");
+            if (searchInput && searchForm) {
+                searchInput.addEventListener("keypress", function (event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        searchForm.submit();
+                    }
+                });
+            }
+        </script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="/js/admin/categoryList.js"></script>
+        <script>
+function confirmListAction(id, page, isList) {
+    const action = isList ? "List" : "Unlist";
+    const url = `/admin/brands/${isList ? "listBrand" : "unlistBrand"}?id=${id}&page=${page}`;
 
-            document.addEventListener("click", (e) => {
-                if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
-                    sortDropdown.classList.add("hidden");
-                }
-            });
+    Swal.fire({
+        title: `Are you sure?`,
+        text: `Do you want to ${action.toLowerCase()} this brand?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#000",
+        cancelButtonColor: "#666",
+        confirmButtonText: `Yes, ${action}`,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url + `&success=${isList ? "listed" : "unlisted"}`;
         }
+    });
+}
 
-        function applySort(sortType) {
-            const url = new URL(window.location.href);
-            url.searchParams.set("sort", sortType);
-            window.location.href = url.toString();
-        }
+// When redirected, show success alert
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("success") === "listed") {
+    Swal.fire({
+        icon: "success",
+        title: "Brand Listed Successfully",
+        showConfirmButton: false,
+        timer: 1500
+    });
+}
 
-        // Search Reset
-        const clearSearch = document.getElementById("clearSearch");
-        if (clearSearch) {
-            clearSearch.addEventListener("click", () => {
-                window.location.href = "/admin/brands";
-            });
-        }
+if (urlParams.get("success") === "unlisted") {
+    Swal.fire({
+        icon: "success",
+        title: "Brand Unlisted Successfully",
+        showConfirmButton: false,
+        timer: 1500
+    });
+}
+</script>
 
-        // Search Enter Key
-        const searchInput = document.getElementById("searchInput");
-        const searchForm = document.getElementById("searchForm");
-        if (searchInput && searchForm) {
-            searchInput.addEventListener("keypress", function (event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    searchForm.submit();
-                }
-            });
-        }
-    </script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/admin/categoryList.js"></script>
 </body>
+
 </html>

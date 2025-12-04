@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Brand</title>
-  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
-  
+  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+    type="image/png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -17,13 +18,13 @@
 
   <%- include("../../views/partials/admin/sidebar") %>
 
-  <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
-    
-    <header class="bg-white shadow-sm sticky top-0 z-30">
-        <%- include("../../views/partials/admin/header") %>
-    </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
 
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
+      <header class="bg-white shadow-sm sticky top-0 z-30">
+        <%- include("../../views/partials/admin/header") %>
+      </header>
+
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-auto">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">ADD A BRAND</h1>
         <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <a href="/admin" class="hover:text-gray-700">Dashboard</a>
@@ -49,7 +50,7 @@
           <section class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Add Brand Image</h2>
             <input type="file" name="brandImage" id="brandImageInput" accept="image/*" class="hidden">
-            
+
             <div id="uploadContainer"
               class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50 hover:border-blue-400 transition cursor-pointer">
               <i class="fas fa-image text-4xl text-blue-400 mb-2"></i>
@@ -77,151 +78,168 @@
               class="text-center sm:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</a>
           </div>
         </form>
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[70]">
-    <div class="bg-white p-4 rounded-lg w-96 h-96 max-w-[95%] relative flex flex-col">
-      <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
-      <div class="flex-1 overflow-hidden bg-gray-100">
-        <img id="cropperImage" class="w-full h-full object-contain" />
-      </div>
-      <div class="flex justify-end gap-2 mt-2">
-        <button type="button" id="cropModalCancel"
-          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg">Cancel</button>
-        <button type="button" id="cropModalConfirm"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg">Crop</button>
+    <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[70]">
+      <div class="bg-white p-4 rounded-lg w-96 h-96 max-w-[95%] relative flex flex-col">
+        <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
+        <div class="flex-1 overflow-hidden bg-gray-100">
+          <img id="cropperImage" class="w-full h-full object-contain" />
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" id="cropModalCancel"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg">Cancel</button>
+          <button type="button" id="cropModalConfirm" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Crop</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-  <script>
-    const form = document.getElementById('brandForm');
-    const brandNameInput = form.querySelector('input[name="brandName"]');
-    const brandImageInput = document.getElementById("brandImageInput");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const previewContainer = document.getElementById("previewContainer");
-    const previewImage = document.getElementById("previewImage");
-    const removeImageBtn = document.getElementById("removeImageBtn");
-    const uploadContainer = document.getElementById("uploadContainer");
-    const cropModal = document.getElementById("cropModal");
-    const cropperImage = document.getElementById("cropperImage");
-    const cropModalConfirm = document.getElementById("cropModalConfirm");
-    const cropModalCancel = document.getElementById("cropModalCancel");
-    const brandNameError = document.getElementById("brandNameError");
-    const brandImageError = document.getElementById("brandImageError");
-    let cropper;
-
-    uploadBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      brandImageInput.click();
-    });
-    uploadContainer.addEventListener("click", () => brandImageInput.click());
-
-    brandImageInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        cropperImage.src = reader.result;
-        cropModal.classList.remove("hidden");
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(cropperImage, {
-          aspectRatio: 1,
-          viewMode: 1,
-          movable: true,
-          zoomable: true,
-        });
-      };
-      reader.readAsDataURL(file);
-    });
-
-    cropModalConfirm.addEventListener("click", () => {
-      if (!cropper) return;
-      cropper.getCroppedCanvas().toBlob((blob) => {
-        const file = new File([blob], brandImageInput.files[0].name, { type: "image/png" });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        brandImageInput.files = dataTransfer.files;
-        previewImage.src = URL.createObjectURL(file);
-        previewContainer.classList.remove("hidden");
-        uploadContainer.classList.add("hidden");
-        cropper.destroy();
-        cropModal.classList.add("hidden");
-      });
-    });
-
-    cropModalCancel.addEventListener("click", () => {
-      if (cropper) cropper.destroy();
-      cropModal.classList.add("hidden");
-      brandImageInput.value = "";
-    });
-
-    removeImageBtn.addEventListener("click", () => {
-      brandImageInput.value = "";
-      previewImage.src = "";
-      previewContainer.classList.add("hidden");
-      uploadContainer.classList.remove("hidden");
-    });
-
-    uploadContainer.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      uploadContainer.classList.add("border-blue-400");
-    });
-    uploadContainer.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      uploadContainer.classList.remove("border-blue-400");
-    });
-    uploadContainer.addEventListener("drop", (e) => {
-      e.preventDefault();
-      uploadContainer.classList.remove("border-blue-400");
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
-      brandImageInput.files = e.dataTransfer.files;
-      const reader = new FileReader();
-      reader.onload = () => {
-        cropperImage.src = reader.result;
-        cropModal.classList.remove("hidden");
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(cropperImage, {
-          aspectRatio: 1,
-          viewMode: 1,
-          movable: true,
-          zoomable: true,
-        });
-      };
-      reader.readAsDataURL(file);
-    });
-
-    form.addEventListener("submit", (e) => {
-      let valid = true;
-      if (brandNameInput.value.trim() === "") {
-        brandNameError.classList.remove("hidden");
-        brandNameInput.focus();
-        valid = false;
-      } else {
-        brandNameError.classList.add("hidden");
-      }
-      if (!brandImageInput.files || brandImageInput.files.length === 0) {
-        brandImageError.classList.remove("hidden");
-        valid = false;
-      } else {
-        brandImageError.classList.add("hidden");
-      }
-      if (!valid) e.preventDefault();
-    });
-  </script>
-
-  <% if (typeof successMessage !=='undefined' ) { %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-      Swal.fire({
-        icon: 'success',
-        title: 'Brand Added',
-        text: '<%= successMessage %>'
+      const form = document.getElementById('brandForm');
+      const brandNameInput = form.querySelector('input[name="brandName"]');
+      const brandImageInput = document.getElementById("brandImageInput");
+      const uploadBtn = document.getElementById("uploadBtn");
+      const previewContainer = document.getElementById("previewContainer");
+      const previewImage = document.getElementById("previewImage");
+      const removeImageBtn = document.getElementById("removeImageBtn");
+      const uploadContainer = document.getElementById("uploadContainer");
+      const cropModal = document.getElementById("cropModal");
+      const cropperImage = document.getElementById("cropperImage");
+      const cropModalConfirm = document.getElementById("cropModalConfirm");
+      const cropModalCancel = document.getElementById("cropModalCancel");
+      const brandNameError = document.getElementById("brandNameError");
+      const brandImageError = document.getElementById("brandImageError");
+      let cropper;
+
+      uploadBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        brandImageInput.click();
+      });
+      uploadContainer.addEventListener("click", () => brandImageInput.click());
+
+      brandImageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          cropperImage.src = reader.result;
+          cropModal.classList.remove("hidden");
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropperImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            movable: true,
+            zoomable: true,
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      cropModalConfirm.addEventListener("click", () => {
+        if (!cropper) return;
+        cropper.getCroppedCanvas().toBlob((blob) => {
+          const file = new File([blob], brandImageInput.files[0].name, { type: "image/png" });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          brandImageInput.files = dataTransfer.files;
+          previewImage.src = URL.createObjectURL(file);
+          previewContainer.classList.remove("hidden");
+          uploadContainer.classList.add("hidden");
+          cropper.destroy();
+          cropModal.classList.add("hidden");
+        });
+      });
+
+      cropModalCancel.addEventListener("click", () => {
+        if (cropper) cropper.destroy();
+        cropModal.classList.add("hidden");
+        brandImageInput.value = "";
+      });
+
+      removeImageBtn.addEventListener("click", () => {
+        brandImageInput.value = "";
+        previewImage.src = "";
+        previewContainer.classList.add("hidden");
+        uploadContainer.classList.remove("hidden");
+      });
+
+      uploadContainer.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadContainer.classList.add("border-blue-400");
+      });
+      uploadContainer.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        uploadContainer.classList.remove("border-blue-400");
+      });
+      uploadContainer.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadContainer.classList.remove("border-blue-400");
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        brandImageInput.files = e.dataTransfer.files;
+        const reader = new FileReader();
+        reader.onload = () => {
+          cropperImage.src = reader.result;
+          cropModal.classList.remove("hidden");
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropperImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            movable: true,
+            zoomable: true,
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        let valid = true;
+
+        if (brandNameInput.value.trim() === "") {
+          brandNameError.classList.remove("hidden");
+          valid = false;
+        }
+
+        if (!brandImageInput.files.length) {
+          brandImageError.classList.remove("hidden");
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        const formData = new FormData(form);
+
+        const response = await fetch("/admin/brands/addBrand", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.status === 409) {
+          Swal.fire({
+            icon: "warning",
+            title: "Brand Exists",
+            text: result.message
+          });
+          return;
+        }
+
+        if (result.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Brand Added",
+            text: result.message
+          }).then(() => {
+            window.location.href = "/admin/brands";
+          });
+        }
       });
     </script>
-  <% } %>
 </body>
 
 </html>

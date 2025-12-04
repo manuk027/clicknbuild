@@ -5,27 +5,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Brand - Admin Dashboard</title>
-  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
-  
+  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+    type="image/png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-900">
 
   <%- include("../../views/partials/admin/sidebar") %>
 
-  <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
-    
-    <header class="bg-white shadow-sm sticky top-0 z-30">
-        <%- include("../../views/partials/admin/header") %>
-    </header>
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
 
-    <main class="flex-1 p-4 sm:p-6 lg:p-8">
-        
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">EDIT BRAND</h2>
+      <header class="bg-white shadow-sm sticky top-0 z-30">
+        <%- include("../../views/partials/admin/header") %>
+      </header>
+
+      <main class="flex-1 p-6">
+
+        <h2 class="text-2xl sm:text-3xl font-bold mb-2">EDIT BRAND</h2>
         <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <a href="/admin" class="hover:text-gray-800">Dashboard</a>
           <i class="fas fa-chevron-right text-xs"></i>
@@ -35,194 +39,285 @@
         </div>
 
         <form id="editBrandForm" enctype="multipart/form-data">
-          
+
+          <!-- Brand Name -->
           <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <label for="brandName" class="block text-sm font-medium text-gray-700 mb-2">Brand Name</label>
+            <label class="block text-sm font-medium mb-2">Brand Name</label>
             <input type="text" id="brandName" name="brandName" value="<%= brand.name %>"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm sm:text-base"
-              placeholder="Enter brand name...">
-            <p id="brandName-error" class="error-message text-red-500 text-sm mt-1 hidden"></p>
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black" />
+            <p id="brandName-error" class="text-red-500 text-sm mt-1 hidden"></p>
           </div>
 
+          <!-- Brand Image -->
           <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Brand Image</h2>
 
-            <input type="file" name="brandImage" id="brandImageInput" accept="image/*" class="hidden">
+            <h2 class="text-lg font-semibold mb-4">Brand Image</h2>
 
+            <input type="file" id="brandImageInput" name="brandImage" accept="image/*" class="hidden" />
+
+            <!-- Upload Container -->
             <div id="uploadContainer"
-              class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50 hover:border-blue-400 transition cursor-pointer <%= brand.image ? 'hidden' : '' %>">
-              <i class="fas fa-image text-4xl text-blue-400 mb-2"></i>
-              <p class="text-sm text-gray-500 mb-3">Drag and drop or click to upload</p>
-              <button type="button" id="uploadBtn"
-                class="px-6 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm hover:bg-blue-200 transition">Add
-                Image</button>
+              class="border-2 border-dashed border-gray-300 p-12 text-center cursor-pointer rounded-lg bg-gray-50 hover:border-gray-500 <%= brand.image ? 'hidden' : '' %>">
+
+              <i class="fas fa-image text-4xl text-gray-400 mb-3"></i>
+              <p class="text-gray-500 mb-2">Click to upload</p>
+
+              <button type="button" class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                id="uploadBtn">Choose Image</button>
             </div>
 
-            <div id="previewContainer"
-              class="mt-4 relative w-48 h-48 <%= brand.image ? '' : 'hidden' %>">
-              <img id="previewImage" src="<%= brand.image %>"
-                class="w-full h-full object-cover rounded-lg border border-gray-300" />
+            <p id="brandImage-error" class="text-red-500 text-sm mt-2 hidden"></p>
+
+            <!-- Preview Container -->
+            <div id="previewContainer" class="mt-4 relative w-48 h-48 <%= brand.image ? '' : 'hidden' %>">
+              <img id="previewImage" src="<%= brand.image %>" class="w-full h-full rounded-lg object-cover border" />
+
               <button type="button" id="removeImageBtn"
-                class="absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-700 shadow-md">
+                class="absolute top-0 right-0 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700">
                 &times;
               </button>
             </div>
+
           </div>
 
-          <div class="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+          <!-- Buttons -->
+          <div class="flex justify-end gap-4 pt-4">
             <a href="/admin/brands"
-              class="px-6 sm:px-8 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm sm:text-base text-center">
-              Cancel
-            </a>
-            <button type="submit"
-              class="px-6 sm:px-8 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium text-sm sm:text-base">
-              Update Brand
-            </button>
+              class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100">Cancel</a>
+
+            <button type="submit" class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Update
+              Brand</button>
           </div>
+
         </form>
 
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <div id="cropModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[80]">
-    <div class="bg-white p-4 rounded-lg w-96 h-96 max-w-[95%] relative flex flex-col">
-      <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
-      <div class="flex-1 overflow-hidden bg-gray-100">
-        <img id="cropperImage" class="w-full h-full object-contain" />
-      </div>
-      <div class="flex justify-end gap-2 mt-2">
-        <button type="button" id="cropModalCancel"
-          class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
-        <button type="button" id="cropModalConfirm"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Crop</button>
+    <!-- Cropper Modal -->
+    <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white p-4 rounded-lg w-96 max-w-[95%] flex flex-col">
+
+        <h3 class="text-lg font-semibold mb-2">Crop Image</h3>
+
+        <div class="flex-1 overflow-hidden bg-gray-100 rounded-lg">
+          <img id="cropperImage" class="w-full h-full object-contain" />
+        </div>
+
+        <div class="flex justify-end gap-2 mt-3">
+          <button id="cropModalCancel" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Cancel</button>
+
+          <button id="cropModalConfirm" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700">Crop</button>
+        </div>
+
       </div>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-  <script>
-    const uploadBtn = document.getElementById("uploadBtn");
-    const brandImageInput = document.getElementById("brandImageInput");
-    const previewContainer = document.getElementById("previewContainer");
-    const previewImage = document.getElementById("previewImage");
-    const removeImageBtn = document.getElementById("removeImageBtn");
-    const uploadContainer = document.getElementById("uploadContainer");
+    <script>
+      // Elements
+      const uploadBtn = document.getElementById("uploadBtn");
+      const brandImageInput = document.getElementById("brandImageInput");
+      const uploadContainer = document.getElementById("uploadContainer");
+      const previewContainer = document.getElementById("previewContainer");
+      const previewImage = document.getElementById("previewImage");
+      const removeImageBtn = document.getElementById("removeImageBtn");
+      const imageError = document.getElementById("brandImage-error");
 
-    // Cropper Modal Elements
-    const cropModal = document.getElementById("cropModal");
-    const cropperImage = document.getElementById("cropperImage");
-    const cropModalConfirm = document.getElementById("cropModalConfirm");
-    const cropModalCancel = document.getElementById("cropModalCancel");
+      const cropModal = document.getElementById("cropModal");
+      const cropperImage = document.getElementById("cropperImage");
+      const cropModalConfirm = document.getElementById("cropModalConfirm");
+      const cropModalCancel = document.getElementById("cropModalCancel");
 
-    let cropper;
+      let cropper = null;
 
-    // Open file picker
-    if(uploadBtn) {
-        uploadBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            brandImageInput.click();
-        });
-    }
-    if(uploadContainer) {
-        uploadContainer.addEventListener("click", () => brandImageInput.click());
-    }
-
-    // Handle image selection
-    brandImageInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        cropperImage.src = reader.result;
-        cropModal.classList.remove("hidden");
-
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(cropperImage, {
-          aspectRatio: 1,
-          viewMode: 1,
-          movable: true,
-          zoomable: true,
-        });
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Confirm crop
-    cropModalConfirm.addEventListener("click", () => {
-      if (!cropper) return;
-      cropper.getCroppedCanvas().toBlob((blob) => {
-        const file = new File([blob], brandImageInput.files[0].name, { type: "image/png" });
-
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        brandImageInput.files = dataTransfer.files;
-
-        previewImage.src = URL.createObjectURL(file);
-        previewContainer.classList.remove("hidden");
-        uploadContainer.classList.add("hidden");
-
-        cropper.destroy();
-        cropModal.classList.add("hidden");
+      // ====================================================
+      //   FIX: File Picker Only Opens Once
+      // ====================================================
+      uploadBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        brandImageInput.click();
       });
-    });
 
-    cropModalCancel.addEventListener("click", () => {
-      if(cropper) cropper.destroy();
-      cropModal.classList.add("hidden");
-      brandImageInput.value = "";
-    });
+      uploadContainer?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        brandImageInput.click();
+      });
 
-    // Remove image
-    removeImageBtn.addEventListener("click", () => {
-      brandImageInput.value = "";
-      previewImage.src = "";
-      previewContainer.classList.add("hidden");
-      uploadContainer.classList.remove("hidden");
-    });
+      // Prevent double triggers
+      brandImageInput.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
 
-    // AJAX form submit
-    $("#editBrandForm").submit(function (e) {
-      e.preventDefault();
+      // ====================================================
+      // IMAGE SELECT + VALIDATION + CROPPER
+      // ====================================================
+      brandImageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
 
-      const brandName = $("#brandName").val().trim();
-      if (!brandName) {
-        Swal.fire("Error", "Please enter a brand name", "error");
-        return;
-      }
+        // Reset error
+        imageError.classList.add("hidden");
+        imageError.textContent = "";
 
-      const formData = new FormData(this);
+        if (!file) return;
 
-      $.ajax({
-        url: "/admin/brands/editBrand?id=<%= brand._id %>",
-        type: "PUT",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-          if (response.success) {
-            Swal.fire({
-              icon: "success",
-              title: response.message,
-              showConfirmButton: false,
-              timer: 1200
-            }).then(() => {
-              window.location.href = response.redirectUrl;
-            });
-          } else {
-            Swal.fire("Error", response.message, "error");
-          }
-        },
-        error: function (xhr) {
-          Swal.fire("Error", "Something went wrong while updating brand", "error");
+        // Type validation
+        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+          imageError.textContent = "Only JPG, PNG, or WEBP images are allowed.";
+          imageError.classList.remove("hidden");
+          brandImageInput.value = "";
+          return;
         }
+
+        // Size validation
+        if (file.size > 2 * 1024 * 1024) {
+          imageError.textContent = "Image size must be under 2MB.";
+          imageError.classList.remove("hidden");
+          brandImageInput.value = "";
+          return;
+        }
+
+        // Open cropper
+        const reader = new FileReader();
+        reader.onload = () => {
+          cropperImage.src = reader.result;
+          cropModal.classList.remove("hidden");
+
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropperImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1
+          });
+        };
+        reader.readAsDataURL(file);
       });
-    });
-  </script>
+
+      // ====================================================
+      // CONFIRM CROPPING
+      // ====================================================
+      cropModalConfirm.addEventListener("click", () => {
+        if (!cropper) return;
+
+        cropper.getCroppedCanvas().toBlob((blob) => {
+          const croppedFile = new File([blob], "brand.png", { type: "image/png" });
+
+          const dt = new DataTransfer();
+          dt.items.add(croppedFile);
+          brandImageInput.files = dt.files;
+
+          previewImage.src = URL.createObjectURL(croppedFile);
+          previewContainer.classList.remove("hidden");
+          uploadContainer.classList.add("hidden");
+
+          cropper.destroy();
+          cropModal.classList.add("hidden");
+        });
+      });
+
+      // ====================================================
+      // CANCEL CROP
+      // ====================================================
+      cropModalCancel.addEventListener("click", () => {
+        if (cropper) cropper.destroy();
+        cropModal.classList.add("hidden");
+
+        // FIX: prevent extra file picker event
+        setTimeout(() => {
+          brandImageInput.value = "";
+        }, 50);
+      });
+
+      // ====================================================
+      // REMOVE IMAGE
+      // ====================================================
+      removeImageBtn?.addEventListener("click", () => {
+        previewImage.src = "";
+        previewContainer.classList.add("hidden");
+        uploadContainer.classList.remove("hidden");
+      });
+
+      // ====================================================
+      // FORM SUBMIT VALIDATION + SWEETALERT
+      // ====================================================
+      $("#editBrandForm").submit(function (e) {
+        e.preventDefault();
+
+        const name = $("#brandName").val().trim();
+        const nameError = $("#brandName-error");
+
+        nameError.addClass("hidden");
+
+        let valid = true;
+
+        // Validate name
+        if (!name) {
+          nameError.text("Brand name is required.").removeClass("hidden");
+          valid = false;
+        } else if (name.length < 2) {
+          nameError.text("Brand name must be at least 2 characters.").removeClass("hidden");
+          valid = false;
+        }
+
+        // Validate image:
+        const hasPreview = previewContainer.classList.contains("hidden") ? false : true;
+        const hasNewFile = brandImageInput.files.length > 0;
+
+        if (!hasPreview && !hasNewFile) {
+          imageError.textContent = "Brand image is required.";
+          imageError.classList.remove("hidden");
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        // Build FormData
+        const fd = new FormData(this);
+        fd.set("brandName", name);
+
+        $.ajax({
+          url: "/admin/brands/editBrand?id=<%= brand._id %>",
+          type: "PUT",
+          data: fd,
+          processData: false,
+          contentType: false,
+          success: (res) => {
+            if (res.success) {
+              Swal.fire({
+                icon: "success",
+                title: res.message,
+                timer: 1200,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.href = res.redirectUrl;
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text: res.message
+              });
+            }
+          },
+          error: () => {
+            Swal.fire({
+              icon: "error",
+              title: "Server Error",
+              text: "Something went wrong."
+            });
+          }
+        });
+      });
+    </script>
+
+
+
 </body>
 
 </html>
