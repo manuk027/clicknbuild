@@ -3,111 +3,88 @@ import Category from "../../models/categorySchema.js";
 import Brand from "../../models/brandSchema.js";
 import brandSortOption from "../../helpers/brandSort.js"
 import productService from "../../services/productService.js";
+import { HttpStatusCode } from "axios";
+import { HttpStatus } from '../../helpers/statusCodes.js';
 
 
-const loadProduct = async (req, res) => {
+const loadProduct = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const sort = req.query.sort;
-        const sortOption = brandSortOption(sort);
+        const page = parseInt(req.query.page, 10) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
-        const searchTerm = req.query.search ? req.query.search.trim() : "";
-        const searchQuery = searchTerm ? { model: { $regex: searchTerm, $options: "i" }, } : {};
-         const totalProducts = await Product.countDocuments(searchQuery);
+        const sort = req.query.sort || "";
+        const sortOption = brandSortOption(sort);
+        const searchTerm = req.query.search?.trim() || "";
+        const searchQuery = searchTerm ? { model: { $regex: searchTerm, $options: "i" } } : {};
+        const totalProducts = await Product.countDocuments(searchQuery);
         const products = await Product.find(searchQuery).populate("category", "name").populate("brand", "name").sort(sortOption).skip(skip).limit(limit);
-        const category = await Category.findById(products._id);
-        // const totalProducts = products.length;
         const totalPages = Math.ceil(totalProducts / limit);
-        res.render('products', { product: products, current: page, pages: totalPages, totalProducts: totalProducts, limit: limit, category: category, sort, search: searchTerm });
+        return res.render("products", { product: products, current: page, pages: totalPages, totalProducts, limit, sort, search: searchTerm });
     } catch (error) {
-        console.error('Error loading the product page: ', error);
-        return res.redirect('/admin/pageNotFound');
+        console.error("Error loading the product page:", error);
+        next(error);
     }
-}
+};
 
 
 
 const loadAddProduct = async (req, res) => {
     try {
-        let category = await Category.find();
-        let brand = await Brand.find().sort({ name: 1 });
-        return res.render('addProducts', { category: category, brand: brand });
+        const [categories, brands] = await Promise.all([Category.find(), Brand.find().sort({ name: 1 })]);
+        return res.render("addProducts", { category: categories, brand: brands });
     } catch (error) {
-        console.error("Error loading the add product page: ", error);
-        return res.redirect('/admin/pageNotFound');
+        console.error("Error loading the add product page:", error);
+        next(error);
     }
-}
+};
 
 
 
 const addProduct = async (req, res) => {
     try {
 
-        const {
-            brand,
-            productName,
-            description,
-            category,
-            status = "listed",
-            categoryType = "component",
-            limitedEdition = false,
-            flashSale = false,
-            variants = [],
-            specifications = [],
-            images = []
-        } = req.body;
-
-        if (!brand || !productName || !category)
-            return res.json({ success: false, message: "Missing required fields" });
-
-        if (!images.length)
-            return res.json({ success: false, message: "Please upload at least one image" });
-
-        // Convert flags and status
+        const { brand, productName, description, category, status = "listed", categoryType = "component", limitedEdition = false, flashSale = false, variants = [], specifications = [], images = [] } = req.body;
+        if (!brand) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Brand should not be blank." });
+        if (!productName) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product name should not be blank." });
+        if (!description) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Description is required." });
+        if (!category) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Category should not be blank." });
+        const brandExists = await Brand.findById(brand);
+        if (!brandExists) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Selected brand does not exist." });
+        const categoryExists = await Category.findById(category);
+        if (!categoryExists) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Selected category does not exist." });
+        if (!Array.isArray(images) || images.length !== 4) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Exactly 4 product images are required." });
+        if (!Array.isArray(variants) || variants.length === 0) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Add at least one product variant." });
+        const validVariants = [];
+        const isInvalidNumber = (value) => { return value === undefined || value === null || isNaN(value) || Number(value) <= 0; };
+        for (let i = 0; i < variants.length; i++) {
+            const v = variants[i];
+            const row = `row ${i + 1}`;
+            if (!v.variant || !v.variant.trim()) return res.status(400).json({ success: false, message: `Variant name is required (${row}).` });
+            if (isInvalidNumber(v.quantity)) return res.status(400).json({ success: false, message: `Quantity must be a positive number (${row}).` });
+            if (isInvalidNumber(v.price)) return res.status(400).json({ success: false, message: `Price must be a positive number (${row}).` });
+            if (v.offer === undefined || v.offer === null || isNaN(v.offer) || Number(v.offer) < 0) return res.status(400).json({ success: false, message: `Offer must be a valid number and cannot be negative (${row}).` });
+            if (Number(v.offer) >= Number(v.price)) return res.status(400).json({ success: false, message: `Offer must be less than the price (${row}).` });
+            validVariants.push({ variant: v.variant.trim(), quantity: Number(v.quantity), price: Number(v.price), offer: Number(v.offer) });
+        }
+        if (!Array.isArray(specifications) || specifications.length === 0) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Add at least one product specification." });
+        const validSpecs = [];
+        for (let i = 0; i < specifications.length; i++) {
+            const s = specifications[i];
+            if (!s.title || !s.title.trim()) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: `Specification title is required (row ${i + 1}).` });
+            if (!s.details || !s.details.trim()) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: `Specification details are required (row ${i + 1}).` });
+            validSpecs.push({ title: s.title.trim(), details: s.details.trim() });
+        }
         const isListed = status === "listed";
         const isComponent = categoryType === "component";
         const isPeripheral = categoryType === "peripheral";
         const isLimited = limitedEdition === true || limitedEdition === "true";
         const onFlashSale = flashSale === true || flashSale === "true";
-
-        // Clean variants and specifications
-        const validVariants = variants.filter(v => v.variant && v.price && v.quantity)
-            .map(v => ({
-                variant: v.variant,
-                quantity: Number(v.quantity),
-                price: Number(v.price),
-                offer: Number(v.offer || 0)
-            }));
-
-        const validSpecs = specifications.filter(s => s.title && s.details)
-            .map(s => ({ title: s.title, details: s.details }));
-
-        if (validVariants.length === 0)
-            return res.json({ success: false, message: "Please add at least one valid variant" });
-
-        const newProduct = new Product({
-            brand,
-            model: productName,
-            description,
-            isListed,
-            images,
-            variants: validVariants,
-            specification: validSpecs,
-            isComponent,
-            isPeripheral,
-            onFlashSale,
-            isLimited,
-            category,
-            rating: 0
-        });
-
+        const newProduct = new Product({ brand, model: productName, description, category, images, variants: validVariants, specification: validSpecs, isListed, isComponent, isPeripheral, isLimited, onFlashSale, rating: 0 });
         await newProduct.save();
-
-        return res.json({ success: true, message: "Product added successfully" });
+        return res.status(HttpStatus.Ok).json({ success: true, message: "Product added successfully." });
     } catch (error) {
-        console.error('Add product error:', error);
-        return res.status(500).json({ success: false, message: error.message });
+        console.error("Add product error:", error);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error." });
     }
 };
 
@@ -115,44 +92,44 @@ const addProduct = async (req, res) => {
 
 const listProduct = async (req, res) => {
     try {
-        let id = req.query.id;
-        const page = req.query.page || 1;
+        const id = req.query.id;
+        const page = parseInt(req.query.page, 10) || 1;
+        if (!id) return res.redirect("/admin/pageNotFound");
         await Product.updateOne({ _id: id }, { $set: { isListed: true } });
-        res.redirect(`/admin/products/?page=${page}`);
+        return res.redirect(`/admin/products/?page=${page}`);
     } catch (error) {
         console.error("Error listing the product:", error);
-        return res.redirect('/admin/pageNotFound');
+        return res.status(500).json({ success: false, message: "Internal server error while listing the product." });
     }
-}
+};
 
 
 
 const unListProduct = async (req, res) => {
     try {
-        let id = req.query.id;
-        const page = req.query.page || 1;
+        const id = req.query.id;
+        const page = parseInt(req.query.page, 10) || 1;
+        if (!id) return res.redirect("/admin/pageNotFound");
         await Product.updateOne({ _id: id }, { $set: { isListed: false } });
-        res.redirect(`/admin/products/?page=${page}`);
+        return res.redirect(`/admin/products/?page=${page}`);
     } catch (error) {
-        console.error("Error listing the product:", error);
-        return res.redirect('/admin/pageNotFound');
+        console.error("Error unlisting the product:", error);
+        return res.status(500).json({ success: false, message: "Internal server error while unlisting the product." });
     }
-}
+};
 
 
 
 const viewVariants = async (req, res) => {
     try {
         const { id } = req.query;
-        if (!id) return res.json({ success: false, message: "Product ID is required" });
-
+        if (!id) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product not found." });
         const product = await Product.findById(id).lean();
-        if (!product) return res.json({ success: false, message: "Product not found" });
-
+        if (!product) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product not found" });
         return res.json({ success: true, product });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Server error" });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" });
     }
 };
 
@@ -161,43 +138,68 @@ const viewVariants = async (req, res) => {
 const loadEditProduct = async (req, res) => {
     try {
         const id = req.query.id;
-        if (!id) return res.redirect('/admin/pageNotFound');
-
+        if (!id) next();
         const product = await Product.findById(id).lean();
-        const brand = await Brand.find();
-        const category = await Category.find();
-        if (!product) return res.redirect('/admin/pageNotFound');
-        res.render('editProduct', { product, brand, category });
+        if (!product) return res.redirect("/admin/pageNotFound");
+        const [brands, categories] = await Promise.all([Brand.find(), Category.find()]);
+        return res.render("editProduct", { product, brand: brands, category: categories });
     } catch (error) {
-        console.error("Error loading the edit product page: ", error);
-        return res.redirect('/admin/pageNotFound');
+        console.error("Error loading the edit product page:", error);
+        next(error);
     }
 };
 
 
 
-
-
 export const editProduct = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const productData = req.body;
-
-    const updatedProduct = await productService.updateProduct(productId, productData);
-
-    return res.json({
-      success: true,
-      message: "Product updated successfully",
-      product: updatedProduct,
-    });
-  } catch (error) {
-    console.error("Update product error:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Internal Server Error",
-    });
-  }
+    try {
+        const productId = req.params.id;
+        const { brand, productName, description, category, status = "listed", categoryType = "component", limitedEdition = false, flashSale = false, variants = [], specifications = [], images = [] } = req.body;
+        if (!brand) return res.status(400).json({ success: false, message: "Brand should not be blank." });
+        if (!productName) return res.status(400).json({ success: false, message: "Product name should not be blank." });
+        if (!description) return res.status(400).json({ success: false, message: "Description is required." });
+        if (!category) return res.status(400).json({ success: false, message: "Category should not be blank." });
+        const brandExists = await Brand.findById(brand);
+        if (!brandExists) return res.status(400).json({ success: false, message: "Selected brand does not exist." });
+        const categoryExists = await Category.findById(category);
+        if (!categoryExists) return res.status(400).json({ success: false, message: "Selected category does not exist." });
+        if (!Array.isArray(images) || images.length !== 4) return res.status(400).json({ success: false, message: "Exactly 4 product images are required." });
+        if (!Array.isArray(variants) || variants.length === 0) return res.status(400).json({ success: false, message: "At least one product variant is required." });
+        const validVariants = [];
+        const isInvalidNum = (value) => value === undefined || value === null || isNaN(value) || Number(value) <= 0;
+        for (let i = 0; i < variants.length; i++) {
+            const v = variants[i];
+            const row = `row ${i + 1}`;
+            if (!v.variant || !v.variant.trim()) return res.status(400).json({ success: false, message: `Variant name is required (${row}).` });
+            if (isInvalidNum(v.quantity)) return res.status(400).json({ success: false, message: `Quantity must be a positive number (${row}).` });
+            if (isInvalidNum(v.price)) return res.status(400).json({ success: false, message: `Price must be a positive number (${row}).` });
+            if (v.offer === undefined || v.offer === null || isNaN(v.offer) || Number(v.offer) < 0) return res.status(400).json({ success: false, message: `Offer must be a valid number and cannot be negative (${row}).` });
+            if (Number(v.offer) >= Number(v.price)) return res.status(400).json({ success: false, message: `Offer must be less than the price (${row}).` });
+            validVariants.push({ variant: v.variant.trim(), quantity: Number(v.quantity), price: Number(v.price), offer: Number(v.offer), });
+        }
+        if (!Array.isArray(specifications) || specifications.length === 0) return res.status(400).json({ success: false, message: "At least one product specification is required." });
+        const validSpecs = [];
+        for (let i = 0; i < specifications.length; i++) {
+            const s = specifications[i];
+            const row = i + 1;
+            if (!s.title || !s.title.trim()) return res.status(400).json({ success: false, message: `Specification title is required (row ${row}).` });
+            if (!s.details || !s.details.trim()) return res.status(400).json({ success: false, message: `Specification details are required (row ${row}).` });
+            validSpecs.push({ title: s.title.trim(), details: s.details.trim(), });
+        }
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { brand, model: productName, description, category, images, variants: validVariants, specification: validSpecs, isListed: status === "listed", isComponent: categoryType === "component", isPeripheral: categoryType === "peripheral", isLimited: limitedEdition === true || limitedEdition === "true", onFlashSale: flashSale === true || flashSale === "true", },
+            { new: true }
+        );
+        if (!updatedProduct) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product not found." });
+        return res.status(HttpStatus.OK).json({ success: true, message: "Product updated successfully.", product: updatedProduct, });
+    } catch (error) {
+        console.error("Update product error:", error);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error.", });
+    }
 };
+
+
 
 
 export default { loadProduct, loadAddProduct, addProduct, unListProduct, listProduct, viewVariants, editProduct, loadEditProduct };

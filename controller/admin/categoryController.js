@@ -121,7 +121,7 @@ const listCategory = async (req, res) => {
         const { id, page = 1 } = req.query;
         if (!id) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Category not found!" });
         await Category.updateOne({ _id: id }, { $set: { isListed: true } });
-        return res.redirect(`/admin/category/?page=${page}`);
+        return res.status(200).json({ success: true });
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, mesage: "Internal Server Error" });
@@ -135,7 +135,7 @@ const unListCategory = async (req, res) => {
         const { id, page = 1 } = req.query;
         if (!id) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Category not found!" });
         await Category.updateOne({ _id: id }, { $set: { isListed: false } });
-        return res.redirect(`/admin/category/?page=${page}`);
+        return res.status(200).json({ success: true });
     } catch (error) {
         console.error("Error listing the product:", error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, mesage: "Internal Server Error" });
@@ -147,6 +147,7 @@ const unListCategory = async (req, res) => {
 const loadEditCategory = async (req, res) => {
     try {
         const id = req.query.id;
+        if (!id) next();
         const category = await Category.findOne({ _id: id });
         res.render("editCategory", { category: category });
     } catch (error) {
