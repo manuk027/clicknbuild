@@ -36,7 +36,7 @@ router.get('/unblockCustomers', auth.adminAuth, customerController.unblockCustom
 router.get('/category', auth.adminAuth, categoryController.categoryInfo);
 router.get('/category/add', auth.adminAuth, categoryController.loadAddCategory)
 router.post('/category/add', auth.adminAuth, categoryController.addCategory);
-router.delete('/category/:id', auth.adminAuth, categoryController.deleteCategory);
+// router.delete('/category/:id', auth.adminAuth, categoryController.deleteCategory);
 router.post('/category/addCategoryOffer', auth.adminAuth, categoryController.addCategoryOffer)
 router.post('/category/removeCategoryOffer', auth.adminAuth, categoryController.removeCategoryOffer)
 router.get('/category/unListCategory', auth.adminAuth, categoryController.unListCategory);

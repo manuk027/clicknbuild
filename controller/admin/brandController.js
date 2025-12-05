@@ -1,16 +1,8 @@
 import Brand from '../../models/brandSchema.js';
-import Product from '../../models/productSchema.js';
-import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 import cloudinary from "../../config/cloudinary.js";
 import brandSortOption from "../../helpers/brandSort.js"
 import { HttpStatus } from '../../helpers/statusCodes.js';
-
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 
 
@@ -34,12 +26,12 @@ const loadBrand = async (req, res, next) => {
 
 
 
-const loadAddBrand = async (req, res) => {
+const loadAddBrand = async (req, res, next) => {
     try {
         res.render('addBrand');
     } catch (error) {
         console.error("Error loading add brand page: ", error);
-        return res.redirect('/admin/pageNotFound');
+        next(error);
     }
 }
 
