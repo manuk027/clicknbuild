@@ -1,20 +1,19 @@
 <div align="center">
-
-  <img src="./public/images/logo.png" alt="clickNbuild Logo" width="200" height="auto" />
-  
   # clickNbuild 🖥️
   
-  **Your one-stop destination for computer components and custom PC builds.**
+  **A full-featured e-commerce platform for computer components and peripherals.**
 
-  ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-  ![Status](https://img.shields.io/badge/status-Active_Development-green.svg)
+  ![Node.js](https://img.shields.io/badge/Node.js-v20-green)
+  ![Express.js](https://img.shields.io/badge/Express.js-4.x-blue)
+  ![MongoDB](https://img.shields.io/badge/MongoDB-Database-green)
+  ![Status](https://img.shields.io/badge/Status-Active_Development-orange)
 
   <p align="center">
     <a href="#about-the-project">About</a> •
     <a href="#key-features">Key Features</a> •
     <a href="#tech-stack">Tech Stack</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#screenshots">Screenshots</a>
+    <a href="#environment-variables">Env Setup</a> •
+    <a href="#installation">Installation</a>
   </p>
 </div>
 
@@ -22,109 +21,67 @@
 
 ## 📖 About The Project
 
-**clickNbuild** is a dedicated e-commerce platform designed for computer enthusiasts, gamers, and PC builders. It streamlines the process of purchasing high-quality computer peripherals (keyboards, mice, monitors) and core components (CPUs, GPUs, Motherboards).
+**clickNbuild** is a specialized e-commerce web application designed for computer enthusiasts. It allows users to browse, search, and purchase high-quality computer parts (CPUs, GPUs, Motherboards) and peripherals.
 
-The goal of this project is to provide a seamless user experience for browsing hardware, managing carts, and processing secure transactions, alongside an intuitive admin panel for inventory management.
+Built with performance and scalability in mind, the application features a secure payment integration, dynamic inventory management using cloud storage for media, and a reward-based referral system.
 
 ## ✨ Key Features
 
-### 👤 User Side
-* **Product Catalog:** Browse peripherals and components by category (CPU, GPU, RAM, Storage).
-* **Advanced Filtering:** Filter products by brand, price range, and specifications.
-* **Shopping Cart:** Add/remove items and adjust quantities dynamically.
-* **Secure Checkout:** Integrated payment gateway for safe transactions.
-* **User Accounts:** Profile management, address book, and order history tracking.
-* **Wishlist:** Save items for future purchase.
+### 🛒 User Experience
+* **Advanced Discovery:**
+  * **Search:** Real-time search for components.
+  * **Filtering:** Filter products by **Category** (e.g., GPU, RAM) and **Brand**.
+  * **Sorting:** Sort results by Name or Selling Price.
+* **Secure Authentication:** * Google OAuth integration (Passport.js).
+  * Standard Email/Password login.
+* **Referral System:** Users earn discount coupons by sharing unique referral codes with friends.
+* **Shopping Cart & Checkout:** Persistent cart management with secure checkout via **Razorpay**.
+* **Order Tracking:** Users can view order history and download invoices (via Nodemailer notifications).
 
-### 🛠️ Admin Side
-* **Dashboard:** Visual analytics for sales, revenue, and order status.
-* **Product Management:** Add, edit, or soft-delete products and manage stock levels.
-* **Category Management:** Organize products into specific hardware categories.
-* **Order Management:** Track order status (Pending, Shipped, Delivered, Cancelled).
-* **User Management:** View and manage registered users.
+### 🛠️ Admin Dashboard
+* **Product Management:** Create, Read, Update, Delete (CRUD) products with image uploads handled via **Cloudinary**.
+* **Order Management:** View and update order statuses (Pending, Shipped, Delivered, Cancelled).
+* **User Management:** Manage customer accounts and block/unblock users.
+* **Sales Reports:** Visual overview of sales performance.
 
 ## ⚙️ Tech Stack
 
-**Frontend:**
-* [e.g., HTML5, CSS3, JavaScript]
-* [e.g., Tailwind CSS / Bootstrap]
-* [e.g., EJS / React.js]
+| Component | Technology |
+| :--- | :--- |
+| **Backend** | Node.js, Express.js |
+| **Frontend** | EJS (Templating), Tailwind CSS |
+| **Database** | MongoDB (Mongoose ODM) |
+| **Auth** | Passport.js (Local & Google Strategy) |
+| **Payments** | Razorpay Gateway |
+| **Media** | Cloudinary (Image Storage) |
+| **Email** | Nodemailer (SMTP) |
 
-**Backend:**
-* [e.g., Node.js]
-* [e.g., Express.js]
+## 🔐 Environment Variables
 
-**Database:**
-* [e.g., MongoDB / MySQL]
+To run this project, you will need to add the following environment variables to your `.env` file in the root directory.
 
-**Tools & Services:**
-* **Payment Gateway:** [e.g., Razorpay / Stripe]
-* **Image Hosting:** [e.g., Multer / Cloudinary]
-* **Version Control:** Git & GitHub
+```env
+# Server Configuration
+PORT=3000
+MONGODB_URI=your_mongodb_connection_string
+SECRET_KEY=your_session_secret
 
-## 🚀 Getting Started
+# Authentication
+GOOGLE_CLIENT_ID=your_google_id
+GOOGLE_CLIENT_SECRET=your_google_secret
 
-Follow these instructions to set up the project locally on your machine.
+# Email Service (Nodemailer)
+NODEMAILER_EMAIL=your_email_address
+NODEMAILER_PASSWORD=your_app_password
 
-### Prerequisites
-* Node.js (v14 or higher)
-* [Database Name] (installed locally or a cloud connection string)
+# Image Storage (Cloudinary)
+CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-### Installation
+# Payment Gateway (Razorpay)
+RZP_TEST_KEY=your_razorpay_key_id
+RZP_TEST_SECRET=your_razorpay_key_secret
 
-1.  **Clone the repository**
-    ```bash
-    git clone [https://github.com/your-username/clickNbuild.git](https://github.com/your-username/clickNbuild.git)
-    cd clickNbuild
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Set up Environment Variables**
-    Create a `.env` file in the root directory and add the following:
-    ```env
-    PORT=3000
-    DB_URI=your_database_connection_string
-    SESSION_SECRET=your_session_secret
-    PAYMENT_KEY_ID=your_payment_gateway_key
-    PAYMENT_KEY_SECRET=your_payment_gateway_secret
-    ```
-
-4.  **Run the application**
-    ```bash
-    npm start
-    # OR for development mode
-    npm run dev
-    ```
-
-5.  **Access the App**
-    Open your browser and navigate to `http://localhost:3000`
-
-## 📸 Screenshots
-
-| **Home Page** | **Product Details** |
-|:---:|:---:|
-| ![Home Page](./screenshots/home.png) | ![Product Page](./screenshots/product.png) |
-
-| **Cart** | **Admin Dashboard** |
-|:---:|:---:|
-| ![Cart](./screenshots/cart.png) | ![Admin](./screenshots/admin.png) |
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-## 📞 Contact
-
-**Your Name** - [Your LinkedIn Profile](https://linkedin.com/in/yourprofile) - email@example.com
-
-Project Link: [https://github.com/your-username/clickNbuild](https://github.com/your-username/clickNbuild)
+# Features
+REFERRAL_SECRET=secret_string_for_referral_generation
