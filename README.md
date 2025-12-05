@@ -1,7 +1,7 @@
 <div align="center">
   # clickNbuild 🖥️
   
-  **A full-featured e-commerce platform for computer components and peripherals.**
+  **A dedicated e-commerce platform for computer components and peripherals.**
 
   ![Node.js](https://img.shields.io/badge/Node.js-v20-green)
   ![Express.js](https://img.shields.io/badge/Express.js-4.x-blue)
@@ -21,28 +21,29 @@
 
 ## 📖 About The Project
 
-**clickNbuild** is a specialized e-commerce web application designed for computer enthusiasts. It allows users to browse, search, and purchase high-quality computer parts (CPUs, GPUs, Motherboards) and peripherals.
+**clickNbuild** is a specialized e-commerce web application designed for hardware enthusiasts. It provides a seamless platform for users to browse, search, and purchase high-quality computer parts (CPUs, GPUs, Motherboards) and peripherals.
 
-Built with performance and scalability in mind, the application features a secure payment integration, dynamic inventory management using cloud storage for media, and a reward-based referral system.
+The application focuses on a robust shopping experience with advanced filtering, secure payments, and a reward-based referral system.
 
 ## ✨ Key Features
 
 ### 🛒 User Experience
-* **Advanced Discovery:**
+* **Product Discovery:**
   * **Search:** Real-time search for components.
-  * **Filtering:** Filter products by **Category** (e.g., GPU, RAM) and **Brand**.
-  * **Sorting:** Sort results by Name or Selling Price.
-* **Secure Authentication:** * Google OAuth integration (Passport.js).
-  * Standard Email/Password login.
-* **Referral System:** Users earn discount coupons by sharing unique referral codes with friends.
-* **Shopping Cart & Checkout:** Persistent cart management with secure checkout via **Razorpay**.
-* **Order Tracking:** Users can view order history and download invoices (via Nodemailer notifications).
+  * **Advanced Filtering:** Filter products by **Category**, **Brand**, and **Price Range**.
+  * **Sorting:** Sort by Name (A-Z) or Selling Price (Low/High).
+* **Authentication:** * Secure Google OAuth login.
+  * Standard Email/Password registration.
+* **Referral System:** Users can share a unique referral code; when used, the referrer receives a discount coupon in their account.
+* **Shopping Cart:** Dynamic cart management with stock validation.
+* **Checkout:** Integrated **Razorpay** payment gateway for secure transactions.
+* **Order Tracking:** View order history and download invoices (via Nodemailer).
 
 ### 🛠️ Admin Dashboard
-* **Product Management:** Create, Read, Update, Delete (CRUD) products with image uploads handled via **Cloudinary**.
-* **Order Management:** View and update order statuses (Pending, Shipped, Delivered, Cancelled).
-* **User Management:** Manage customer accounts and block/unblock users.
-* **Sales Reports:** Visual overview of sales performance.
+* **Inventory Management:** Full CRUD operations for products with image uploads via **Cloudinary**.
+* **Order Management:** Track and update order status (Pending, Shipped, Delivered, Cancelled).
+* **User Controls:** Block/Unblock users and view customer details.
+* **Sales Analytics:** Visual reports of sales performance and revenue.
 
 ## ⚙️ Tech Stack
 
@@ -52,9 +53,9 @@ Built with performance and scalability in mind, the application features a secur
 | **Frontend** | EJS (Templating), Tailwind CSS |
 | **Database** | MongoDB (Mongoose ODM) |
 | **Auth** | Passport.js (Local & Google Strategy) |
-| **Payments** | Razorpay Gateway |
-| **Media** | Cloudinary (Image Storage) |
-| **Email** | Nodemailer (SMTP) |
+| **Payments** | Razorpay |
+| **Media Storage** | Cloudinary (via Multer) |
+| **Emails** | Nodemailer (SMTP) |
 
 ## 🔐 Environment Variables
 
@@ -66,9 +67,9 @@ PORT=3000
 MONGODB_URI=your_mongodb_connection_string
 SECRET_KEY=your_session_secret
 
-# Authentication
-GOOGLE_CLIENT_ID=your_google_id
-GOOGLE_CLIENT_SECRET=your_google_secret
+# Authentication (Google OAuth)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
 # Email Service (Nodemailer)
 NODEMAILER_EMAIL=your_email_address
@@ -84,4 +85,4 @@ RZP_TEST_KEY=your_razorpay_key_id
 RZP_TEST_SECRET=your_razorpay_key_secret
 
 # Features
-REFERRAL_SECRET=secret_string_for_referral_generation
+REFERRAL_SECRET=secret_string_for_generating_referrals
