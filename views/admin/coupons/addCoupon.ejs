@@ -5,7 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Coupon - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -16,128 +17,204 @@
 
     <%- include("../../views/partials/admin/sidebar") %>
 
-    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
 
-        <header class="bg-white shadow-sm sticky top-0 z-30">
-            <%- include("../../views/partials/admin/header") %>
-        </header>
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <%- include("../../views/partials/admin/header") %>
+            </header>
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
 
-            <div class="mb-6">
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD COUPON</h1>
-                <div class="flex items-center gap-2 text-sm text-gray-600">
-                    <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <a href="/admin/coupons" class="hover:text-black transition-colors">Coupons</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <span class="text-gray-900 font-medium">Add</span>
-                </div>
-            </div>
-
-            <form id="couponForm" action="/admin/coupons/addCoupons" method="POST" class="bg-white shadow-sm border border-gray-200 p-6 rounded-lg">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Coupon Name</label>
-                        <input type="text" name="couponName"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
-                            placeholder="Enter coupon name" />
-                        <p class="text-red-500 text-sm mt-1 hidden" id="couponNameError">Coupon name is required.</p>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Coupon Code</label>
-                        <input type="text" name="couponCode"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow uppercase"
-                            placeholder="Enter coupon code" />
-                        <p class="text-red-500 text-sm mt-1 hidden" id="couponCodeError">Coupon code is required.</p>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount (%)</label>
-                        <input type="number" name="discount"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
-                            placeholder="Enter discount percentage" min="1" max="100" />
-                        <p class="text-red-500 text-sm mt-1 hidden" id="discountError">Valid discount is required (1-100).</p>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Minimum Purchase (₹)</label>
-                        <input type="number" name="minPurchase"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
-                            placeholder="Enter minimum purchase amount" />
-                        <p class="text-red-500 text-sm mt-1 hidden" id="minPurchaseError">Minimum purchase required.</p>
-                    </div>
-
-                </div>
-
-                <div class="mb-8">
-                    <label class="block mb-3 text-sm font-medium text-gray-700">Status</label>
-                    <div class="flex flex-wrap gap-6">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="status" value="listed" checked class="w-4 h-4 text-black focus:ring-black border-gray-300">
-                            <span class="text-sm text-gray-700">List</span>
-                        </label>
-
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="status" value="unlisted" class="w-4 h-4 text-black focus:ring-black border-gray-300">
-                            <span class="text-sm text-gray-700">Unlist</span>
-                        </label>
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ADD COUPON</h1>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <a href="/admin" class="hover:text-black transition-colors">Dashboard</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <a href="/admin/coupons" class="hover:text-black transition-colors">Coupons</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900 font-medium">Add</span>
                     </div>
                 </div>
 
-                <div class="flex flex-col-reverse sm:flex-row gap-4 border-t border-gray-100 pt-6">
-                    <a href="/admin/coupons" class="w-full sm:w-auto px-6 py-3 border border-gray-300 text-center text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
-                        Cancel
-                    </a>
-                    <button type="submit" class="w-full sm:flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition shadow-lg transform active:scale-95">
-                        Add Coupon
-                    </button>
-                </div>
+                <form id="couponForm" action="/admin/coupons/addCoupons" method="POST"
+                    class="bg-white shadow-sm border border-gray-200 p-6 rounded-lg">
 
-            </form>
-        </main>
-    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-    <script>
-        const form = document.getElementById("couponForm");
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Coupon Name</label>
+                            <input type="text" name="couponName"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
+                                placeholder="Enter coupon name" />
+                            <p class="text-red-500 text-sm mt-1 hidden" id="couponNameError">Coupon name is required.
+                            </p>
+                        </div>
 
-        form.addEventListener("submit", (e) => {
-            let valid = true;
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Coupon Code</label>
+                            <input type="text" name="couponCode"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow uppercase"
+                                placeholder="Enter coupon code" />
+                            <p class="text-red-500 text-sm mt-1 hidden" id="couponCodeError">Coupon code is required.
+                            </p>
+                        </div>
 
-            const couponName = form.couponName;
-            const couponCode = form.couponCode;
-            const discount = form.discount;
-            const minPurchase = form.minPurchase;
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Discount (%)</label>
+                            <input type="number" name="discount"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
+                                placeholder="Enter discount percentage" min="1" max="100" />
+                            <p class="text-red-500 text-sm mt-1 hidden" id="discountError">Valid discount is required
+                                (1-100).</p>
+                        </div>
 
-            // Reset errors
-            document.querySelectorAll("p.text-red-500").forEach(el => el.classList.add("hidden"));
-            // Remove error borders
-            [couponName, couponCode, discount, minPurchase].forEach(el => el.classList.remove("border-red-500"));
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Minimum Purchase (₹)</label>
+                            <input type="number" name="minPurchase"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition-shadow"
+                                placeholder="Enter minimum purchase amount" />
+                            <p class="text-red-500 text-sm mt-1 hidden" id="minPurchaseError">Minimum purchase required.
+                            </p>
+                        </div>
 
-            // Validation Helper
-            const showError = (input, errorId) => {
-                document.getElementById(errorId).classList.remove("hidden");
-                input.classList.add("border-red-500");
-                valid = false;
-            };
+                    </div>
 
-            if (couponName.value.trim() === "") showError(couponName, "couponNameError");
-            if (couponCode.value.trim() === "") showError(couponCode, "couponCodeError");
-            
-            if (discount.value.trim() === "" || discount.value < 1 || discount.value > 100) {
-                showError(discount, "discountError");
-            }
-            
-            if (minPurchase.value.trim() === "" || minPurchase.value < 0) {
-                showError(minPurchase, "minPurchaseError");
-            }
+                    <div class="mb-8">
+                        <label class="block mb-3 text-sm font-medium text-gray-700">Status</label>
+                        <div class="flex flex-wrap gap-6">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="status" value="listed" checked
+                                    class="w-4 h-4 text-black focus:ring-black border-gray-300">
+                                <span class="text-sm text-gray-700">List</span>
+                            </label>
 
-            if (!valid) e.preventDefault();
-        });
-    </script>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="status" value="unlisted"
+                                    class="w-4 h-4 text-black focus:ring-black border-gray-300">
+                                <span class="text-sm text-gray-700">Unlist</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col-reverse sm:flex-row gap-4 border-t border-gray-100 pt-6">
+                        <a href="/admin/coupons"
+                            class="w-full sm:w-auto px-6 py-3 border border-gray-300 text-center text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                            class="w-full sm:flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition shadow-lg transform active:scale-95">
+                            Add Coupon
+                        </button>
+                    </div>
+
+                </form>
+            </main>
+        </div>
+
+        <script>
+            const form = document.getElementById("couponForm");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const couponNameInput = form.couponName;
+                const couponCodeInput = form.couponCode;
+                const discountInput = form.discount;
+                const minPurchaseInput = form.minPurchase;
+
+                const couponName = couponNameInput.value.trim();
+                const couponCode = couponCodeInput.value.trim();
+                const discount = Number(discountInput.value);
+                const minPurchase = Number(minPurchaseInput.value);
+                const status = form.status.value;
+
+                let valid = true;
+
+                // Reset errors
+                document.querySelectorAll("p.text-red-500").forEach(el => el.classList.add("hidden"));
+                [couponNameInput, couponCodeInput, discountInput, minPurchaseInput].forEach(el => {
+                    el.classList.remove("border-red-500");
+                });
+
+                // ---- FIELD-WISE VALIDATION ----
+                if (couponName === "") {
+                    document.getElementById("couponNameError").classList.remove("hidden");
+                    couponNameInput.classList.add("border-red-500");
+                    valid = false;
+                }
+
+                if (couponCode === "") {
+                    document.getElementById("couponCodeError").classList.remove("hidden");
+                    couponCodeInput.classList.add("border-red-500");
+                    valid = false;
+                }
+
+                if (isNaN(discount) || discount < 1 || discount > 100) {
+                    document.getElementById("discountError").classList.remove("hidden");
+                    discountInput.classList.add("border-red-500");
+                    valid = false;
+                }
+
+                if (isNaN(minPurchase) || minPurchase <= 0) {
+                    document.getElementById("minPurchaseError").classList.remove("hidden");
+                    minPurchaseInput.classList.add("border-red-500");
+                    valid = false;
+                }
+
+                // If ANY client-side validation fails → don't send fetch
+                if (!valid) return;
+
+                // -- Send to server only if all fields are valid --
+                const formData = {
+                    couponName,
+                    couponCode,
+                    discount,
+                    minPurchase,
+                    status
+                };
+
+                try {
+                    const response = await fetch("/admin/coupons/addCoupons", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const result = await response.json();
+
+                    // Server validation (duplicate code, backend rule violations)
+                    if (!result.success) {
+                        return Swal.fire({
+                            icon: "warning",
+                            title: "Validation Error",
+                            text: result.message,
+                            confirmButtonColor: "#000",
+                        });
+                    }
+
+                    // Success
+                    Swal.fire({
+                        icon: "success",
+                        title: "Coupon Added",
+                        text: "Coupon has been added successfully!",
+                        confirmButtonColor: "#000"
+                    }).then(() => {
+                        window.location.href = result.redirect;
+                    });
+
+                } catch (err) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Something went wrong. Please try again.",
+                        confirmButtonColor: "#000"
+                    });
+                }
+            });
+        </script>
+
+
+
 
 </body>
 

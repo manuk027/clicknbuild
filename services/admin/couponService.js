@@ -5,97 +5,54 @@ import CouponUsage from '../../models/couponUsage.js';
 
 
 
-export const loadCouponsService = async (req, res) => {
+export const loadCouponsService = async (page, sort, searchTerm) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const sort = req.query.sort || "name";
         const sortOption = couponSortOption(sort);
         const limit = 10;
         const skip = (page - 1) * limit;
-        const searchTerm = req.query.search ? req.query.search.trim() : "";
-        const searchQuery = searchTerm ? { name: { $regex: searchTerm, $options: "i" } } : {};
-        // const searchQuery = searchTerm ? { ...baseFilter, name: { $regex: searchTerm, $options: "i" } } : baseFilter;
+        const searchQuery = searchTerm ? { name: { $regex: searchTerm.trim(), $options: "i" } } : {};
         const couponData = await Coupon.find(searchQuery).sort(sortOption).skip(skip).limit(limit);
         const totalCoupons = await Coupon.countDocuments(searchQuery);
         const totalPages = Math.ceil(totalCoupons / limit);
-        res.render("coupons", { coupon: couponData, data: couponData, current: page, pages: totalPages, totalCoupons, limit, sort, search: searchTerm });
+        return { couponData, totalCoupons, totalPages, limit };
     } catch (error) {
-        console.error('Error loading th coupons: ', error);
-        return res.redirect("/admin/pageNotFound");
-
+        throw error;
     }
 };
 
 
 
-export const unListCouponsService = async (req, res) => {
+export const unListCouponsService = async (id) => {
     try {
-        let id = req.query.id;
-        const page = req.query.page || 1;
-        await Coupon.updateOne({ _id: id }, { $set: { isListed: false } });
-        res.redirect(`/admin/coupons/?page=${page}`);
+        return await Coupon.updateOne({ _id: id }, { $set: { isListed: false } });
     } catch (error) {
-        console.error("Error unlisting the coupon:", error);
-        return res.redirect('/pageNotFound');
+        throw error;
+    }
+};
+
+
+
+export const listCouponsService = async (id) => {
+    try {
+        return await Coupon.updateOne({ _id: id }, { $set: { isListed: true } });
+    } catch (error) {
+        throw error;
     }
 }
 
 
 
-export const listCouponsService = async (req, res) => {
-    try {
-        let id = req.query.id;
-        const page = req.query.page || 1;
-        await Coupon.updateOne({ _id: id }, { $set: { isListed: true } });
-        res.redirect(`/admin/coupons/?page=${page}`);
-    } catch (error) {
-        console.error("Error listing the coupon:", error);
-        return res.redirect('/pageNotFound');
-    }
-}
-
-
-
-export const loadAddCouponsService = async (req, res) => {
-    try {
-        res.render('addCoupon');
-    } catch (error) {
-        console.error("Error loading add coupon page: ", error);
-        return res.redirect('/admin/pageNotFound');
-    }
-}
-
-
-
-export const addCouponsService = async (req, res) => {
-    try {
-        const { couponName, couponCode, discount, minPurchase, status } = req.body;
-        const newCoupon = new Coupon({
-            name: couponName,
-            code: couponCode,
-            minimumPurchase: Number(minPurchase),
-            discount: Number(discount),
-            isListed: status === "listed",
-        })
-        await newCoupon.save();
-        const allUsers = await User.find({});
-        const usageEntries = allUsers.map(u => ({
-            userId: u._id,
-            couponId: newCoupon._id,
-            used: false
-        }));
-        await CouponUsage.insertMany(usageEntries, { ordered: false }).catch(() => { });
-        return res.redirect('/admin/coupons');
-    } catch (error) {
-        console.error('Error adding the product : ', error);
-        return res.redirect('/admin/pageNotFound');
-    }
-}
-
-
-
-
-
-
-
-
+export const addCouponsService = async (couponData) => {
+    const { couponName, couponCode, discount, minPurchase, status } = couponData;
+    if (!couponName || couponName.trim() === "") return { success: false, message: "Coupon name cannot be blank." };
+    if (!couponCode || couponCode.trim() === "") return { success: false, message: "Coupon code cannot be blank." };
+    const numericDiscount = Number(discount);
+    if (isNaN(numericDiscount) || numericDiscount < 1 || numericDiscount > 100) return { success: false, message: "Discount must be between 1 and 100." };
+    const numericMinPurchase = Number(minPurchase);
+    if (isNaN(numericMinPurchase) || numericMinPurchase <= 0) return { success: false, message: "Minimum purchase must be greater than 0." };
+    const newCoupon = await Coupon.create({ name: couponName.trim(), code: couponCode.trim(), minimumPurchase: numericMinPurchase, discount: numericDiscount, isListed: status === "listed", });
+    const allUsers = await User.find({}, "_id");
+    const usageEntries = allUsers.map(user => ({ userId: user._id, couponId: newCoupon._id, used: false }));
+    await CouponUsage.insertMany(usageEntries, { ordered: false }).catch(() => { });
+    return { success: true, coupon: newCoupon };
+};

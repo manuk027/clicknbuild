@@ -16,7 +16,7 @@ const couponSchema = new Schema({
     minimumPurchase: { type: Number, required: true, },
     isListed: { type: Boolean, default: true, },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-});
+}, { timestamps: true });
 
 
 
