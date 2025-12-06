@@ -17,7 +17,8 @@ import { generateCouponCode } from '../../helpers/coupon.js'
 import { HttpStatus } from '../../helpers/statusCodes.js';
 import { generateOtp } from '../../helpers/otpGenerator.js';
 import { sendEmail } from '../../helpers/otpMailer.js';
-
+import { applyFinalOffer } from "../../helpers/applyFinalOffer.js";
+import { applyFinalOfferToAllVariants } from '../../helpers/detailsFinalPrice.js';
 
 
 dotenv.config();
@@ -296,7 +297,6 @@ const loadPeripheral = async (req, res) => {
         const category = await Category.findOne({ name: peripheral, isListed: true });
         if (!category) return res.redirect("/pageNotFound");
         const sortOption = getSortOption(sort);
-        const userData = await User.findById(userId);
         let productFilter = { category: category._id, isListed: true };
         if (selectedBrands) {
             const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
@@ -311,8 +311,9 @@ const loadPeripheral = async (req, res) => {
             productFilter.category = { $in: categoryIds };
         }
         const totalProducts = await Product.countDocuments(productFilter);
-        const rawProducts = await Product.find(productFilter).populate({ path: "brand", select: "name isListed", match: { isListed: true } }).populate({ path: "category", select: "name isListed", match: { isListed: true } }).sort(sortOption).skip(skip).limit(limit);
-        const product = rawProducts.filter(p => p.brand && p.category);
+        let rawProducts = await Product.find(productFilter).populate({ path: "brand", select: "name isListed", match: { isListed: true } }).populate({ path: "category", select: "name isListed", match: { isListed: true } }).sort(sortOption).skip(skip).limit(limit);
+        rawProducts = rawProducts.filter(p => p.brand && p.category);
+        rawProducts = rawProducts.map(p => applyFinalOffer(p, category));
         const totalPages = Math.ceil(totalProducts / limit);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
@@ -323,10 +324,9 @@ const loadPeripheral = async (req, res) => {
         const filterBrand = brand.map(b => b.name);
         const categoryList = await Category.find({ _id: { $in: distinctCategoryIds }, isListed: true });
         const filterCategory = categoryList.map(c => c.name);
-        if (product.length === 0) {
-            return res.render("noProductFound", { product, peripheral: peripherals, component, brand, user: userData, });
-        }
-        res.render("productPages", { product, peripheral: peripherals, component, brand, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], route: "peripheral", name: peripheral, wish, baseRoute: `/peripheral/${peripheral}`, current: page, pages: totalPages, totalProducts, sort });
+        const userData = await User.findById(userId);
+        if (rawProducts.length === 0) return res.render("noProductFound", { product: rawProducts, peripheral: peripherals, component, brand, user: userData });
+        res.render("productPages", { product: rawProducts, peripheral: peripherals, component, brand, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], route: "peripheral", name: peripheral, wish, baseRoute: `/peripheral/${peripheral}`, current: page, pages: totalPages, totalProducts, sort });
     } catch (error) {
         console.error("Error loading peripherals:", error);
         return res.redirect("/pageNotFound");
@@ -344,166 +344,47 @@ const loadComponent = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const componentName = req.params.name;
-
         const sort = req.query.sort || "default";
         const selectedBrands = req.query.brand;
         const selectedCategories = req.query.category;
-
         const page = Number(req.query.page) || 1;
         const limit = 21;
         const skip = (page - 1) * limit;
-
-        // Category must be listed
-        const category = await Category.findOne({
-            name: componentName,
-            isListed: true
-        });
+        const category = await Category.findOne({ name: componentName, isListed: true });
         if (!category) return res.redirect("/pageNotFound");
-
-        // Wishlist
         const wishlist = await Wishlist.findOne({ userId });
         const wish = wishlist?.items?.map(item => item.variantId.toString()) ?? [];
-
         const sortOption = getSortOption(sort);
-
-        // Base filter — products must be listed & belong to listed category
-        const filter = {
-            category: category._id,
-            isListed: true
-        };
-
-        // BRAND FILTER — only listed brands allowed
+        const filter = { category: category._id, isListed: true };
         if (selectedBrands) {
-            const brandNames = Array.isArray(selectedBrands)
-                ? selectedBrands
-                : [selectedBrands];
-
-            const brandIds = await Brand.find({
-                name: { $in: brandNames },
-                isListed: true            // enforce visibility
-            }).distinct("_id");
-
-            // User manually entered unlisted brand → block
+            const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
+            const brandIds = await Brand.find({ name: { $in: brandNames }, isListed: true }).distinct("_id");
             if (brandIds.length === 0) return res.redirect("/pageNotFound");
-
             filter.brand = { $in: brandIds };
         }
-
-        // CATEGORY FILTER — must be listed
         if (selectedCategories) {
-            const categoryNames = Array.isArray(selectedCategories)
-                ? selectedCategories
-                : [selectedCategories];
-
-            const categoryIds = await Category.find({
-                name: { $in: categoryNames },
-                isListed: true
-            }).distinct("_id");
-
-            // Invalid or unlisted category typed in URL → block
+            const categoryNames = Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories];
+            const categoryIds = await Category.find({ name: { $in: categoryNames }, isListed: true }).distinct("_id");
             if (categoryIds.length === 0) return res.redirect("/pageNotFound");
-
             filter.category = { $in: categoryIds };
         }
-
-        // Count total products
+        let rawProducts = await Product.find(filter).populate({ path: "brand", select: "name isListed", match: { isListed: true } }).populate({ path: "category", select: "name isListed", match: { isListed: true } }).sort(sortOption).skip(skip).limit(limit);
+        rawProducts = rawProducts.filter(p => p.brand && p.category);
+        rawProducts = rawProducts.map(p => applyFinalOffer(p, category));
         const totalProducts = await Product.countDocuments(filter);
-
-        // Fetch products but exclude unlisted brands/categories via populate
-        const rawProducts = await Product.find(filter)
-            .populate({
-                path: "brand",
-                select: "name isListed",
-                match: { isListed: true }
-            })
-            .populate({
-                path: "category",
-                select: "name isListed",
-                match: { isListed: true }
-            })
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limit);
-
-        // Remove products whose listed brand/category didn't match
-        const product = rawProducts.filter(p => p.brand && p.category);
-
         const totalPages = Math.ceil(totalProducts / limit);
-
-        // Sidebar categories
-        const peripheral = await Category.find({
-            isPeripheral: true,
-            isListed: true
-        });
-
-        const components = await Category.find({
-            isComponent: true,
-            isListed: true
-        });
-
-        // Extract available brands/categories from listed products only
-        const fullProducts = await Product.find({
-            category: category._id,
-            isListed: true
-        }).select("brand category");
-
+        const peripheral = await Category.find({ isPeripheral: true, isListed: true });
+        const components = await Category.find({ isComponent: true, isListed: true });
+        const fullProducts = await Product.find({ category: category._id, isListed: true }).select("brand category");
         const distinctBrandIds = [...new Set(fullProducts.map(p => p.brand?.toString()))].filter(Boolean);
         const distinctCategoryIds = [...new Set(fullProducts.map(p => p.category?.toString()))].filter(Boolean);
-
-        // Only listed brands in filter list
-        const brand = await Brand.find({
-            _id: { $in: distinctBrandIds },
-            isListed: true
-        });
-
+        const brand = await Brand.find({ _id: { $in: distinctBrandIds }, isListed: true });
         const filterBrand = brand.map(b => b.name);
-
-        // Only listed categories in sidebar filter
-        const categoryDocs = await Category.find({
-            _id: { $in: distinctCategoryIds },
-            isListed: true
-        });
-
+        const categoryDocs = await Category.find({ _id: { $in: distinctCategoryIds }, isListed: true });
         const filterCategory = categoryDocs.map(c => c.name);
-
         const userData = await User.findById(userId);
-
-        // If no products left after filtering
-        if (product.length === 0) {
-            return res.render("noProductFound", {
-                product,
-                peripheral,
-                component: components,
-                brand,
-                user: userData
-            });
-        }
-
-        // Render component page
-        res.render("productPages", {
-            product,
-            peripheral,
-            component: components,
-            brand,
-            user: userData,
-            filterBrand,
-            filterCategory,
-            selectedBrands: Array.isArray(selectedBrands)
-                ? selectedBrands
-                : [selectedBrands],
-            selectedCategories: Array.isArray(selectedCategories)
-                ? selectedCategories
-                : [selectedCategories],
-            route: "component",
-            name: componentName,
-            wish,
-            baseRoute: `/component/${componentName}`,
-            current: page,
-            pages: totalPages,
-            totalProducts,
-            sort
-        });
-
+        if (rawProducts.length === 0) return res.render("noProductFound", { product: rawProducts, peripheral, component: components, brand, user: userData });
+        res.render("productPages", { product: rawProducts, peripheral, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], route: "component", name: componentName, wish, baseRoute: `/component/${componentName}`, current: page, pages: totalPages, totalProducts, sort });
     } catch (error) {
         console.error("Error loading components:", error);
         next(error);
@@ -531,21 +412,17 @@ const loadAllProducts = async (req, res, next) => {
         const wishlist = await Wishlist.findOne({ userId });
         const wish = wishlist?.items?.map(item => String(item.variantId)) ?? [];
         const filter = { isListed: true };
-        if (selectedBrands) {
-            filter.brand = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
-        }
-        if (selectedCategories) {
-            filter.category = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
-        }
-        if (searchQuery) {
-            filter.$or = [{ model: { $regex: searchQuery, $options: "i" } }, { description: { $regex: searchQuery, $options: "i" } },];
-        }
+        if (selectedBrands) filter.brand = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
+        if (selectedCategories) filter.category = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
+        if (searchQuery) filter.$or = [{ model: { $regex: searchQuery, $options: "i" } }, { description: { $regex: searchQuery, $options: "i" } }];
         const validBrands = await Brand.find({ isListed: true }).select("_id");
         const validCategories = await Category.find({ isListed: true }).select("_id");
         filter.brand = filter.brand || { $in: validBrands.map(b => b._id) };
         filter.category = filter.category || { $in: validCategories.map(c => c._id) };
         const totalProducts = await Product.countDocuments(filter);
-        const allProducts = await Product.find(filter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
+        let allProducts = await Product.find(filter).populate("brand", "name isListed").populate("category", "name maxOffer isListed").sort(sortOption).skip(skip).limit(limit);
+        allProducts = allProducts.filter(p => p.brand && p.category);
+        allProducts = allProducts.map(p => applyFinalOffer(p, p.category));
         const totalPages = Math.ceil(totalProducts / limit);
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
@@ -553,21 +430,20 @@ const loadAllProducts = async (req, res, next) => {
         const fullProducts = await Product.find(filter).select("brand category");
         const allBrandIds = [...new Set(fullProducts.map(p => p.brand?.toString()))].filter(Boolean);
         const allCategoryIds = [...new Set(fullProducts.map(p => p.category?.toString()))].filter(Boolean);
-        const brand = await Brand.find({ _id: { $in: allBrandIds } }).select("name");
-        const filterBrand = brand.map(b => b.name);
-        const categoryList = await Category.find({ _id: { $in: allCategoryIds } }).select("name");
-        const filterCategory = categoryList.map(c => c.name);
+        const brandDocs = await Brand.find({ _id: { $in: allBrandIds } }).select("name");
+        const filterBrand = brandDocs.map(b => b.name);
+        const categoryDocs = await Category.find({ _id: { $in: allCategoryIds } }).select("name");
+        const filterCategory = categoryDocs.map(c => c.name);
         const selectedBrandsArray = selectedBrands ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands] : [];
         const selectedCategoriesArray = selectedCategories ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories] : [];
-        if (allProducts.length === 0) {
-            return res.render("noProductFound", { product: [], peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, searchQuery, });
-        }
-        res.render("productPages", { product: allProducts, peripheral: peripherals, component: components, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/shop", });
+        if (allProducts.length === 0) return res.render("noProductFound", { product: [], peripheral: peripherals, component: components, brand: brandDocs, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, searchQuery });
+        res.render("productPages", { product: allProducts, peripheral: peripherals, component: components, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/shop" });
     } catch (error) {
         console.error("Error loading all products:", error);
         next(error);
     }
 };
+
 
 
 /**
@@ -585,25 +461,19 @@ const loadProductDetails = async (req, res, next) => {
         const components = await Category.find({ isComponent: true, isListed: true });
         const wishlist = await Wishlist.findOne({ userId });
         const wish = wishlist?.items?.map(item => item.variantId.toString()) ?? [];
-        const product = await Product.findOne({ _id: prodId, isListed: true })
-            .populate({ path: "category", match: { isListed: true }, select: "name isListed" })
-            .populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
-        if (!product || !product.brand || !product.category) {
-            return res.redirect("/pageNotFound");
-        }
+        let product = await Product.findOne({ _id: prodId, isListed: true }).populate({ path: "category", match: { isListed: true }, select: "name maxOffer isListed" }).populate({ path: "brand", match: { isListed: true }, select: "name isListed" });
+        if (!product || !product.brand || !product.category) return res.redirect("/pageNotFound");
+        product = applyFinalOfferToAllVariants(product, product.category);
         let selectedVariant;
         if (variantId) {
             selectedVariant = product.variants.find(v => v._id.toString() === variantId);
-            if (!selectedVariant) {
-                return res.redirect("/pageNotFound");
-            }
+            if (!selectedVariant) return res.redirect("/pageNotFound");
         } else {
             selectedVariant = product.variants[0];
         }
-        const recommendedProducts = await Product.find({ category: product.category._id, isListed: true })
-            .populate({ path: "brand", match: { isListed: true }, select: "name" })
-            .populate({ path: "category", match: { isListed: true }, select: "name" })
-            .limit(4).then(prods => prods.filter(p => p.brand && p.category));
+        let recommendedProducts = await Product.find({ category: product.category._id, isListed: true }).populate({ path: "brand", match: { isListed: true }, select: "name" }).populate({ path: "category", match: { isListed: true }, select: "name maxOffer" }).limit(4);
+        recommendedProducts = recommendedProducts.filter(p => p.brand && p.category);
+        recommendedProducts = recommendedProducts.map(p => applyFinalOfferToAllVariants(p, p.category));
         return res.render("productDetails", { product, selectedVariant, peripheral: peripherals, component: components, user: userData, recommendedProducts, wish });
     } catch (error) {
         console.error("Error loading the product details page:", error);
@@ -612,12 +482,13 @@ const loadProductDetails = async (req, res, next) => {
 };
 
 
+
 /**
  @desc    Show all the flash sale product
  @route   GET /shop/limitedEdition
  @access  Public
  */
-const loadLimitedEditions = async (req, res) => {
+const loadLimitedEditions = async (req, res, next) => {
     try {
         const userId = req.user?._id || req.session?.user;
         const page = parseInt(req.query.page) || 1;
@@ -630,35 +501,31 @@ const loadLimitedEditions = async (req, res) => {
         const wishlist = await Wishlist.findOne({ userId });
         const wish = wishlist?.items?.map(item => String(item.variantId)) ?? [];
         const filter = { onFlashSale: true, isListed: true };
-        if (selectedBrands) {
-            filter["brand.name"] = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
-        }
-        if (selectedCategories) {
-            filter["category.name"] = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
-        }
+        if (selectedBrands) filter["brand.name"] = Array.isArray(selectedBrands) ? { $in: selectedBrands } : selectedBrands;
+        if (selectedCategories) filter["category.name"] = Array.isArray(selectedCategories) ? { $in: selectedCategories } : selectedCategories;
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
-        const products = await Product.find(filter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
+        let products = await Product.find(filter).populate("brand", "name").populate("category", "name maxOffer").sort(sortOption).skip(skip).limit(limit);
+        products = products.map(p => applyFinalOffer(p, p.category));
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
         const distinctBrandIds = [...new Set(products.map(p => p.brand?._id))].filter(Boolean);
         const distinctCategoryIds = [...new Set(products.map(p => p.category?._id))].filter(Boolean);
-        const brand = await Brand.find({ _id: { $in: distinctBrandIds } });
-        const filterBrand = brand.map(b => b.name);
-        const categoryList = await Category.find({ _id: { $in: distinctCategoryIds } });
-        const filterCategory = categoryList.map(c => c.name);
+        const brandDocs = await Brand.find({ _id: { $in: distinctBrandIds } });
+        const filterBrand = brandDocs.map(b => b.name);
+        const categoryDocs = await Category.find({ _id: { $in: distinctCategoryIds } });
+        const filterCategory = categoryDocs.map(c => c.name);
         const selectedBrandsArray = selectedBrands ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands] : [];
         const selectedCategoriesArray = selectedCategories ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories] : [];
-        if (products.length === 0) {
-            return res.render("noProductFound", { product: products, peripheral: peripherals, component: components, brand, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, });
-        }
+        if (products.length === 0) return res.render("noProductFound", { product: products, peripheral: peripherals, component: components, brand: brandDocs, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray });
         return res.render("productPages", { product: products, peripheral: peripherals, component: components, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, baseRoute: "/shop/limitedEditions", current: page, pages: totalPages });
     } catch (error) {
         console.error("Error loading limited edition products:", error);
-        next(error)
+        next(error);
     }
 };
+
 
 
 /**
@@ -677,7 +544,7 @@ const loadSearchedProducts = async (req, res, next) => {
         const limit = 21;
         const skip = (page - 1) * limit;
         const wishlist = await Wishlist.findOne({ userId });
-        const wish = wishlist?.items?.map(item => String(item.variantId.toString())) ?? [];
+        const wish = wishlist?.items?.map(item => String(item.variantId)) ?? [];
         const userData = await User.findById(userId);
         const peripherals = await Category.find({ isPeripheral: true, isListed: true });
         const components = await Category.find({ isComponent: true, isListed: true });
@@ -686,9 +553,7 @@ const loadSearchedProducts = async (req, res, next) => {
         const matchedBrands = await Brand.find({ name: { $regex: searchQuery, $options: "i" }, isListed: true }).distinct("_id");
         const matchedCategories = await Category.find({ name: { $regex: searchQuery, $options: "i" }, isListed: true }).distinct("_id");
         const sortOption = getSortOption(sort);
-        let productFilter = {
-            isListed: true, $or: [{ model: { $regex: searchQuery, $options: "i" } }, { brand: { $in: matchedBrands } }, { category: { $in: matchedCategories } },],
-        };
+        let productFilter = { isListed: true, $or: [{ model: { $regex: searchQuery, $options: "i" } }, { brand: { $in: matchedBrands } }, { category: { $in: matchedCategories } }] };
         if (selectedBrands) {
             const brandNames = Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands];
             const brandIds = await Brand.find({ name: { $in: brandNames } }).distinct("_id");
@@ -700,24 +565,25 @@ const loadSearchedProducts = async (req, res, next) => {
             productFilter.category = { $in: categoryIds };
         }
         const totalProducts = await Product.countDocuments(productFilter);
-        const products = await Product.find(productFilter).populate("brand", "name").populate("category", "name").sort(sortOption).skip(skip).limit(limit);
+        let products = await Product.find(productFilter).populate("brand", "name").populate("category", "name maxOffer").sort(sortOption).skip(skip).limit(limit);
+        products = products.map(p => applyFinalOffer(p, p.category));
         const totalPages = Math.ceil(totalProducts / limit);
         const resultBrandIds = [...new Set(products.map(p => p.brand?._id))];
         const resultCategoryIds = [...new Set(products.map(p => p.category?._id))];
-        let filterBrand = await Brand.find({ _id: { $in: resultBrandIds } }, { name: 1 });
-        filterBrand = filterBrand.map(b => b.name);
-        let filterCategory = await Category.find({ _id: { $in: resultCategoryIds } }, { name: 1 });
-        filterCategory = filterCategory.map(c => c.name);
-
-        if (products.length === 0) {
-            return res.render("noProductFound", { product: [], peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], searchQuery, });
-        }
-        return res.render("productPages", { product: products, peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands], selectedCategories: Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories], wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/products" });
+        let filterBrandDocs = await Brand.find({ _id: { $in: resultBrandIds } });
+        const filterBrand = filterBrandDocs.map(b => b.name);
+        let filterCategoryDocs = await Category.find({ _id: { $in: resultCategoryIds } });
+        const filterCategory = filterCategoryDocs.map(c => c.name);
+        const selectedBrandsArray = selectedBrands ? Array.isArray(selectedBrands) ? selectedBrands : [selectedBrands] : [];
+        const selectedCategoriesArray = selectedCategories ? Array.isArray(selectedCategories) ? selectedCategories : [selectedCategories] : [];
+        if (products.length === 0) return res.render("noProductFound", { product: [], peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, searchQuery });
+        return res.render("productPages", { product: products, peripheral: peripherals, component: components, brand: allBrands, user: userData, filterBrand, filterCategory, selectedBrands: selectedBrandsArray, selectedCategories: selectedCategoriesArray, wish, current: page, pages: totalPages, totalProducts, searchQuery, baseRoute: "/products" });
     } catch (error) {
         console.error("Error loading search results:", error);
         next(error);
     }
 };
+
 
 
 /**
@@ -733,6 +599,7 @@ const loadForgotPassword = async (req, res) => {
         return res.redirect('/pageNotFound');
     }
 };
+
 
 
 
@@ -932,6 +799,7 @@ const editPassword = async (req, res) => {
         if (!user) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "User not found." });
         }
+        if (user.googleId && !user.password) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Password cannot be changed for Google-authenticated accounts." });
         const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
         if (!isOldPasswordCorrect) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Incorrect old password." });
@@ -940,8 +808,7 @@ const editPassword = async (req, res) => {
         if (isSamePassword) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "New password cannot be the same as the old password." });
         }
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
+        user.password = newPassword;
         await user.save();
         return res.status(HttpStatus.OK).json({ success: true, message: "Password updated successfully." });
     } catch (error) {
