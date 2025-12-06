@@ -19,7 +19,7 @@ import { generateOtp } from '../../helpers/otpGenerator.js';
 import { sendEmail } from '../../helpers/otpMailer.js';
 import { applyFinalOffer } from "../../helpers/applyFinalOffer.js";
 import { applyFinalOfferToAllVariants } from '../../helpers/detailsFinalPrice.js';
-
+import { applyFinalOfferToVariant } from '../../helpers/variantFinalOffer.js'
 
 dotenv.config();
 
@@ -1026,32 +1026,21 @@ export const addToCart = async (req, res) => {
         const { productId, variantId, quantity } = req.body;
         const addQty = Number(quantity);
         const maxLimit = 5;
-        if (!productId || !variantId || !quantity) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Missing product details, please try again." });
-        }
-        if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId)) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid product or variant selected." });
-        }
+        if (!productId || !variantId || !quantity) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Missing product details, please try again." });
+        if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId)) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid product or variant selected." });
         const product = await Product.findById(productId).populate("category").populate("brand");
         if (!product) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "The selected product not found." });
         const variant = product.variants.id(variantId);
         if (!variant) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "The product variant is no longer available." });
-        if (!product.isListed || !product.category?.isListed || !product.brand?.isListed) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently unavailable for purchase." });
-        }
-        if (variant.quantity <= 0) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently out of stock." });
-        }
+        if (!product.isListed || !product.category?.isListed || !product.brand?.isListed) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently unavailable for purchase." });
+        if (variant.quantity <= 0) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "This product is currently out of stock." });
+        const finalUnitPrice = applyFinalOfferToVariant(variant, product.category);
         let cart = await Cart.findOne({ userId });
-        if (!cart) cart = new Cart({ userId, items: [], totalCartValue: 0 });
+        if (!cart) cart = new Cart({ userId, items: [], totalAmount: 0 });
         const existingItem = cart.items.find((item) => item.productId.toString() === productId.toString() && item.variantId.toString() === variantId.toString());
         const checkQuantity = (newQty) => {
-            if (newQty > variant.quantity) {
-                return `Only ${variant.quantity} units(s) left in stock`;
-            }
-            if (newQty > maxLimit) {
-                return `You can purchase a maximum of ${maxLimit} units of this product`;
-            }
+            if (newQty > variant.quantity) return `Only ${variant.quantity} unit(s) left in stock`;
+            if (newQty > maxLimit) return `You can purchase a maximum of ${maxLimit} units of this product`;
             return null;
         };
         if (existingItem) {
@@ -1059,22 +1048,26 @@ export const addToCart = async (req, res) => {
             const qtyError = checkQuantity(newQty);
             if (qtyError) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: qtyError });
             existingItem.quantity = newQty;
-            existingItem.subTotal = variant.offer * newQty;
+            existingItem.subTotal = finalUnitPrice * newQty;
+            existingItem.unitPrice = finalUnitPrice;
         } else {
             const qtyError = checkQuantity(addQty);
-            if (qtyError) return res.status(400).json({ success: false, message: qtyError });
-            cart.items.push({ productId, variantId, quantity: addQty, subTotal: variant.offer * addQty, max: maxLimit, unitPrice: variant.offer })
+            if (qtyError) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: qtyError });
+            cart.items.push({ productId, variantId, quantity: addQty, unitPrice: finalUnitPrice, subTotal: finalUnitPrice * addQty, max: maxLimit });
         }
-        cart.tottalAmount = cart.items.reduce((sum, item) => sum += item.subTotal, 0);
+        cart.totalAmount = cart.items.reduce((sum, item) => sum + item.subTotal, 0);
         await Wishlist.updateOne({ userId }, { $pull: { items: { variantId: variantId } } });
         await cart.save();
-        return res.status(HttpStatus.OK).json({ success: true, message: existingItem ? "Product quantity updated in your cart." : "Product succeessfully added to your cart.", total: cart.totalAmount, cart });
-
+        return res.status(HttpStatus.OK).json({ success: true, message: existingItem ? "Product quantity updated in your cart." : "Product successfully added to your cart.", total: cart.totalAmount, cart });
     } catch (error) {
         console.error("Error adding product to cart:", error);
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Something went wrong, please try again later.", });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Something went wrong, please try again later."
+        });
     }
 };
+
 
 
 
