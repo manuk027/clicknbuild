@@ -13,7 +13,7 @@ import crypto from 'crypto';
 import Wallet from '../../models/walletSchema.js';
 import { v4 as uuidv4 } from "uuid";
 import { HttpStatus } from "../../helpers/statusCodes.js";
-// import Wallet from '../../models/walletSchema.js';
+import { applyFinalOfferToVariant } from '../../helpers/variantFinalOffer.js'
 
 
 
@@ -23,7 +23,7 @@ const transactionId = uuidv4();
 
 export const loadCheckoutService = async (req, res, next) => {
     const userId = req.user?._id || req.session?.user;
-
+    console.log("checkout");
     try {
         const user = await User.findById(userId);
 
@@ -32,111 +32,115 @@ export const loadCheckoutService = async (req, res, next) => {
         const peripheral = await Category.find({ isPeripheral: true, isListed: true });
         const component = await Category.find({ isComponent: true, isListed: true });
 
-        let address = await Address.findOne({ userId });
-        address = address ? address.address : [];
+        // Load addresses
+        let addressDoc = await Address.findOne({ userId });
+        const address = addressDoc ? addressDoc.address : [];
 
+        // Load cart with required product data
         const cart = await Cart.findOne({ userId })
             .populate({
                 path: "items.productId",
-                model: "Product",
                 populate: [
-                    { path: "brand", model: "Brand", select: "name" },
-                    { path: "category", model: "Category" }
+                    { path: "brand", select: "name isListed" },
+                    { path: "category", select: "name maxOffer isListed" }
                 ]
             })
             .lean();
 
-        if (!cart || !cart.items.length) {
-            return res.redirect("/cart");
-        }
+        // if (!cart || !cart.items.length) return res.redirect("/cart");
 
-        const unUsedCoupons = await CouponUsage.find({ userId, used: false }).populate("couponId");
-        let filteredItem = [];
+        // COUPONS
+        let unUsedCoupons = await CouponUsage.find({ userId, used: false }).populate("couponId");
+
+        let checkoutItems = [];
         let totalOriginalPrice = 0;
         let totalAmount = 0;
 
+        // -------------------------------------
+        // PROCESS EACH ITEM IN THE CART
+        // -------------------------------------
         for (const item of cart.items) {
             const product = item.productId;
-            if (!product || !product.variants) continue;
+            if (!product || !product.variants || !product.category?.isListed || !product.brand?.isListed)
+                continue;
 
             const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
-            if (!variant || variant.quantity <= 0) continue;
+            if (!variant) continue;
 
-            const variantPrice = variant.price;
-            const variantOfferPrice = variant.offer || null;
-
-            // PRODUCT OFFER
-            let finalVariantPrice = variantPrice;
-            let variantDiscount = 0;
-            if (variantOfferPrice && variantOfferPrice < variantPrice) {
-                finalVariantPrice = variantOfferPrice;
-                variantDiscount = variantPrice - variantOfferPrice;
+            // VALIDATE STOCK
+            if (variant.quantity <= 0) continue;
+            if (item.quantity > variant.quantity) {
+                // Auto-correct quantity
+                item.quantity = variant.quantity;
             }
 
-            // CATEGORY OFFER
-            let categoryDiscount = 0;
-            let finalCategoryPrice = variantPrice;
-            if (product.category?.maxOffer) {
-                categoryDiscount = (variantPrice * product.category.maxOffer) / 100;
-                finalCategoryPrice = variantPrice - categoryDiscount;
-            }
+            // ----------------------------
+            // FINAL PRICE USING OUR HELPER
+            // ----------------------------
+            const finalOfferPrice = applyFinalOfferToVariant(variant, product.category);
 
-            // Final chosen offer price
-            let finalPrice = variantPrice;
-            if (variantDiscount > categoryDiscount) {
-                finalPrice = finalVariantPrice;
-            } else if (categoryDiscount > variantDiscount) {
-                finalPrice = finalCategoryPrice;
-            }
+            // Track totals
+            totalOriginalPrice += variant.price * item.quantity;
+            totalAmount += finalOfferPrice * item.quantity;
 
-            totalOriginalPrice += variantPrice * item.quantity;
-            totalAmount += finalPrice * item.quantity;
-
-            filteredItem.push({
+            checkoutItems.push({
                 ...item,
+                originalPrice: variant.price,
+                offerPrice: finalOfferPrice,
+                subTotal: finalOfferPrice * item.quantity,
                 productId: {
                     ...product,
                     selectedVariant: variant
-                },
-                originalPrice: Number(variantPrice.toFixed(2)),
-                offerPrice: Number(finalPrice.toFixed(2)),
-                subTotal: Number((finalPrice * item.quantity).toFixed(2))
+                }
             });
         }
 
-        if (!filteredItem.length) return res.redirect("/cart");
+        if (!checkoutItems.length) return res.redirect("/cart");
 
-        const noCPNAmount = Number(totalAmount.toFixed(2));
+        const noCPNAmount = totalAmount;
+
+        // -------------------------------------
+        // DELIVERY CHARGE
+        // -------------------------------------
         let deliveryCharge = totalAmount >= 50000 ? 0 : 199;
+
+        // -------------------------------------
+        // APPLY COUPON IF AVAILABLE
+        // -------------------------------------
         let coupon;
         let couponOffer = 0;
+
         if (appliedCoupon) {
             coupon = await Coupon.findById(appliedCoupon);
 
-            if (!coupon) {
+            if (!coupon)
                 return res.json({ success: false, message: "Invalid coupon selected." });
-            }
 
-            if (totalOriginalPrice < coupon.minimumPurchase) {
-                return res.json({ success: false, message: "Cannot apply coupon — minimum amount not met." });
-            }
+            if (totalOriginalPrice < coupon.minimumPurchase)
+                return res.json({ success: false, message: "Minimum purchase amount not met." });
 
             couponOffer = (totalAmount * coupon.discount) / 100;
             totalAmount -= couponOffer;
         }
-        couponOffer = Number(couponOffer.toFixed(2));
-        totalAmount = Number(totalAmount.toFixed(2));
-        deliveryCharge = Number(deliveryCharge.toFixed(2));
-        const finalPayable = Number((totalAmount + deliveryCharge).toFixed(2));
+
+        const finalPayable = totalAmount + deliveryCharge;
 
         const wallet = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
+        unUsedCoupons = await CouponUsage.find({ userId, used: false })
+    .populate("couponId")
+    .lean();
+
+// REMOVE INVALID COUPONS
+unUsedCoupons = unUsedCoupons.filter(c => c.couponId);
+
+        console.log(unUsedCoupons);
         return res.render("checkout", {
             user,
             peripheral,
             component,
-            cart: filteredItem,
+            cart: checkoutItems,
             address,
-            totalprice: Number(totalOriginalPrice.toFixed(2)),
+            totalprice: totalOriginalPrice,
             totalAmount: finalPayable,
             deliveryCharge,
             coupon: unUsedCoupons,
@@ -145,11 +149,14 @@ export const loadCheckoutService = async (req, res, next) => {
             noCPNAmount,
             walletBalance: wallet ? wallet.walletBalance : 0,
         });
+
     } catch (error) {
         console.error("Error loading checkout:", error);
-        next();
+        next(error);
     }
 };
+
+
 
 
 

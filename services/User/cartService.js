@@ -71,51 +71,94 @@ export const removeItemService = async (req, res) => {
 
 
 export const updateCountService = async (req, res) => {
-    const userId = req.user?._id || req.session.user;
+    const userId = req.user?._id || req.session?.user;
 
     try {
         const { action } = req.body;
         const { variantId } = req.params;
 
-        if (!userId)
-            return res.status(401).json({ success: false, message: "User not logged in." });
-
-        if (!variantId || !["inc", "dec"].includes(action))
-            return res.status(400).json({ success: false, message: "Invalid request." });
+        if (!["inc", "dec"].includes(action))
+            return res.status(400).json({ success: false, message: "Invalid action." });
 
         const cart = await Cart.findOne({ userId });
-        if (!cart)
-            return res.status(404).json({ success: false, message: "Cart not found." });
+        if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
 
         const item = cart.items.find(i => i.variantId.toString() === variantId);
-        if (!item)
-            return res.status(404).json({ success: false, message: "Item not found." });
+        if (!item) return res.status(404).json({ success: false, message: "Item not found." });
 
-        const product = await Product.findById(item.productId)
-            .populate("category");
+        // ---------------------------------------------
+        // FETCH FRESH VARIANT INFORMATION FROM PRODUCT
+        // ---------------------------------------------
+        const product = await Product.findOne(
+            { _id: item.productId, "variants._id": variantId },
+            { "variants.$": 1, category: 1 }
+        ).populate("category");
 
-        const variant = product.variants.id(variantId);
-       // If variant does NOT exist in product, but exists in cart → allow only decrease
-if (!variant) {
+        // If variant deleted → only allow decreasing
+        if (!product || !product.variants?.length) {
 
-    // If user is decreasing quantity → allow it
-    if (action === "dec") {
+            if (action === "dec") {
+                if (item.quantity === 1) {
+                    cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
+                } else {
+                    item.quantity--;
+                    item.subTotal = item.unitPrice * item.quantity;
+                }
 
-        if (item.quantity === 1) {
-            // remove item if quantity becomes 0
-            cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
-            await cart.save();
+                cart.totalAmount = cart.items.reduce((s, i) => s + i.subTotal, 0);
+                await cart.save();
 
-            return res.json({
-                success: true,
-                removed: true,
+                return res.json({
+                    success: true,
+                    quantity: item.quantity,
+                    removed: item.quantity === 0,
+                    total: cart.totalAmount
+                });
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: "This product variant is no longer available."
             });
         }
 
-        item.quantity--;
+        const variant = product.variants[0];
 
-        // Recalculate subtotal using LAST KNOWN PRICE in cart
-        item.subTotal = item.unitPrice * item.quantity;
+        // -------------------------------
+        // DETERMINE MAX ALLOWED QUANTITY
+        // -------------------------------
+        const maxAllowed = Math.min(variant.quantity, 5);
+
+        // -------------------------------
+        // HANDLE INCREMENT
+        // -------------------------------
+        if (action === "inc") {
+            if (item.quantity >= maxAllowed) {
+                return res.status(400).json({
+                    success: false,
+                    message: `You can only add up to ${maxAllowed} units.`
+                });
+            }
+
+            item.quantity++;
+        }
+
+        // -------------------------------
+        // HANDLE DECREMENT
+        // -------------------------------
+        if (action === "dec") {
+            if (item.quantity === 1) {
+                cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
+            } else {
+                item.quantity--;
+            }
+        }
+
+        // APPLY FINAL OFFER (same logic used everywhere)
+        const finalUnitPrice = applyFinalOfferToVariant(variant, product.category);
+
+        item.unitPrice = finalUnitPrice;
+        item.subTotal = finalUnitPrice * item.quantity;
 
         cart.totalAmount = cart.items.reduce((s, i) => s + i.subTotal, 0);
         await cart.save();
@@ -124,72 +167,7 @@ if (!variant) {
             success: true,
             quantity: item.quantity,
             subTotal: item.subTotal,
-            total: cart.totalAmount,
-        });
-    }
-
-    // If user is increasing → block it
-    return res.status(400).json({
-        success: false,
-        message: "The product stock is not available.",
-    });
-}
-
-        // -------------------------------
-        // QUANTITY VALIDATIONS
-        // -------------------------------
-        if (action === "inc") {
-            if (item.quantity >= variant.quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: "No more stock available.",
-                });
-            }
-
-            if (item.quantity >= item.max) {
-                return res.status(400).json({
-                    success: false,
-                    message: `You can only add up to ${item.max}`,
-                });
-            }
-
-            item.quantity++;
-        }
-
-        if (action === "dec") {
-            if (item.quantity === 1) {
-                cart.items = cart.items.filter(
-                    i => i.variantId.toString() !== variantId
-                );
-                await cart.save();
-
-                return res.json({
-                    success: true,
-                    removed: true,
-                });
-            }
-
-            item.quantity--;
-        }
-
-        // -------------------------------
-        // APPLY FINAL PRICE (correct logic)
-        // -------------------------------
-        const finalUnitPrice = applyFinalOfferToVariant(variant, product.category);
-
-        item.unitPrice = finalUnitPrice;
-        item.subTotal = finalUnitPrice * item.quantity;
-
-        // -------------------------------
-        // UPDATE CART TOTAL
-        // -------------------------------
-        cart.totalAmount = cart.items.reduce((sum, i) => sum + i.subTotal, 0);
-        await cart.save();
-        return res.json({
-            success: true,
-            quantity: item.quantity,
-            subTotal: item.subTotal,
-            total: cart.totalAmount,
+            total: cart.totalAmount
         });
 
     } catch (error) {
@@ -197,5 +175,6 @@ if (!variant) {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 

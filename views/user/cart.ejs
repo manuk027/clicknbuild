@@ -384,6 +384,7 @@
                                 document.getElementById("proceedCheckoutBtn").addEventListener("click", async () => {
 
                                     try {
+                                        // Call a lightweight backend route that only checks stock & coupons
                                         const response = await fetch("/checkout", {
                                             method: "GET",
                                             headers: {
@@ -391,29 +392,40 @@
                                             }
                                         });
 
-                                        let contentType = response.headers.get("content-type");
+                                        const contentType = response.headers.get("content-type");
+
+                                        // If backend returns JSON → something is wrong (stock, coupon, etc.)
                                         if (contentType && contentType.includes("application/json")) {
                                             const result = await response.json();
 
                                             Swal.fire({
                                                 icon: "warning",
-                                                title: "Out of Stock",
-                                                text: result.message,
+                                                title: "Cannot Proceed",
+                                                text: result.message || "Some items are unavailable.",
                                                 confirmButtonColor: "#000"
                                             });
 
                                             return;
                                         }
+
+                                        // If everything is OK → redirect to real checkout page
                                         if (response.ok) {
                                             window.location.href = "/checkout";
                                         }
 
-                                    } catch (err) {
-                                        console.error(err);
-                                        Swal.fire("Error", "Failed to reach the server!", "error");
+                                    } catch (error) {
+                                        console.error("Checkout Error:", error);
+
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Server Error",
+                                            text: "Unable to proceed to checkout. Please try again.",
+                                            confirmButtonColor: "#000"
+                                        });
                                     }
                                 });
                             </script>
+
 
 </body>
 

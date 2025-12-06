@@ -5,31 +5,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product - Admin Dashboard</title>
-    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
+    <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+        type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <style>
         @keyframes loader-slide {
-            0% { transform: translateX(-100%); }
-            50% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
+
         .animate-loader {
             animation: loader-slide 1.5s ease-in-out infinite;
         }
+
         .is-invalid {
             border-color: #dc2626 !important;
             background-color: #fef2f2 !important;
         }
+
         .error-text {
             color: #dc2626;
             font-size: 0.75rem;
             margin-top: 0.25rem;
             display: none;
         }
+
         .error-text.show {
             display: block;
         }
@@ -40,407 +53,629 @@
 
     <%- include("../../views/partials/admin/sidebar") %>
 
-    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300 ease-in-out">
-        <%- include("../../views/partials/admin/header") %>
+        <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300 ease-in-out">
+            <%- include("../../views/partials/admin/header") %>
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
-            <div class="max-w-6xl mx-auto">
-                <div class="mb-6">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Edit Product</h2>
-                </div>
-
-                <form onsubmit="return false;" id="editProductForm">
-                    
-                    <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-5 border-b pb-2">General Information</h3>
-                        <div class="space-y-5">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                                    <select name="brand" id="brand" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
-                                        <option value="">Select Brand</option>
-                                        <% brand.forEach(b => { %>
-                                            <option value="<%= b._id %>" <%= b._id.toString() === product.brand.toString() ? 'selected' : '' %>><%= b.name %></option>
-                                        <% }) %>
-                                    </select>
-                                    <p class="error-text">Brand is required.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                                    <input type="text" name="productName" id="productName" value="<%= product.model %>" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
-                                    <p class="error-text">Product Name is required.</p>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea name="description" id="description" rows="4" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none resize-none"><%= product.description %></textarea>
-                                <p class="error-text">Description is required.</p>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                    <select name="category" id="category" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
-                                        <option value="">Select Category</option>
-                                        <% category.forEach(c => { %>
-                                            <option value="<%= c._id %>" <%= c._id.toString() === product.category.toString() ? 'selected' : '' %>><%= c.name %></option>
-                                        <% }) %>
-                                    </select>
-                                    <p class="error-text">Category is required.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                    <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
-                                        <label class="flex items-center gap-2"><input type="radio" name="status" value="listed" <%= product.isListed ? 'checked' : '' %>> Listed</label>
-                                        <label class="flex items-center gap-2"><input type="radio" name="status" value="unlisted" <%= !product.isListed ? 'checked' : '' %>> Unlisted</label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                                    <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
-                                        <label class="flex items-center gap-2"><input type="radio" name="categoryType" value="component" <%= product.isComponent ? 'checked' : '' %>> Component</label>
-                                        <label class="flex items-center gap-2"><input type="radio" name="categoryType" value="peripheral" <%= product.isPeripheral ? 'checked' : '' %>> Peripheral</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex gap-4">
-                                <label class="flex items-center gap-2"><input type="checkbox" name="limitedEdition" <%= product.limitedEdition ? 'checked' : '' %>> Limited Edition</label>
-                                <label class="flex items-center gap-2"><input type="checkbox" name="flashSale" <%= product.flashSale ? 'checked' : '' %>> Flash Sale</label>
-                            </div>
+                <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="mb-6">
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Edit Product</h2>
                         </div>
-                    </section>
 
-                    <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
-                        <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h3 class="text-lg font-semibold text-gray-800">Product Images</h3>
-                            <span class="text-xs text-gray-500 font-medium" id="imageCountBadge">0/4 Images</span>
-                        </div>
-                        
-                        <div id="imageContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            <% product.images.forEach((img, idx) => { %>
-                                <div class="relative group border border-gray-200 rounded-xl overflow-hidden shadow-sm aspect-square bg-white image-item">
-                                    <img src="<%= img %>" class="w-full h-full object-cover">
-                                    <button type="button" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md remove-image">
-                                        <i class="fas fa-times"></i>
+                        <form onsubmit="return false;" id="editProductForm">
+
+                            <!-- GENERAL INFO -->
+                            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-5 border-b pb-2">General Information
+                                </h3>
+                                <div class="space-y-5">
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                                            <select name="brand" id="brand"
+                                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
+                                                <option value="">Select Brand</option>
+                                                <% brand.forEach(b=> { %>
+                                                    <option value="<%= b._id %>"
+                                                        <%=b._id.toString()===product.brand.toString() ? 'selected' : ''
+                                                        %>>
+                                                        <%= b.name %>
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                            <p class="error-text">Brand is required.</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Product
+                                                Name</label>
+                                            <input type="text" name="productName" id="productName"
+                                                value="<%= product.model %>"
+                                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
+                                            <p class="error-text">Product Name is required.</p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                        <textarea name="description" id="description" rows="4"
+                                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none resize-none"><%= product.description %></textarea>
+                                        <p class="error-text">Description is required.</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                            <select name="category" id="category"
+                                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none">
+                                                <option value="">Select Category</option>
+                                                <% category.forEach(c=> { %>
+                                                    <option value="<%= c._id %>"
+                                                        <%=c._id.toString()===product.category.toString() ? 'selected'
+                                                        : '' %>>
+                                                        <%= c.name %>
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                            <p class="error-text">Category is required.</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                            <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                                <label class="flex items-center gap-2"><input type="radio" name="status"
+                                                        value="listed" <%=product.isListed ? 'checked' : '' %>>
+                                                    Listed</label>
+                                                <label class="flex items-center gap-2"><input type="radio" name="status"
+                                                        value="unlisted" <%=!product.isListed ? 'checked' : '' %>>
+                                                    Unlisted</label>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                                            <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                                <label class="flex items-center gap-2"><input type="radio"
+                                                        name="categoryType" value="component" <%=product.isComponent
+                                                        ? 'checked' : '' %>> Component</label>
+                                                <label class="flex items-center gap-2"><input type="radio"
+                                                        name="categoryType" value="peripheral" <%=product.isPeripheral
+                                                        ? 'checked' : '' %>> Peripheral</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-4">
+                                        <label class="flex items-center gap-2"><input type="checkbox"
+                                                name="limitedEdition" <%=product.limitedEdition ? 'checked' : '' %>>
+                                            Limited Edition</label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" name="flashSale"
+                                                <%=product.flashSale ? 'checked' : '' %>> Flash Sale</label>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <!-- IMAGES -->
+                            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Product Images</h3>
+                                    <span class="text-xs text-gray-500 font-medium" id="imageCountBadge">0/4
+                                        Images</span>
+                                </div>
+
+                                <div id="imageContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                    <% product.images.forEach(img=> { %>
+                                        <div
+                                            class="relative group border border-gray-200 rounded-xl overflow-hidden shadow-sm aspect-square bg-white image-item">
+                                            <img src="<%= img %>" class="w-full h-full object-cover">
+
+                                            <button type="button"
+                                                class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md remove-image">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <% }) %>
+
+                                            <div id="uploadBox"
+                                                class="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50 hover:bg-blue-50 hover:border-blue-400 cursor-pointer transition aspect-square">
+                                                <i class="fas fa-cloud-upload-alt text-xl text-blue-500 mb-2"></i>
+                                                <p class="text-xs sm:text-sm text-gray-600">Upload</p>
+                                                <input type="file" id="imageInput" class="hidden" accept="image/*"
+                                                    multiple>
+                                            </div>
+                                </div>
+
+                                <p id="imageError" class="error-text mt-2 font-medium">You must have exactly 4 images.
+                                </p>
+                            </section>
+
+                            <!-- VARIANTS -->
+                            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
+
+                                <div class="flex justify-between items-center mb-5 border-b pb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Variants</h3>
+                                    <button type="button" id="addVariantBtn"
+                                        class="text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition">
+                                        + Add Variant
                                     </button>
                                 </div>
-                            <% }) %>
-                            
-                            <div id="uploadBox" class="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50 hover:bg-blue-50 hover:border-blue-400 cursor-pointer transition aspect-square">
-                                <i class="fas fa-cloud-upload-alt text-xl text-blue-500 mb-2"></i>
-                                <p class="text-xs sm:text-sm text-gray-600">Upload</p>
-                                <input type="file" id="imageInput" class="hidden" accept="image/*" multiple>
+
+                                <div id="variantContainer" class="space-y-4">
+
+                                    <% product.variants.forEach(v=> { %>
+                                        <div
+                                            class="variant-row grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group">
+
+                                            <input type="hidden" name="variantId[]" value="<%= v._id %>">
+
+                                            <div>
+                                                <input type="text" name="variant[]" value="<%= v.variant %>"
+                                                    placeholder="Name"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <div>
+                                                <input type="number" name="quantity[]" value="<%= v.quantity %>"
+                                                    placeholder="Qty"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <div>
+                                                <input type="number" name="price[]" value="<%= v.price %>"
+                                                    placeholder="Price"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <div>
+                                                <input type="number" name="offerPrice[]" value="<%= v.offer %>"
+                                                    placeholder="Offer"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <button type="button"
+                                                class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-variant">
+                                                <i class="fas fa-times text-xs"></i>
+                                            </button>
+
+                                        </div>
+                                        <% }) %>
+
+                                </div>
+
+                                <p id="variantMainError" class="error-text mt-2">At least one variant row is required.
+                                </p>
+                            </section>
+
+                            <!-- SPECS -->
+                            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-8">
+
+                                <div class="flex justify-between items-center mb-5 border-b pb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Specifications</h3>
+                                    <button type="button" id="addSpecBtn"
+                                        class="text-sm bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 font-medium transition">
+                                        + Add Spec
+                                    </button>
+                                </div>
+
+                                <div id="specContainer" class="space-y-4">
+                                    <% product.specification.forEach(s=> { %>
+                                        <div
+                                            class="spec-row grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group">
+
+                                            <div>
+                                                <input type="text" name="specTitle[]" value="<%= s.title %>"
+                                                    placeholder="Title"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <div>
+                                                <input type="text" name="specification[]" value="<%= s.details %>"
+                                                    placeholder="Detail"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm">
+                                                <p class="error-text"></p>
+                                            </div>
+
+                                            <button type="button"
+                                                class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-spec">
+                                                <i class="fas fa-times text-xs"></i>
+                                            </button>
+                                        </div>
+                                        <% }) %>
+                                </div>
+
+                                <p id="specMainError" class="error-text mt-2">At least one specification is required.
+                                </p>
+                            </section>
+
+                            <div class="flex flex-col-reverse sm:flex-row gap-4 pt-4 border-t border-gray-200">
+                                <a href="/admin/products"
+                                    class="w-full sm:w-auto px-6 py-3 text-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                                    Cancel
+                                </a>
+
+                                <button type="button" id="submitBtn"
+                                    class="w-full sm:flex-1 px-6 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition">
+                                    Update Product
+                                </button>
                             </div>
-                        </div>
-                        <p id="imageError" class="error-text mt-2 font-medium">You must have exactly 4 images.</p>
-                    </section>
 
-                    <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
-                        <div class="flex justify-between items-center mb-5 border-b pb-2">
-                            <h3 class="text-lg font-semibold text-gray-800">Variants</h3>
-                            <button type="button" id="addVariantBtn" class="text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-medium transition">+ Add Variant</button>
-                        </div>
-                        <div id="variantContainer" class="space-y-4">
-                            <% product.variants.forEach(v => { %>
-                                <div class="variant-row grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group">
-                                    <div><input type="text" name="variant[]" value="<%= v.variant %>" placeholder="Name" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <div><input type="number" name="quantity[]" value="<%= v.quantity %>" placeholder="Qty" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <div><input type="number" name="price[]" value="<%= v.price %>" placeholder="Price" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <div><input type="number" name="offerPrice[]" value="<%= v.offer %>" placeholder="Offer" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <button type="button" class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-variant"><i class="fas fa-times text-xs"></i></button>
-                                </div>
-                            <% }) %>
-                        </div>
-                        <p id="variantMainError" class="error-text mt-2">At least one variant row is required.</p>
-                    </section>
-
-                    <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-8">
-                        <div class="flex justify-between items-center mb-5 border-b pb-2">
-                            <h3 class="text-lg font-semibold text-gray-800">Specifications</h3>
-                            <button type="button" id="addSpecBtn" class="text-sm bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 font-medium transition">+ Add Spec</button>
-                        </div>
-                        <div id="specContainer" class="space-y-4">
-                            <% product.specification.forEach(s => { %>
-                                <div class="spec-row grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group">
-                                    <div><input type="text" name="specTitle[]" value="<%= s.title %>" placeholder="Title" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <div><input type="text" name="specification[]" value="<%= s.details %>" placeholder="Detail" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                                    <button type="button" class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-spec"><i class="fas fa-times text-xs"></i></button>
-                                </div>
-                            <% }) %>
-                        </div>
-                        <p id="specMainError" class="error-text mt-2">At least one specification is required.</p>
-                    </section>
-
-                    <div class="flex flex-col-reverse sm:flex-row gap-4 pt-4 border-t border-gray-200">
-                        <a href="/admin/products" class="w-full sm:w-auto px-6 py-3 text-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Cancel</a>
-                        <button type="button" id="submitBtn" class="w-full sm:flex-1 px-6 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition">Update Product</button>
+                        </form>
                     </div>
-                </form>
-            </div>
-        </main>
-    </div>
-
-    <div id="loader" class="fixed inset-0 bg-white/90 flex items-center justify-center z-[70] hidden">
-        <div class="flex flex-col items-center">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">clickNbuild</h1>
-            <div class="w-24 h-1 rounded-full overflow-hidden relative bg-gray-200">
-                <div class="loader-bar absolute left-0 top-0 w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-loader"></div>
-            </div>
-            <p class="text-gray-500 mt-2 text-sm">Updating...</p>
+                </main>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    
-    <script>
-        // --- Utils ---
-        function showError(input, msg) {
-            input.classList.add('is-invalid');
-            const p = input.nextElementSibling;
-            if(p) { p.innerText = msg; p.classList.add('show'); }
-        }
-        function clearErrors() {
-            document.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
-            document.querySelectorAll('.error-text').forEach(e => e.classList.remove('show'));
-        }
-        document.addEventListener('input', e => {
-            if(e.target.classList.contains('is-invalid')) {
-                e.target.classList.remove('is-invalid');
-                if(e.target.nextElementSibling) e.target.nextElementSibling.classList.remove('show');
+        <!-- Loader -->
+        <div id="loader" class="fixed inset-0 bg-white/90 flex items-center justify-center z-[70] hidden">
+            <div class="flex flex-col items-center">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">clickNbuild</h1>
+                <div class="w-24 h-1 rounded-full overflow-hidden relative bg-gray-200">
+                    <div
+                        class="loader-bar absolute left-0 top-0 w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-loader">
+                    </div>
+                </div>
+                <p class="text-gray-500 mt-2 text-sm">Updating...</p>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+        <script>
+            // --- Utils ---
+            function showError(input, msg) {
+                input.classList.add('is-invalid');
+                const p = input.nextElementSibling;
+                if (p) { p.innerText = msg; p.classList.add('show'); }
             }
-        });
 
-        // --- Image Logic (Strict 4 Limit) ---
-        let newImages = []; // Stores objects: { element: div, cropper: instance }
-        const imageInput = document.getElementById("imageInput");
-        const uploadBox = document.getElementById("uploadBox");
-        const imageContainer = document.getElementById("imageContainer");
-        const countBadge = document.getElementById("imageCountBadge");
-
-        // UI State Updater
-        function updateImageState() {
-            const currentImages = document.querySelectorAll('.image-item').length;
-            countBadge.innerText = `${currentImages}/4 Images`;
-            
-            // Hide upload box if 4 or more
-            if (currentImages >= 4) {
-                uploadBox.classList.add('hidden');
-                // Auto-clear error if count is correct
-                document.getElementById('imageError').classList.remove('show');
-            } else {
-                uploadBox.classList.remove('hidden');
+            function clearErrors() {
+                document.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
+                document.querySelectorAll('.error-text').forEach(e => e.classList.remove('show'));
             }
-        }
 
-        // Initialize on Load
-        updateImageState();
+            // Remove red error styling on input
+            document.addEventListener('input', e => {
+                if (e.target.classList.contains('is-invalid')) {
+                    e.target.classList.remove('is-invalid');
+                    if (e.target.nextElementSibling) e.target.nextElementSibling.classList.remove('show');
+                }
+            });
 
-        uploadBox.addEventListener("click", () => imageInput.click());
+            // --- Image Logic (Strict 4 Limit) ---
+            let newImages = [];
+            const imageInput = document.getElementById("imageInput");
+            const uploadBox = document.getElementById("uploadBox");
+            const imageContainer = document.getElementById("imageContainer");
+            const countBadge = document.getElementById("imageCountBadge");
 
-        imageInput.addEventListener("change", (e) => {
-            const files = Array.from(e.target.files);
-            const currentCount = document.querySelectorAll('.image-item').length;
-            
-            // 1. Strict Check
-            if (currentCount + files.length > 4) {
-                Swal.fire('Limit Reached', `You have ${currentCount} images. You can only add ${4 - currentCount} more.`, 'warning');
+            function updateImageState() {
+                const currentImages = document.querySelectorAll('.image-item').length;
+                countBadge.innerText = `${currentImages}/4 Images`;
+
+                if (currentImages >= 4) {
+                    uploadBox.classList.add('hidden');
+                    document.getElementById('imageError').classList.remove('show');
+                } else uploadBox.classList.remove('hidden');
+            }
+            updateImageState();
+
+            uploadBox.addEventListener("click", () => imageInput.click());
+
+            imageInput.addEventListener("change", e => {
+                const files = Array.from(e.target.files);
+                const currentCount = document.querySelectorAll('.image-item').length;
+
+                if (currentCount + files.length > 4) {
+                    Swal.fire('Limit Reached', `You already have ${currentCount}. Max 4 allowed.`, 'warning');
+                    imageInput.value = '';
+                    return;
+                }
+
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const div = document.createElement("div");
+                        div.className = "relative border border-gray-200 rounded-xl overflow-hidden shadow-sm aspect-square bg-white image-item";
+
+                        const img = document.createElement("img");
+                        img.src = reader.result;
+                        img.className = "w-full h-full object-cover";
+                        div.appendChild(img);
+
+                        imageContainer.insertBefore(div, uploadBox);
+
+                        const cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
+                        newImages.push({ cropper, element: div });
+
+                        const btn = document.createElement('button');
+                        btn.className = "absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md remove-image";
+                        btn.innerHTML = '<i class="fas fa-times"></i>';
+                        div.appendChild(btn);
+
+                        updateImageState();
+                    };
+                    reader.readAsDataURL(file);
+                });
+
                 imageInput.value = '';
-                return;
-            }
-
-            // 2. Process Files
-            files.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const div = document.createElement("div");
-                    div.className = "relative border border-gray-200 rounded-xl overflow-hidden shadow-sm aspect-square bg-white image-item";
-                    
-                    const img = document.createElement("img");
-                    img.src = reader.result;
-                    img.className = "block w-full h-full object-cover";
-                    div.appendChild(img);
-                    
-                    // Insert before upload box
-                    imageContainer.insertBefore(div, uploadBox);
-
-                    const cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
-                    
-                    // Track this new image
-                    newImages.push({ cropper: cropper, element: div });
-
-                    const btn = document.createElement('button');
-                    btn.className = "absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md z-10 remove-image";
-                    btn.innerHTML = '<i class="fas fa-times"></i>';
-                    div.appendChild(btn); 
-                    
-                    updateImageState(); 
-                };
-                reader.readAsDataURL(file);
             });
-            imageInput.value = '';
-        });
 
-        // Delete Delegation
-        document.addEventListener('click', function(e) {
-            // Remove Variant/Spec
-            if (e.target.closest('.remove-variant')) e.target.closest('.variant-row').remove();
-            if (e.target.closest('.remove-spec')) e.target.closest('.spec-row').remove();
+            // Delete image / variant / spec
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('.remove-variant')) e.target.closest('.variant-row').remove();
+                if (e.target.closest('.remove-spec')) e.target.closest('.spec-row').remove();
+
+                if (e.target.closest('.remove-image')) {
+                    const item = e.target.closest('.image-item');
+                    newImages = newImages.filter(i => i.element !== item);
+                    item.remove();
+                    updateImageState();
+                }
+            });
+
+            // Add Variant
+            document.getElementById('addVariantBtn').addEventListener('click', () => {
+                const div = document.createElement('div');
+                div.className = 'variant-row grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group';
+
+                div.innerHTML = `
+            <input type="hidden" name="variantId[]" value="">
             
-            // Remove Image
-            if (e.target.closest('.remove-image')) {
-                const item = e.target.closest('.image-item');
-                // Remove from newImages array if it exists there
-                newImages = newImages.filter(i => i.element !== item);
-                item.remove();
-                updateImageState(); 
-            }
-        });
+            <div>
+                <input type="text" name="variant[]" placeholder="Name" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
 
-        // --- Add Dynamic Fields ---
-        document.getElementById('addVariantBtn').addEventListener('click', () => {
-            const div = document.createElement('div');
-            div.className = 'variant-row grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group';
-            div.innerHTML = `<div><input type="text" name="variant[]" placeholder="Name" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <div><input type="number" name="quantity[]" placeholder="Qty" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <div><input type="number" name="price[]" placeholder="Price" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <div><input type="number" name="offerPrice[]" placeholder="Offer" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <button type="button" class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-variant"><i class="fas fa-times text-xs"></i></button>`;
-            document.getElementById('variantContainer').appendChild(div);
-        });
+            <div>
+                <input type="number" name="quantity[]" placeholder="Qty" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
 
-        document.getElementById('addSpecBtn').addEventListener('click', () => {
-            const div = document.createElement('div');
-            div.className = 'spec-row grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group';
-            div.innerHTML = `<div><input type="text" name="specTitle[]" placeholder="Title" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <div><input type="text" name="specification[]" placeholder="Detail" class="w-full px-3 py-2 border rounded-lg text-sm"><p class="error-text"></p></div>
-                             <button type="button" class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-spec"><i class="fas fa-times text-xs"></i></button>`;
-            document.getElementById('specContainer').appendChild(div);
-        });
+            <div>
+                <input type="number" name="price[]" placeholder="Price" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
 
+            <div>
+                <input type="number" name="offerPrice[]" placeholder="Offer" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
 
-        // --- Submit Logic ---
-        document.getElementById("submitBtn").addEventListener("click", async () => {
-            clearErrors();
-            let isValid = true;
-            let firstErr = null;
+            <button type="button"
+                class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-variant">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        `;
 
-            // 1. Basic Fields
-            ['brand', 'productName', 'description', 'category'].forEach(id => {
-                const el = document.getElementById(id);
-                if(!el.value.trim()) { showError(el, `${id} is required`); isValid = false; if(!firstErr) firstErr=el; }
+                document.getElementById('variantContainer').appendChild(div);
             });
 
-            // 2. Images Count
-            const imgCount = document.querySelectorAll('.image-item').length;
-            if(imgCount !== 4) {
-                document.getElementById('imageError').classList.add('show');
-                isValid = false; if(!firstErr) firstErr = document.getElementById('imageContainer');
-            }
+            // Add specification
+            document.getElementById('addSpecBtn').addEventListener('click', () => {
+                const div = document.createElement('div');
+                div.className = 'spec-row grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 sm:bg-white rounded-xl border border-gray-200 relative group';
 
-            // 3. Variants
-            const vRows = document.querySelectorAll('.variant-row');
-            if(vRows.length===0) { document.getElementById('variantMainError').classList.add('show'); isValid=false; }
-            const variants = [];
-            vRows.forEach(row => {
-                const [n, q, p, o] = row.querySelectorAll('input');
-                let rv = true;
-                if(!n.value.trim()) { showError(n,'Required'); rv=false; }
-                if(!q.value) { showError(q,'Required'); rv=false; } else if(q.value<0) { showError(q,'No negative'); rv=false; }
-                if(!p.value) { showError(p,'Required'); rv=false; } else if(p.value<=0) { showError(p,'>0 required'); rv=false; }
-                if(!o.value) { showError(o,'Required'); rv=false; } else if(o.value<0) { showError(o,'No negative'); rv=false; }
-                
-                if(p.value && o.value && Number(p.value) <= Number(o.value)) {
-                    showError(p, 'Must be greater than Offer'); showError(o, 'Must be less than Price'); rv=false;
-                }
+                div.innerHTML = `
+            <div>
+                <input type="text" name="specTitle[]" placeholder="Title" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
+            <div>
+                <input type="text" name="specification[]" placeholder="Detail" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <p class="error-text"></p>
+            </div>
+            <button type="button"
+                class="absolute -top-2 -right-2 bg-red-100 text-red-600 w-6 h-6 rounded-full flex items-center justify-center remove-spec">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        `;
 
-                if(rv) variants.push({ variant:n.value, quantity:q.value, price:p.value, offer:o.value });
-                else isValid = false;
+                document.getElementById('specContainer').appendChild(div);
             });
 
-            // 4. Specs
-            const sRows = document.querySelectorAll('.spec-row');
-            if(sRows.length===0) { document.getElementById('specMainError').classList.add('show'); isValid=false; }
-            const specs = [];
-            sRows.forEach(row => {
-                const [t, d] = row.querySelectorAll('input');
-                if(!t.value.trim() || !d.value.trim()) {
-                    if(!t.value.trim()) showError(t, 'Required');
-                    if(!d.value.trim()) showError(d, 'Required');
-                    isValid=false;
-                } else {
-                    specs.push({ title:t.value, details:d.value });
-                }
-            });
+            // --- SUBMIT LOGIC (WITH FIXED VARIANT VALIDATION) ---
+            document.getElementById("submitBtn").addEventListener("click", async () => {
+                clearErrors();
+                let isValid = true;
+                let firstErr = null;
 
-            if(!isValid) {
-                if(firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
-                return;
-            }
-
-            // Proceed
-            document.getElementById('loader').classList.remove('hidden');
-            try {
-                // Upload New Images
-                const newCloudUrls = [];
-                for(let item of newImages) {
-                    const canvas = item.cropper.getCroppedCanvas({ width:800, height:800 });
-                    const blob = await new Promise(r => canvas.toBlob(r));
-                    const fd = new FormData();
-                    fd.append("file", blob);
-                    fd.append("upload_preset", "product_upload");
-                    const res = await axios.post("https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload", fd);
-                    newCloudUrls.push(res.data.secure_url);
-                }
-
-                // Construct Final Image Array based on DOM order
-                const finalImages = [];
-                const allImageDivs = document.querySelectorAll('.image-item');
-                
-                allImageDivs.forEach(div => {
-                    // Check if this div is a NEW upload (exists in newImages tracking)
-                    const isNew = newImages.some(item => item.element === div);
-                    
-                    if (isNew) {
-                        // Take the next available new URL
-                        finalImages.push(newCloudUrls.shift());
-                    } else {
-                        // It's an old existing image, find the img tag and get src
-                        // Cropper never touched this, so structure is simple div > img
-                        const imgTag = div.querySelector('img');
-                        finalImages.push(imgTag.src);
+                // BASIC required fields
+                ['brand', 'productName', 'description', 'category'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el.value.trim()) {
+                        showError(el, `${id} is required`);
+                        isValid = false;
+                        if (!firstErr) firstErr = el;
                     }
                 });
 
-                const payload = {
-                    brand: document.getElementById('brand').value,
-                    productName: document.getElementById('productName').value,
-                    description: document.getElementById('description').value,
-                    category: document.getElementById('category').value,
-                    status: document.querySelector('input[name="status"]:checked').value,
-                    categoryType: document.querySelector('input[name="categoryType"]:checked').value,
-                    limitedEdition: document.querySelector('input[name="limitedEdition"]').checked,
-                    flashSale: document.querySelector('input[name="flashSale"]').checked,
-                    variants, specifications: specs, images: finalImages
-                };
-
-                const res = await fetch(`/admin/products/editProduct/<%= product._id %>`, {
-                    method: "PUT", headers: {"Content-Type":"application/json"},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                
-                document.getElementById('loader').classList.add('hidden');
-                if(data.success) {
-                    Swal.fire('Success', 'Updated', 'success').then(() => window.location.href="/admin/products");
-                } else {
-                    Swal.fire('Error', data.message, 'error');
+                // IMAGE count validation
+                const imgCount = document.querySelectorAll('.image-item').length;
+                if (imgCount !== 4) {
+                    document.getElementById('imageError').classList.add('show');
+                    isValid = false;
                 }
-            } catch(e) {
-                document.getElementById('loader').classList.add('hidden');
-                console.error(e);
-                Swal.fire('Error', 'Update failed', 'error');
-            }
-        });
-    </script>
+
+                // VARIANT VALIDATION (FULLY FIXED)
+                const vRows = document.querySelectorAll('.variant-row');
+                const variants = [];
+
+                if (vRows.length === 0) {
+                    document.getElementById('variantMainError').classList.add('show');
+                    isValid = false;
+                }
+
+                vRows.forEach(row => {
+
+                    const inputs = row.querySelectorAll("input");
+                    const idField = inputs[0];
+                    const nameField = inputs[1];
+                    const qtyField = inputs[2];
+                    const priceField = inputs[3];
+                    const offerField = inputs[4];
+
+                    let rowOK = true;
+
+                    // Name
+                    if (!nameField.value.trim()) {
+                        showError(nameField, 'Required');
+                        rowOK = false;
+                    }
+
+                    // Quantity
+                    if (!qtyField.value.trim()) {
+                        showError(qtyField, 'Required');
+                        rowOK = false;
+                    } else if (Number(qtyField.value) <= 0) {
+                        showError(qtyField, 'Must be > 0');
+                        rowOK = false;
+                    }
+
+                    // Price
+                    if (!priceField.value.trim()) {
+                        showError(priceField, 'Required');
+                        rowOK = false;
+                    } else if (Number(priceField.value) <= 0) {
+                        showError(priceField, 'Must be > 0');
+                        rowOK = false;
+                    }
+
+                    // Offer
+                    if (!offerField.value.trim()) {
+                        showError(offerField, 'Required');
+                        rowOK = false;
+                    } else if (Number(offerField.value) < 0) {
+                        showError(offerField, 'Cannot be negative');
+                        rowOK = false;
+                    }
+
+                    // Offer < Price
+                    if (priceField.value && offerField.value &&
+                        Number(offerField.value) >= Number(priceField.value)) {
+
+                        showError(priceField, 'Price must be > Offer');
+                        showError(offerField, 'Offer must be < Price');
+                        rowOK = false;
+                    }
+
+                    if (rowOK) {
+                        variants.push({
+                            _id: idField.value || null,
+                            variant: nameField.value.trim(),
+                            quantity: Number(qtyField.value),
+                            price: Number(priceField.value),
+                            offer: Number(offerField.value)
+                        });
+                    } else {
+                        isValid = false;
+                    }
+                });
+
+                // SPECIFICATIONS
+                const specRows = document.querySelectorAll('.spec-row');
+                const specs = [];
+
+                if (specRows.length === 0) {
+                    document.getElementById('specMainError').classList.add('show');
+                    isValid = false;
+                }
+
+                specRows.forEach(row => {
+                    const t = row.querySelector('input[name="specTitle[]"]');
+                    const d = row.querySelector('input[name="specification[]"]');
+
+                    if (!t.value.trim()) {
+                        showError(t, 'Required');
+                        isValid = false;
+                    }
+                    if (!d.value.trim()) {
+                        showError(d, 'Required');
+                        isValid = false;
+                    }
+
+                    if (t.value.trim() && d.value.trim()) {
+                        specs.push({ title: t.value.trim(), details: d.value.trim() });
+                    }
+                });
+
+                if (!isValid) {
+                    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                // Show loader
+                document.getElementById('loader').classList.remove('hidden');
+
+                try {
+
+                    // Upload Cropped Images
+                    const uploadedNewImages = [];
+                    for (let item of newImages) {
+                        const canvas = item.cropper.getCroppedCanvas({ width: 800, height: 800 });
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve));
+                        const fd = new FormData();
+                        fd.append("file", blob);
+                        fd.append("upload_preset", "product_upload");
+
+                        const res = await axios.post("https://api.cloudinary.com/v1_1/dmx7sia5q/image/upload", fd);
+                        uploadedNewImages.push(res.data.secure_url);
+                    }
+
+                    // Construct final image list
+                    const finalImages = [];
+                    const allImageDivs = document.querySelectorAll('.image-item');
+
+                    allImageDivs.forEach(div => {
+                        const isNew = newImages.some(i => i.element === div);
+                        if (isNew) finalImages.push(uploadedNewImages.shift());
+                        else finalImages.push(div.querySelector('img').src);
+                    });
+
+                    const payload = {
+                        brand: document.getElementById('brand').value,
+                        productName: document.getElementById('productName').value,
+                        description: document.getElementById('description').value,
+                        category: document.getElementById('category').value,
+                        status: document.querySelector('input[name="status"]:checked').value,
+                        categoryType: document.querySelector('input[name="categoryType"]:checked').value,
+                        limitedEdition: document.querySelector('input[name="limitedEdition"]').checked,
+                        flashSale: document.querySelector('input[name="flashSale"]').checked,
+                        variants,
+                        specifications: specs,
+                        images: finalImages
+                    };
+
+                    const res = await fetch(`/admin/products/editProduct/<%= product._id %>`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const response = await res.json();
+                    document.getElementById('loader').classList.add('hidden');
+
+                    if (response.success) {
+                        Swal.fire('Success', 'Product updated successfully!', 'success')
+                            .then(() => window.location.href = "/admin/products");
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+
+                } catch (error) {
+                    document.getElementById('loader').classList.add('hidden');
+                    console.error(error);
+                    Swal.fire('Error', 'Update failed', 'error');
+                }
+
+            });
+        </script>
+
 </body>
+
 </html>

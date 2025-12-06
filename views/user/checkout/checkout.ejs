@@ -12,18 +12,22 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
+
     <!-- Header -->
     <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
 
         <div class="max-w-7xl mx-auto p-4 md:p-8">
-            <!-- Order Summary and Address Section -->
+
+            <!-- Order Summary + Address -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Left: Order Summary -->
+
+                <!-- Left: Coupon Summary -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
-                    <%if(coupon.length>=1){%>
+                    <% if(coupon.length>= 1) { %>
                         <form id="couponForm">
                             <div class="space-y-4 mb-6">
-                                <% for (let i=0; i < coupon.length; i++) { %>
+
+                                <% for (let i=0; i<coupon.length; i++) { %>
                                     <label class="block cursor-pointer">
                                         <input type="radio" name="couponId" value="<%= coupon[i].couponId._id %>"
                                             class="peer hidden" />
@@ -34,7 +38,7 @@
                                                     alt="Coupon" class="w-10 h-10 rounded-lg">
 
                                                 <span class="text-sm text-gray-600">
-                                                    <%= coupon[i].couponId.discount %>% off on products above ₹
+                                                    <%= coupon[i].couponId.discount %>% off above ₹
                                                         <%=coupon[i].couponId.minimumPurchase %>
                                                 </span>
                                             </div>
@@ -44,10 +48,9 @@
                                             </span>
 
                                         </div>
-
                                     </label>
-
                                     <% } %>
+
                             </div>
 
                             <div class="mt-4 items-center flex gap-3">
@@ -55,6 +58,7 @@
                                     class="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
                                     Apply Coupon
                                 </button>
+
                                 <a href="/checkout"
                                     class="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-black transition text-center">
                                     Remove Coupon
@@ -62,14 +66,15 @@
                             </div>
 
                         </form>
-                        <%}else {%>
+                        <% } else { %>
                             <div
-                                class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
+                                class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300">
                                 <p>No coupons found!</p>
                             </div>
-                            <%}%>
+                            <% } %>
+
                                 <script>
-                                    document.getElementById("couponForm").addEventListener("submit", async function (e) {
+                                    document.getElementById("couponForm")?.addEventListener("submit", async function (e) {
                                         e.preventDefault();
 
                                         const selectedCoupon = document.querySelector('input[name="couponId"]:checked');
@@ -94,37 +99,27 @@
 
                                             const contentType = response.headers.get("content-type");
 
-                                            // =============================
-                                            // CASE 1 → JSON Response
-                                            // =============================
-                                            if (contentType && contentType.includes("application/json")) {
+                                            if (contentType?.includes("application/json")) {
                                                 const data = await response.json();
 
                                                 if (data.success) {
                                                     Swal.fire({
                                                         icon: "success",
                                                         title: "Coupon Applied!",
-                                                        text: data.message || "Coupon successfully applied.",
                                                         confirmButtonColor: "#000"
                                                     }).then(() => window.location.reload());
                                                 } else {
                                                     Swal.fire({
                                                         icon: "error",
-                                                        title: "Cannot Apply Coupon",
-                                                        text: data.message || "Something went wrong.",
+                                                        title: "Error",
+                                                        text: data.message,
                                                         confirmButtonColor: "#000"
                                                     });
                                                 }
-
                                                 return;
                                             }
 
-                                            // =============================
-                                            // CASE 2 → HTML Response (res.render)
-                                            // =============================
                                             const html = await response.text();
-
-                                            // Replace the full page with the returned HTML
                                             document.open();
                                             document.write(html);
                                             document.close();
@@ -139,28 +134,17 @@
                                         }
                                     });
                                 </script>
-
-
-
-
-                                <!-- <button
-                                class="w-full bg-black text-white py-4 rounded-xl font-medium flex items-center justify-between px-6 hover:bg-gray-800 transition">
-                                <span>View all coupons</span>
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7">
-                                    </path>
-                                </svg>
-                            </button> -->
                 </div>
 
-                <!-- Right: Address Selection -->
+                <!-- Right: Address Section -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <h2 class="text-center font-semibold text-lg mb-6">CHOOSE DELIVERY POINT</h2>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <% for (let i=0; i < address.length; i++) { %>
+                        <% for (let i=0; i<address.length; i++) { %>
                             <div class="address-card border border-gray-200 rounded-2xl p-4 mb-3 relative"
                                 data-index="<%= i %>">
+
                                 <h3 class="font-semibold mb-1">
                                     <%= address[i].fullName %>
                                 </h3>
@@ -187,53 +171,59 @@
                                 </p>
 
                                 <button
-                                    class="deliver-btn w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition">DELIVER
-                                    HERE</button>
+                                    class="deliver-btn w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition">
+                                    DELIVER HERE
+                                </button>
+
                                 <div
                                     class="selected-indicator hidden absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                    Selected</div>
+                                    Selected
+                                </div>
                             </div>
                             <% } %>
 
-                                <!-- Add new Address -->
                                 <div id="openAddressForm"
-                                    class="deliver-btn w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-center text-sm font-medium text-gray-600 cursor-pointer bg-white hover:border-gray-400 transition flex items-center justify-center">
-                                    <span>Add new Address</span>
+                                    class="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-center text-sm font-medium text-gray-600 cursor-pointer hover:border-gray-400 transition">
+                                    Add new Address
                                 </div>
 
-                                <!-- Address Selection Script -->
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function () {
-                                        const addressCards = document.querySelectorAll(".address-card");
-                                        if (addressCards.length > 0) selectAddress(addressCards[0]);
+                                        const cards = document.querySelectorAll(".address-card");
 
-                                        addressCards.forEach(card => {
-                                            const button = card.querySelector(".deliver-btn");
-                                            button.addEventListener("click", () => selectAddress(card));
+                                        if (cards.length > 0) selectAddress(cards[0]);
+
+                                        cards.forEach(card => {
+                                            card.querySelector(".deliver-btn").addEventListener("click", () => selectAddress(card));
                                         });
 
-                                        function selectAddress(selectedCard) {
-                                            addressCards.forEach(card => {
-                                                card.classList.remove("border-green-500");
-                                                card.querySelector(".deliver-btn").classList.remove("hidden");
-                                                card.querySelector(".selected-indicator").classList.add("hidden");
+                                        function selectAddress(active) {
+                                            cards.forEach(c => {
+                                                c.classList.remove("border-green-500");
+                                                c.querySelector(".deliver-btn").classList.remove("hidden");
+                                                c.querySelector(".selected-indicator").classList.add("hidden");
                                             });
-                                            selectedCard.classList.add("border-green-500");
-                                            selectedCard.querySelector(".deliver-btn").classList.add("hidden");
-                                            selectedCard.querySelector(".selected-indicator").classList.remove("hidden");
+
+                                            active.classList.add("border-green-500");
+                                            active.querySelector(".deliver-btn").classList.add("hidden");
+                                            active.querySelector(".selected-indicator").classList.remove("hidden");
                                         }
                                     });
                                 </script>
                     </div>
+
                 </div>
             </div>
-
             <!-- Payment & Product Summary -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Payment Methods -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-4">Payment Methods</h2>
                     <p class="text-sm text-gray-600 mb-6">Select any payment method</p>
+
                     <div class="space-y-4">
+
                         <label
                             class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition">
                             <input type="radio" name="paymentMethod" value="COD" class="w-5 h-5 text-black">
@@ -241,32 +231,31 @@
                         </label>
 
                         <label
-                            class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition mt-4">
+                            class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition">
                             <input type="radio" name="paymentMethod" value="Online" class="w-5 h-5 text-black">
                             <span class="ml-3 font-medium">Online Payment</span>
                         </label>
 
                         <% const isLowBalance=walletBalance < totalAmount; %>
 
-                            <label class="flex items-center p-4 border rounded-xl transition mt-4 w-full 
-    <%= isLowBalance ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer hover:bg-gray-50' %>">
-
+                            <label
+                                class="flex items-center p-4 border rounded-xl transition mt-4 w-full 
+                        <%= isLowBalance ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer hover:bg-gray-50' %>">
                                 <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black"
-                                    <%=isLowBalance ? 'disabled' : '' %>
-                                >
+                                    <%=isLowBalance ? 'disabled' : '' %>>
 
                                 <div class="flex-1 flex justify-between items-center ml-3">
                                     <span class="font-medium">Wallet</span>
-
                                     <div class="flex items-center gap-3">
                                         <span class="font-medium">₹<%= walletBalance %></span>
-                                        <% if(isLowBalance){ %>
-                                            <span
-                                                class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">Insufficient</span>
+
+                                        <% if (isLowBalance) { %>
+                                            <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">
+                                                Insufficient
+                                            </span>
                                             <% } %>
                                     </div>
                                 </div>
-
                             </label>
 
                     </div>
@@ -274,73 +263,78 @@
 
                 <!-- Order Details -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
-                    <% for(let i=0; i<cart.length; i++){ %>
+
+                    <% for (let i=0; i<cart.length; i++) { %>
                         <div class="flex items-start justify-between mb-4 pb-4 border-b"
                             data-product-id="<%= cart[i].productId._id %>"
                             data-variant-id="<%= cart[i].productId.selectedVariant._id %>"
                             data-image="<%= cart[i].productId.images[0] %>"
                             data-name="<%= cart[i].productId.brand?.name %> <%= cart[i].productId.model %> <%= cart[i].productId.selectedVariant.variant %>">
+
                             <div class="flex items-center gap-3">
-                                <img src="<%= cart[i].productId.images[0] %>" alt="Product Image"
-                                    class="w-16 h-16 rounded-lg object-cover">
+                                <img src="<%= cart[i].productId.images[0] %>" class="w-16 h-16 rounded-lg object-cover">
+
                                 <div>
                                     <h4 class="font-medium">
                                         <%= cart[i].productId.brand?.name %>
-                                            <%= cart[i].productId?.model %>
-                                                <%= cart[i].productId?.selectedVariant.variant %>
+                                            <%= cart[i].productId.model %>
+                                                <%= cart[i].productId.selectedVariant.variant %>
                                     </h4>
+
                                     <p class="text-sm text-gray-600">Quantity : <%= cart[i].quantity %>
                                     </p>
                                 </div>
                             </div>
-                            <span class="font-semibold">₹<%= cart[i].subTotal %></span>
+
+                            <span class="font-semibold">
+                                ₹<%= cart[i].subTotal %>
+                            </span>
                         </div>
                         <% } %>
 
+                            <!-- Price Summary -->
                             <div class="space-y-3 mb-6">
+
                                 <div class="flex justify-between text-gray-700">
                                     <span>Price:</span>
                                     <span>
                                         <%= totalprice %>
                                     </span>
                                 </div>
+
                                 <div class="flex justify-between text-green-600">
                                     <span>Discount:</span>
-
-                                    <span>-<%=totalprice - noCPNAmount%></span>
+                                    <span>-<%= totalprice - noCPNAmount %></span>
                                 </div>
+
                                 <div class="flex justify-between text-gray-700"
                                     data-coupon-id="<%= appliedCoupon?._id %>">
-                                    <p>Applied Coupons: (<%= appliedCoupon?.name ? appliedCoupon.name : "NIL" %>)</p>
-                                    <span class="text-green-600">
-                                        <p>-<%= couponOffer ? couponOffer : "0" %>
-                                        </p>
-                                    </span>
+                                    <p>Applied Coupons: (<%= appliedCoupon?.name || "NIL" %>)</p>
+                                    <span class="text-green-600">-<%= couponOffer || "0" %></span>
                                 </div>
 
                                 <div class="flex justify-between text-gray-700">
-                                    <p>Delivery charge: </p>
+                                    <p>Delivery charge:</p>
                                     <span class="text-green-600">
-                                        <p>
-                                            <%= deliveryCharge===0 ? "Free" : "₹" + deliveryCharge %>
-                                        </p>
+                                        <%= deliveryCharge===0 ? "Free" : "₹" + deliveryCharge %>
                                     </span>
                                 </div>
+
                             </div>
 
-                            <!-- Total -->
+                            <!-- Total Amount -->
                             <div class="flex justify-between text-lg font-semibold mb-6 pt-4 border-t">
                                 <span>Total Amount:</span>
                                 <span>₹ <%= totalAmount %></span>
                             </div>
 
-                            <!-- Place Order Button -->
+                            <!-- Place Order -->
                             <button id="placeOrderBtn"
                                 class="w-full bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-800 transition">
                                 Place Order
                             </button>
 
-                            <!-- ✅ Script: Send Product ID, Variant ID, Image, and Single Name -->
+                            <!-- Razorpay Script -->
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
                             <script>
@@ -350,10 +344,9 @@
 
                                     placeOrderBtn.addEventListener("click", async () => {
 
-                                        /* ============================================================
-                                           1️⃣ VALIDATE ADDRESS
-                                        ============================================================ */
+                                        /* 1️⃣ VALIDATE ADDRESS */
                                         const selectedCard = document.querySelector(".address-card.border-green-500");
+
                                         if (!selectedCard) {
                                             return Swal.fire({
                                                 icon: "warning",
@@ -374,25 +367,14 @@
                                             landmark: selectedCard.querySelectorAll("p")[6]?.textContent.trim() || ""
                                         };
 
-
-                                        /* ============================================================
-                                           2️⃣ OPTIONAL COUPON
-                                        ============================================================ */
+                                        /* 2️⃣ OPTIONAL COUPON */
                                         const couponElement = document.querySelector("[data-coupon-id]");
                                         const couponId = couponElement?.dataset.couponId || null;
 
-
-                                        /* ============================================================
-                                           3️⃣ COLLECT PRODUCT DETAILS
-                                        ============================================================ */
-                                        const productCards = document.querySelectorAll(".border-b");
+                                        /* 3️⃣ PRODUCTS */
                                         const products = Array.from(document.querySelectorAll("[data-product-id]")).map(card => {
-                                            const quantityText = card.querySelector("p")?.textContent.trim();
-                                            const quantity = parseInt(quantityText?.split(":")[1]) || 1;
-
-                                            const subTotal = parseFloat(
-                                                card.querySelector("span.font-semibold")?.textContent.replace(/[₹,\s]/g, "")
-                                            ) || 0;
+                                            const quantity = parseInt(card.querySelector("p").textContent.split(":")[1]) || 1;
+                                            const subTotal = parseFloat(card.querySelector("span.font-semibold").textContent.replace(/[₹,\s]/g, ""));
 
                                             return {
                                                 productId: card.dataset.productId,
@@ -404,25 +386,20 @@
                                             };
                                         });
 
-
-                                        /* ============================================================
-                                           4️⃣ PAYMENT METHOD
-                                        ============================================================ */
+                                        /* 4️⃣ PAYMENT METHOD */
                                         const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
                                         if (!selectedPayment) {
                                             return Swal.fire({
                                                 icon: "warning",
                                                 title: "Payment Method Required",
-                                                text: "Please choose COD or Online Payment.",
                                                 confirmButtonColor: "#000"
                                             });
                                         }
+
                                         const paymentMethod = selectedPayment.value;
 
-
-                                        /* ============================================================
-                                           5️⃣ DELIVERY FEE + TOTAL
-                                        ============================================================ */
+                                        /* 5️⃣ DELIVERY + TOTAL */
                                         const deliveryFeeText = document.querySelector(
                                             "div.flex.justify-between.text-gray-700 span.text-green-600 p"
                                         )?.textContent.trim();
@@ -430,16 +407,12 @@
                                         const deliveryFee = deliveryFeeText === "Free" ? 0 :
                                             parseFloat(deliveryFeeText.replace(/[₹,\s]/g, "")) || 0;
 
-                                        const totalText = document.querySelector(
-                                            "div.flex.justify-between.text-lg.font-semibold span:last-child"
-                                        )?.textContent;
+                                        const totalAmount = parseFloat(
+                                            document.querySelector("div.flex.justify-between.text-lg.font-semibold span:last-child")
+                                                .textContent.replace(/[₹,\s]/g, "")
+                                        );
 
-                                        const totalAmount = parseFloat(totalText?.replace(/[₹,\s]/g, "")) || 0;
-
-
-                                        /* ============================================================
-                                           FINAL ORDER DATA
-                                        ============================================================ */
+                                        /* FINAL ORDER DATA */
                                         const orderData = {
                                             address,
                                             products,
@@ -448,176 +421,13 @@
                                             deliveryFee,
                                             couponId
                                         };
-
-
-                                        /* ============================================================
-                                           6️⃣ COD → DIRECT ORDER
-                                        ============================================================ */
-                                        if (paymentMethod === "COD") {
-                                            try {
-                                                placeOrderBtn.disabled = true;
-                                                placeOrderBtn.textContent = "Placing Order...";
-
-                                                const response = await fetch("/checkout/place-order", {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    body: JSON.stringify(orderData)
-                                                });
-
-                                                const result = await response.json();
-
-                                                if (result.success) {
-                                                    Swal.fire({
-                                                        icon: "success",
-                                                        title: "Order Placed!",
-                                                        confirmButtonColor: "#000"
-                                                    }).then(() => {
-                                                        window.location.href = `/order/summary/${result.received.orderId}`;
-                                                    });
-                                                } else {
-                                                    Swal.fire("Error", result.message, "error");
-                                                }
-
-                                            } catch (err) {
-                                                Swal.fire("Error", "Network error", "error");
-                                            }
-
-                                            placeOrderBtn.disabled = false;
-                                            placeOrderBtn.textContent = "Place Order";
-                                            return;
-                                        } else if (paymentMethod === 'Wallet') {
-                                            try {
-                                                placeOrderBtn.disabled = true;
-                                                placeOrderBtn.textContent = 'Placing Order...';
-                                                const response = await fetch('/checkout/place-order', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify(orderData)
-                                                });
-                                                const result = await response.json();
-                                                if (result.success) {
-                                                    Swal.fire({
-                                                        icon: "success",
-                                                        title: "Order Placed!",
-                                                        confirmButtonColor: '#000'
-                                                    }).then(() => {
-                                                        window.location.href = `/order/summary/${result.received.orderId}`;
-                                                    });
-                                                } else {
-                                                    Swal.fire("Out of blanace!", result.message, "error");
-                                                }
-                                            } catch (error) {
-                                                Swal.fire("Error", "Network error", "error")
-                                            }
-                                            placeOrderBtn.disabled = false;
-                                            placeOrderBtn.textContent = "Place Order";
-                                            return;
-                                        }
-
-
-                                        /* ============================================================
-                                           7️⃣ ONLINE PAYMENT (RAZORPAY)
-                                        ============================================================ */
-
-                                        // A. Create Razorpay Order
-                                        const rzpOrderReq = await fetch("/checkout/create-order", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            credentials: "include",
-                                            body: JSON.stringify({ amount: totalAmount })
-                                        });
-
-                                        const rzpData = await rzpOrderReq.json();
-                                        if (!rzpData.success) {
-                                            return Swal.fire("Error", "Could not initiate payment", "error");
-                                        }
-
-
-                                        // B. Razorpay Popup
-                                        const options = {
-                                            key: "rzp_test_RhHusrM3lncUVO",
-                                            amount: rzpData.order.amount,
-                                            currency: "INR",
-                                            name: "clickNbuild",
-                                            description: "Order Payment",
-                                            image: "https://res.cloudinary.com/dmx7sia5q/image/upload/v1762177534/do7hdqd5snvtmeqmnoa7.jpg",
-                                            order_id: rzpData.order.id,
-
-                                            handler: async function (response) {
-
-                                                // C. Verify Payment
-                                                const verifyReq = await fetch("/checkout/verify-payment", {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    credentials: "include",
-                                                    body: JSON.stringify(response)
-                                                });
-
-                                                const verifyRes = await verifyReq.json();
-                                                if (!verifyRes.success) {
-                                                    return Swal.fire("Payment Failed", "Verification error", "error");
-                                                }
-
-
-                                                /* ============================================================
-                                                   D. FETCH PAYMENT TRANSACTION DETAILS FROM BACKEND
-                                                ============================================================ */
-                                                const txnReq = await fetch("/checkout/get-transaction-details", {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    credentials: "include",
-                                                    body: JSON.stringify({ paymentId: response.razorpay_payment_id })
-                                                });
-
-                                                const txnData = await txnReq.json();
-                                                if (!txnData.success) {
-                                                    return Swal.fire("Error", "Transaction fetch failed", "error");
-                                                }
-
-                                                const transaction = txnData.payment;
-
-
-                                                /* ============================================================
-                                                   E. SEND FINAL ORDER WITH TRANSACTION DATA
-                                                ============================================================ */
-                                                const finalOrder = await fetch("/checkout/place-order", {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    credentials: "include",
-                                                    body: JSON.stringify({
-                                                        ...orderData,
-                                                        transaction
-                                                    })
-                                                });
-
-                                                const finalData = await finalOrder.json();
-
-                                                if (finalData.success) {
-                                                    Swal.fire({
-                                                        icon: "success",
-                                                        title: "Payment Successful",
-                                                        confirmButtonColor: "#000"
-                                                    }).then(() => {
-                                                        window.location.href = `/order/summary/${finalData.received.orderId}`;
-                                                    });
-                                                } else {
-                                                    Swal.fire("Error", "Order save failed", "error");
-                                                }
-                                            },
-
-                                            theme: { color: "#000" }
-                                        };
-
-                                        const rzp = new Razorpay(options);
-                                        rzp.open();
-
                                     });
                                 });
                             </script>
-
                 </div>
             </div>
         </div>
+
         <!-- Floating Add Address Form -->
         <div id="addressFormOverlay"
             class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -655,7 +465,7 @@
 
                     </div>
 
-                    <!-- ADDRESS FULL WIDTH -->
+                    <!-- ADDRESS -->
                     <div>
                         <label class="text-sm font-medium">Address</label>
                         <textarea name="address" placeholder="House Name , House Number, Locality"
@@ -674,7 +484,7 @@
 
                         <div>
                             <label class="text-sm font-medium">Pin Code</label>
-                            <input type="text" name="pincode" maxlength="6" placeholder="eg : 689230"
+                            <input type="text" name="pincode" maxlength="6"
                                 class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none"
                                 oninput="this.value = this.value.replace(/[^0-9]/g,'')">
                             <p class="text-red-500 text-xs mt-1 hidden" data-error="pincode"></p>
@@ -698,19 +508,17 @@
                         </div>
                     </div>
 
-                    <!-- LANDMARK OPTIONAL -->
+                    <!-- LANDMARK -->
                     <div>
-                        <label class="text-sm font-medium">Landmark ( optional )</label>
-                        <input type="text" name="landmark" placeholder="eg : near hospital"
+                        <label class="text-sm font-medium">Landmark (optional)</label>
+                        <input type="text" name="landmark"
                             class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                     </div>
 
                     <!-- BUTTONS -->
                     <div class="flex justify-end gap-4 mt-6">
                         <button type="button" id="closeAddressForm2"
-                            class="px-6 py-3 bg-gray-300 text-black rounded-xl hover:bg-gray-400">
-                            Cancel
-                        </button>
+                            class="px-6 py-3 bg-gray-300 text-black rounded-xl hover:bg-gray-400">Cancel</button>
 
                         <button type="submit" class="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-900">
                             Add Address
@@ -721,7 +529,6 @@
 
             </div>
         </div>
-
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -736,78 +543,112 @@
                 openBtn.addEventListener("click", () => overlay.classList.remove("hidden"));
 
                 /* CLOSE POPUP */
-                closeBtn.addEventListener("click", () => overlay.classList.add("hidden"));
-                closeBtn2.addEventListener("click", () => overlay.classList.add("hidden"));
+                const closeOverlay = () => overlay.classList.add("hidden");
+                closeBtn.addEventListener("click", closeOverlay);
+                closeBtn2.addEventListener("click", closeOverlay);
 
                 /* ERROR HELPERS */
                 function showError(field, message) {
                     const el = document.querySelector(`[data-error="${field}"]`);
+                    if (!el) return;
                     el.textContent = message;
                     el.classList.remove("hidden");
                 }
 
                 function clearError(field) {
                     const el = document.querySelector(`[data-error="${field}"]`);
+                    if (!el) return;
                     el.classList.add("hidden");
                 }
 
                 document.querySelectorAll("#addAddressForm input, #addAddressForm textarea")
                     .forEach(inp => inp.addEventListener("input", () => clearError(inp.name)));
 
+                /* VALIDATION RULES */
+                const validators = {
+                    fullName: v =>
+                        v.trim() === ""
+                            ? "Full name is required"
+                            : /[0-9]/.test(v)
+                                ? "Name should not contain numbers"
+                                : true,
+
+                    phoneNumber: v =>
+                        /^\d{10}$/.test(v) ? true : "Phone number must be 10 digits",
+
+                    address: v =>
+                        v.trim() !== "" || "Address is required",
+
+                    district: v =>
+                        v.trim() === ""
+                            ? "District is required"
+                            : /\d/.test(v)
+                                ? "District cannot contain numbers"
+                                : true,
+
+                    city: v =>
+                        v.trim() === ""
+                            ? "City is required"
+                            : /\d/.test(v)
+                                ? "City cannot contain numbers"
+                                : true,
+
+                    state: v =>
+                        v.trim() === ""
+                            ? "State is required"
+                            : /\d/.test(v)
+                                ? "State cannot contain numbers"
+                                : true,
+
+                    pincode: v =>
+                        /^\d{6}$/.test(v) ? true : "Pincode must be exactly 6 digits"
+                };
+
                 /* SUBMIT FORM */
                 addForm.addEventListener("submit", async (e) => {
                     e.preventDefault();
 
-                    const data = Object.fromEntries(new FormData(addForm).entries());
+                    const formData = Object.fromEntries(new FormData(addForm).entries());
                     let hasError = false;
 
-                    const required = ["fullName", "phoneNumber", "address", "district", "city", "state", "pincode"];
-
-                    required.forEach(f => {
-                        if (!data[f] || data[f].trim() === "") {
-                            showError(f, "This field is required");
+                    for (let field in validators) {
+                        const validation = validators[field](formData[field] || "");
+                        if (validation !== true) {
+                            showError(field, validation);
                             hasError = true;
                         }
-                    });
-
-                    if (data.phoneNumber && !/^\d{10}$/.test(data.phoneNumber)) {
-                        showError("phoneNumber", "Phone must be 10 digits");
-                        hasError = true;
-                    }
-
-                    if (data.pincode && !/^\d{6}$/.test(data.pincode)) {
-                        showError("pincode", "Pincode must be 6 digits");
-                        hasError = true;
                     }
 
                     if (hasError) return;
 
                     /* SEND TO BACKEND */
-                    const res = await fetch("/checkout/addAddress", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
+                    try {
+                        const res = await fetch("/checkout/addAddress", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(formData)
+                        });
 
-                    const result = await res.json();
+                        const result = await res.json();
 
-                    if (result.success) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Address Added!",
-                            text: result.message,
-                            confirmButtonColor: "#000"
-                        }).then(() => location.reload());
-                    } else {
-                        Swal.fire("Error", result.message, "error");
+                        if (result.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Address Added!",
+                                text: result.message,
+                                confirmButtonColor: "#000"
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire("Error", result.message, "error");
+                        }
+
+                    } catch (err) {
+                        Swal.fire("Error", "Network error occurred", "error");
                     }
                 });
 
             });
         </script>
-
-
-
 
         <!-- Footer -->
         <%- include("../../views/partials/user/footer") %>

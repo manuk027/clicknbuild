@@ -6,7 +6,7 @@ const checkoutRouter = express.Router();
 
 
 checkoutRouter.get('/', auth.userAuth, loadCheckout);
-// checkoutRouter.post('/', auth.userAuth, loadCheckout);
+checkoutRouter.post('/', auth.userAuth, loadCheckout);
 
 checkoutRouter.post('/addAddress', auth.userAuth, addAddress);
 
