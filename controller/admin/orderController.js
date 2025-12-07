@@ -45,7 +45,7 @@ const loadOrders = async (req, res) => {
 const changeStatus = async (req, res) => {
     try {
         const { orderId, sku, status } = req.body;
-        const ALLOWED_STATUSES = ["Pending", "Out for delivery", "Delivered", "Cancelled", "Return requested", "Returned"];
+        const ALLOWED_STATUSES = ["Pending", "Processing", "Out for delivery", "Delivered", "Cancelled", "Return requested", "Returned"];
         if (!orderId || !sku || !status) return res.json({ success: false, message: "Missing required fields." });
         if (!ALLOWED_STATUSES.includes(status)) return res.json({ success: false, message: "Invalid status value." });
         const order = await Order.findOne({ orderId });
@@ -53,34 +53,52 @@ const changeStatus = async (req, res) => {
         const item = order.items.find(i => i.sku === sku);
         if (!item) return res.json({ success: false, message: "Item not found in order." });
         if (["Delivered", "Cancelled", "Returned"].includes(item.status)) return res.json({ success: false, message: `This item is already ${item.status} and cannot be changed again.` });
+        if (status === "Returned" && item.status !== "Return requested") return res.json({ success: false, message: "Item can only be marked as Returned after Return Requested." });
+        let refundAmount = 0;
         if (status === "Cancelled" || status === "Returned") {
-            if (status === "Cancelled" || status === "Returned") {
-                if (!["Cancelled", "Returned"].includes(item.status)) await Product.updateOne({ _id: item.productId, "variants._id": item.variantId }, { $inc: { "variants.$.quantity": item.quantity } });
-            }
-            const paymentMethod = order.paymentMethod?.toLowerCase();
-            const isWalletRefundAllowed = paymentMethod === "online" || paymentMethod === "wallet";
-            if (isWalletRefundAllowed) {
-                const refundAmount = item.subTotal;
-                const lastWalletEntry = await Wallet.findOne({ userId: order.userId }).sort({ createdAt: -1 });
-                const previousBalance = lastWalletEntry ? lastWalletEntry.currentBalance : 0;
-                const newBalance = previousBalance + refundAmount;
-                await Wallet.create({ transactionId: uuidv4(), userId: order.userId, type: "CREDIT", amount: refundAmount, orderId, previousBalance, currentBalance: newBalance });
-            }
+            await Product.updateOne({ _id: item.productId, "variants._id": item.variantId }, { $inc: { "variants.$.quantity": item.quantity } });
+            refundAmount = item.subTotal ?? (item.salePrice * item.quantity);
         }
         item.status = status;
         await order.save();
+        const allCancelled = order.items.every(i => i.status === "Cancelled");
+        const deliveryFee = Number(order.deliveryFee || 0);
+        if (status === "Cancelled" && allCancelled === true && deliveryFee > 0 && order.deliveryFeeRefunded === false) {
+            refundAmount += deliveryFee;
+            order.deliveryFeeRefunded = true;
+            await order.save();
+        }
+        let shouldRefundToWallet = false;
+        if (status === "Returned") {
+            shouldRefundToWallet = true;
+        }
+        else if (status === "Cancelled") {
+            const paymentMethod = order.paymentMethod?.toLowerCase();
+            shouldRefundToWallet = paymentMethod === "online" || paymentMethod === "wallet";
+        }
+        if (shouldRefundToWallet && refundAmount > 0) {
+            const lastWalletEntry = await Wallet.findOne({ userId: order.userId }).sort({ createdAt: -1 });
+            const previousBalance = lastWalletEntry ? lastWalletEntry.currentBalance : 0;
+            const newBalance = previousBalance + refundAmount;
+            await Wallet.create({ transactionId: uuidv4(), userId: order.userId, type: "CREDIT", amount: refundAmount, orderId, previousBalance, currentBalance: newBalance });
+        }
         const statuses = order.items.map(i => i.status);
         const uniqueStatuses = [...new Set(statuses)];
         if (uniqueStatuses.length === 1) {
             order.orderStatus = uniqueStatuses[0];
             await order.save();
         }
-        return res.json({ success: true, message: "Order item status updated successfully!" });
+        return res.json({ success: true, message: "Order item status updated successfully!", refundAmount });
     } catch (error) {
         console.error("changeStatus error:", error);
         return res.json({ success: false, message: "Internal server error." });
     }
 };
+
+
+
+
+
 
 
 

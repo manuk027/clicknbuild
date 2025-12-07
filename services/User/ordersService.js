@@ -89,41 +89,120 @@ export const cancelOrderService = async (req, res) => {
 
 export const cancelProductService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
+
     try {
         const { itemId, orderId } = req.body;
-        if (!orderId || !itemId || !mongoose.Types.ObjectId.isValid(itemId)) return res.json({ success: false, message: "Invalid Order or Item ID!" });
+
+        if (!orderId || !itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
+            return res.json({ success: false, message: "Invalid Order or Item ID!" });
+        }
+
         const order = await Order.findOne({ orderId, userId });
         if (!order) return res.json({ success: false, message: "Order not found!" });
+
         const item = order.items.id(itemId);
         if (!item) return res.json({ success: false, message: "Item not found!" });
-        if (item.status === "Delivered") return res.json({ success: false, message: "Delivered product cannot be cancelled." });
-        if (!["Pending", "Out for delivery"].includes(item.status)) return res.json({ success: false, message: "This product cannot be cancelled." });
-        let refundAmount = 0;
-        if (["Pending", "Out for delivery"].includes(item.status)) {
-            await Product.updateOne({ _id: item.productId, "variants._id": item.variantId }, { $inc: { "variants.$.quantity": item.quantity } });
-            refundAmount = item.subTotal ?? (item.salePrice * item.quantity);
+
+        if (item.status === "Delivered") {
+            return res.json({
+                success: false,
+                message: "Delivered product cannot be cancelled."
+            });
         }
+
+        if (!["Pending", "Out for delivery"].includes(item.status)) {
+            return res.json({
+                success: false,
+                message: "This product cannot be cancelled."
+            });
+        }
+
+        let refundAmount = 0;
+
+        // ✅ RESTOCK + PRODUCT REFUND
+        await Product.updateOne(
+            { _id: item.productId, "variants._id": item.variantId },
+            { $inc: { "variants.$.quantity": item.quantity } }
+        );
+
+        refundAmount = item.subTotal ?? (item.salePrice * item.quantity);
+
+        // ✅ APPLY STATUS FIRST
         item.status = "Cancelled";
+        await order.save();
+
+        // ✅ ✅ CHECK IF ALL ITEMS ARE NOW CANCELLED
+        const allCancelled = order.items.every(i => i.status === "Cancelled");
+
+        // ✅ ✅ DELIVERY FEE REFUND — USING YOUR REAL SCHEMA FIELD
+        const deliveryFee = Number(order.deliveryFee || 0);
+
+        if (
+            allCancelled === true &&
+            deliveryFee > 0 &&
+            order.deliveryFeeRefunded === false
+        ) {
+            refundAmount += deliveryFee;
+            order.deliveryFeeRefunded = true;
+            await order.save();
+        }
+
+        // ✅ WALLET REFUND
         let currentBalance = null;
         const paymentMethod = order.paymentMethod?.toLowerCase();
-        const isWalletRefundAllowed = paymentMethod === "online" || paymentMethod === "wallet";
+        const isWalletRefundAllowed =
+            paymentMethod === "online" || paymentMethod === "wallet";
+
         if (isWalletRefundAllowed && refundAmount > 0) {
-            const lastTransaction = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
-            const previousBalance = lastTransaction ? lastTransaction.currentBalance : 0;
+            const lastTransaction = await Wallet
+                .findOne({ userId })
+                .sort({ createdAt: -1 });
+
+            const previousBalance = lastTransaction
+                ? lastTransaction.currentBalance
+                : 0;
+
             const newBalance = previousBalance + refundAmount;
-            await Wallet.create({ transactionId: uuidv4(), userId, type: "CREDIT", amount: refundAmount, orderId: order.orderId, previousBalance, currentBalance: newBalance, });
+
+            await Wallet.create({
+                transactionId: uuidv4(),
+                userId,
+                type: "CREDIT",
+                amount: refundAmount,
+                orderId: order.orderId,
+                previousBalance,
+                currentBalance: newBalance,
+            });
+
             currentBalance = newBalance;
         }
-        const allCancelled = order.items.every(i => i.status === "Cancelled");
-        if (allCancelled) order.orderStatus = "Cancelled";
-        await order.save();
-        const message = isWalletRefundAllowed ? `Product cancelled & ₹${refundAmount} credited to your wallet.` : "Product cancelled successfully.";
-        return res.json({ success: true, message, refunded: isWalletRefundAllowed ? refundAmount : 0, currentWalletBalance: currentBalance });
+
+        // ✅ UPDATE MAIN ORDER STATUS IF ALL ITEMS MATCH
+        if (allCancelled) {
+            order.orderStatus = "Cancelled";
+            await order.save();
+        }
+
+        const message = isWalletRefundAllowed
+            ? `Product cancelled & ₹${refundAmount} credited to your wallet.`
+            : "Product cancelled successfully.";
+
+        return res.json({
+            success: true,
+            message,
+            refunded: isWalletRefundAllowed ? refundAmount : 0,
+            currentWalletBalance: currentBalance,
+        });
+
     } catch (error) {
         console.error("Error cancelling the product:", error);
-        return res.status(500).json({ success: false, message: "Internal server error", });
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
     }
 };
+
 
 
 

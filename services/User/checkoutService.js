@@ -173,8 +173,8 @@ export const loadSummaryService = async (req, res) => {
         } else if (paymentMethod === 'Wallet') {
             const lastBalance = await Wallet.findOne({ userId }).sort({ createdAt: -1 });
             if (!lastBalance || lastBalance.currentBalance < totalAmount) return res.json({ success: false, message: "No enough balance in the wallet!" });
-            transactionDetails = { amount: totalAmount, paymentMethod: 'Wallet', paymentType: null, status: "Pending", transactionId: uuidv4(), time: Date.now(), }
-            await Wallet.create({ transactionId: transactionDetails.transactionId, userId: userId, type: "DEBIT", amount: totalAmount + deliveryFee, orderId: orderId, previousBalance: lastBalance.currentBalance, currentBalance: lastBalance.currentBalance - totalAmount, createdAt: Date.now(), })
+            transactionDetails = { amount: totalAmount , paymentMethod: 'Wallet', paymentType: null, status: "Pending", transactionId: uuidv4(), time: Date.now(), }
+            await Wallet.create({ transactionId: transactionDetails.transactionId, userId: userId, type: "DEBIT", amount: totalAmount + deliveryFee, orderId: orderId, previousBalance: lastBalance.currentBalance, currentBalance: lastBalance.currentBalance - totalAmount-deliveryFee, createdAt: Date.now(), })
         }
         const newOrder = new Order({
             userId,
