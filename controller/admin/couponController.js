@@ -2,6 +2,8 @@ import { HttpStatusCode } from 'axios';
 import { loadCouponsService, unListCouponsService, listCouponsService, addCouponsService } from '../../services/admin/couponService.js';
 import { HttpStatus } from '../../helpers/statusCodes.js';
 
+
+
 export const loadCoupons = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;

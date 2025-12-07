@@ -61,7 +61,6 @@ export const getDashboardDataService = async (req, res) => {
 
 
 
-
 export const downloadPDFService = async (req, res) => {
     const range = req.query.range || "monthly";
     const from = req.query.from;

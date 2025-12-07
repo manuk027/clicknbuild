@@ -41,7 +41,6 @@ export const blockCustomer = async (req, res) => {
 
 
 
-
 //function to unblock cutomer in admin side
 export const unblockCustomer = async (req, res) => {
   try {

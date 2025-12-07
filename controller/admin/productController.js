@@ -154,171 +154,56 @@ const loadEditProduct = async (req, res) => {
 export const editProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        console.log(productId);
-        console.log(req.body);
-        const {
-            brand,
-            productName,
-            description,
-            category,
-            status = "listed",
-            categoryType = "component",
-            limitedEdition = false,
-            flashSale = false,
-            variants = [],
-            specifications = [],
-            images = []
-        } = req.body;
-
-        // ============================
-        // BASIC VALIDATIONS
-        // ============================
+        const { brand, productName, description, category, status = "listed", categoryType = "component", limitedEdition = false, flashSale = false, variants = [], specifications = [], images = [] } = req.body;
         if (!brand) return res.status(400).json({ success: false, message: "Brand should not be blank." });
         if (!productName) return res.status(400).json({ success: false, message: "Product name should not be blank." });
         if (!description) return res.status(400).json({ success: false, message: "Description is required." });
         if (!category) return res.status(400).json({ success: false, message: "Category should not be blank." });
-
         const brandExists = await Brand.findById(brand);
         if (!brandExists) return res.status(400).json({ success: false, message: "Selected brand does not exist." });
-
         const categoryExists = await Category.findById(category);
         if (!categoryExists) return res.status(400).json({ success: false, message: "Selected category does not exist." });
-
-        if (!Array.isArray(images) || images.length !== 4)
-            return res.status(400).json({ success: false, message: "Exactly 4 product images are required." });
-
-        if (!Array.isArray(variants) || variants.length === 0)
-            return res.status(400).json({ success: false, message: "At least one product variant is required." });
-
-        // ============================
-        // VALIDATE VARIANTS
-        // ============================
+        if (!Array.isArray(images) || images.length !== 4) return res.status(400).json({ success: false, message: "Exactly 4 product images are required." });
+        if (!Array.isArray(variants) || variants.length === 0) return res.status(400).json({ success: false, message: "At least one product variant is required." });
         const validVariants = [];
-        const isInvalidNum = (value) =>
-            value === undefined || value === null || isNaN(value) || Number(value) <= 0;
-
+        const isInvalidNum = (value) => value === undefined || value === null || isNaN(value) || Number(value) <= 0;
         for (let i = 0; i < variants.length; i++) {
             const v = variants[i];
             const row = `row ${i + 1}`;
-
-            if (!v.variant || !v.variant.trim())
-                return res.status(400).json({ success: false, message: `Variant name is required (${row}).` });
-
-            if (isInvalidNum(v.quantity))
-                return res.status(400).json({ success: false, message: `Quantity must be a positive number (${row}).` });
-
-            if (isInvalidNum(v.price))
-                return res.status(400).json({ success: false, message: `Price must be a positive number (${row}).` });
-
-            if (v.offer === undefined || v.offer === null || isNaN(v.offer) || Number(v.offer) < 0)
-                return res.status(400).json({ success: false, message: `Offer must be a valid number and cannot be negative (${row}).` });
-
-            if (Number(v.offer) >= Number(v.price))
-                return res.status(400).json({ success: false, message: `Offer must be less than the price (${row}).` });
-
-            validVariants.push({
-                _id: v._id || null, // may or may not come
-                variant: v.variant.trim(),
-                quantity: Number(v.quantity),
-                price: Number(v.price),
-                offer: Number(v.offer)
-            });
+            if (!v.variant || !v.variant.trim()) return res.status(400).json({ success: false, message: `Variant name is required (${row}).` });
+            if (isInvalidNum(v.quantity)) return res.status(400).json({ success: false, message: `Quantity must be a positive number (${row}).` });
+            if (isInvalidNum(v.price)) return res.status(400).json({ success: false, message: `Price must be a positive number (${row}).` });
+            if (v.offer === undefined || v.offer === null || isNaN(v.offer) || Number(v.offer) < 0) return res.status(400).json({ success: false, message: `Offer must be a valid number and cannot be negative (${row}).` });
+            if (Number(v.offer) >= Number(v.price)) return res.status(400).json({ success: false, message: `Offer must be less than the price (${row}).` });
+            validVariants.push({ _id: v._id || null, variant: v.variant.trim(), quantity: Number(v.quantity), price: Number(v.price), offer: Number(v.offer) });
         }
-
-        // ============================
-        // VALIDATE SPECIFICATION
-        // ============================
-        if (!Array.isArray(specifications) || specifications.length === 0)
-            return res.status(400).json({ success: false, message: "At least one product specification is required." });
-
+        if (!Array.isArray(specifications) || specifications.length === 0) return res.status(400).json({ success: false, message: "At least one product specification is required." });
         const validSpecs = [];
         for (let i = 0; i < specifications.length; i++) {
             const s = specifications[i];
             const row = i + 1;
-
-            if (!s.title || !s.title.trim())
-                return res.status(400).json({ success: false, message: `Specification title is required (row ${row}).` });
-
-            if (!s.details || !s.details.trim())
-                return res.status(400).json({ success: false, message: `Specification details are required (row ${row}).` });
-
-            validSpecs.push({
-                title: s.title.trim(),
-                details: s.details.trim()
-            });
+            if (!s.title || !s.title.trim()) return res.status(400).json({ success: false, message: `Specification title is required (row ${row}).` });
+            if (!s.details || !s.details.trim()) return res.status(400).json({ success: false, message: `Specification details are required (row ${row}).` });
+            validSpecs.push({ title: s.title.trim(), details: s.details.trim() });
         }
-
-        // ============================
-        // LOAD EXISTING PRODUCT
-        // ============================
         const existingProduct = await Product.findById(productId);
-        if (!existingProduct)
-            return res.status(404).json({ success: false, message: "Product not found." });
-
-        // ============================
-        // PRESERVE VARIANT IDs
-        // ============================
+        if (!existingProduct) return res.status(404).json({ success: false, message: "Product not found." });
         const finalVariants = validVariants.map((v) => {
             if (v._id) {
-                const oldVariant = existingProduct.variants.find(
-                    (ev) => ev._id.toString() === v._id.toString()
-                );
-
-                if (oldVariant) {
-                    // Update existing, keep _id
-                    return {
-                        _id: oldVariant._id,
-                        variant: v.variant,
-                        quantity: v.quantity,
-                        price: v.price,
-                        offer: v.offer
-                    };
-                }
+                const oldVariant = existingProduct.variants.find((ev) => ev._id.toString() === v._id.toString());
+                if (oldVariant) { return { _id: oldVariant._id, variant: v.variant, quantity: v.quantity, price: v.price, offer: v.offer }; }
             }
-
-            // NEW VARIANT → MongoDB generates _id
-            return {
-                variant: v.variant,
-                quantity: v.quantity,
-                price: v.price,
-                offer: v.offer
-            };
+            return { variant: v.variant, quantity: v.quantity, price: v.price, offer: v.offer };
         });
-
-        // ============================
-        // UPDATE PRODUCT
-        // ============================
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
-            {
-                brand,
-                model: productName,
-                description,
-                category,
-                images,
-                variants: finalVariants, // ✔ using our merged variant list
-                specification: validSpecs,
-                isListed: status === "listed",
-                isComponent: categoryType === "component",
-                isPeripheral: categoryType === "peripheral",
-                isLimited: limitedEdition === true || limitedEdition === "true",
-                onFlashSale: flashSale === true || flashSale === "true"
-            },
+            { brand, model: productName, description, category, images, variants: finalVariants, specification: validSpecs, isListed: status === "listed", isComponent: categoryType === "component", isPeripheral: categoryType === "peripheral", isLimited: limitedEdition === true || limitedEdition === "true", onFlashSale: flashSale === true || flashSale === "true" },
             { new: true }
         );
-
-        return res.status(200).json({
-            success: true,
-            message: "Product updated successfully.",
-            product: updatedProduct
-        });
-
+        return res.status(200).json({ success: true, message: "Product updated successfully.", });
     } catch (error) {
         console.error("Update product error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error."
-        });
+        return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
 

@@ -66,23 +66,6 @@ const addCategory = async (req, res) => {
 
 
 
-// const deleteCategory = async (req, res) => {
-//     const { id } = req.params;
-//     try {
-//         const category = await Category.findById(id);
-//         if (!category) {
-//             return res.status(404).json({ success: false, message: "Category not found" });
-//         }
-//         await Category.findByIdAndDelete(id);
-//         return res.json({ success: true, message: "Category deleted successfully" });
-//     } catch (error) {
-//         console.error("Error deleting category:", error);
-//         return res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// }
-
-
-
 const addCategoryOffer = async (req, res) => {
     try {
         const { percentage, categoryId } = req.body;
@@ -91,7 +74,6 @@ const addCategoryOffer = async (req, res) => {
         const category = await Category.findById(categoryId);
         if (!category) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Category not found" });
         const products = await Product.find({ category: categoryId });
-        // const hasProductOffer = products.some((product) => product.variants[0].offer > percentage);
         await Category.updateOne({ _id: categoryId }, { $set: { maxOffer: offerValue } });
         return res.status(HttpStatus.OK).json({ success: true, message: "Produce offer updated Successfully." });
     } catch (error) {

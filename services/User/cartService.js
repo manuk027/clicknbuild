@@ -33,7 +33,6 @@ export async function loadCartService(userId) {
 
 
 
-
 export const emptyCartService = async (req, res) => {
     const userId = req.user?._id || req.session?.user;
     try {
@@ -76,27 +75,13 @@ export const updateCountService = async (req, res) => {
     try {
         const { action } = req.body;
         const { variantId } = req.params;
-
-        if (!["inc", "dec"].includes(action))
-            return res.status(400).json({ success: false, message: "Invalid action." });
-
+        if (!["inc", "dec"].includes(action)) return res.status(400).json({ success: false, message: "Invalid action." });
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
-
         const item = cart.items.find(i => i.variantId.toString() === variantId);
         if (!item) return res.status(404).json({ success: false, message: "Item not found." });
-
-        // ---------------------------------------------
-        // FETCH FRESH VARIANT INFORMATION FROM PRODUCT
-        // ---------------------------------------------
-        const product = await Product.findOne(
-            { _id: item.productId, "variants._id": variantId },
-            { "variants.$": 1, category: 1 }
-        ).populate("category");
-
-        // If variant deleted → only allow decreasing
+        const product = await Product.findOne({ _id: item.productId, "variants._id": variantId }, { "variants.$": 1, category: 1 }).populate("category");
         if (!product || !product.variants?.length) {
-
             if (action === "dec") {
                 if (item.quantity === 1) {
                     cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
@@ -104,48 +89,18 @@ export const updateCountService = async (req, res) => {
                     item.quantity--;
                     item.subTotal = item.unitPrice * item.quantity;
                 }
-
                 cart.totalAmount = cart.items.reduce((s, i) => s + i.subTotal, 0);
                 await cart.save();
-
-                return res.json({
-                    success: true,
-                    quantity: item.quantity,
-                    removed: item.quantity === 0,
-                    total: cart.totalAmount
-                });
+                return res.json({ success: true, quantity: item.quantity, removed: item.quantity === 0, total: cart.totalAmount });
             }
-
-            return res.status(400).json({
-                success: false,
-                message: "This product variant is no longer available."
-            });
+            return res.status(400).json({ success: false, message: "This product variant is no longer available." });
         }
-
         const variant = product.variants[0];
-
-        // -------------------------------
-        // DETERMINE MAX ALLOWED QUANTITY
-        // -------------------------------
         const maxAllowed = Math.min(variant.quantity, 5);
-
-        // -------------------------------
-        // HANDLE INCREMENT
-        // -------------------------------
         if (action === "inc") {
-            if (item.quantity >= maxAllowed) {
-                return res.status(400).json({
-                    success: false,
-                    message: `You can only add up to ${maxAllowed} units.`
-                });
-            }
-
+            if (item.quantity >= maxAllowed) return res.status(400).json({ success: false, message: `You can only add up to ${maxAllowed} units.` });
             item.quantity++;
         }
-
-        // -------------------------------
-        // HANDLE DECREMENT
-        // -------------------------------
         if (action === "dec") {
             if (item.quantity === 1) {
                 cart.items = cart.items.filter(i => i.variantId.toString() !== variantId);
@@ -153,28 +108,14 @@ export const updateCountService = async (req, res) => {
                 item.quantity--;
             }
         }
-
-        // APPLY FINAL OFFER (same logic used everywhere)
         const finalUnitPrice = applyFinalOfferToVariant(variant, product.category);
-
         item.unitPrice = finalUnitPrice;
         item.subTotal = finalUnitPrice * item.quantity;
-
         cart.totalAmount = cart.items.reduce((s, i) => s + i.subTotal, 0);
         await cart.save();
-
-        return res.json({
-            success: true,
-            quantity: item.quantity,
-            subTotal: item.subTotal,
-            total: cart.totalAmount
-        });
-
+        return res.json({ success: true, quantity: item.quantity, subTotal: item.subTotal, total: cart.totalAmount });
     } catch (error) {
         console.error("Error updating count:", error);
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
-
-
-

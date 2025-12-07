@@ -13,24 +13,28 @@
 
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- Header -->
     <%- include("../../views/partials/user/header", { peripheral: peripheral, component: component, user: user }) %>
 
         <div class="max-w-7xl mx-auto p-4 md:p-8">
 
-            <!-- Order Summary + Address -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-                <!-- Left: Coupon Summary -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <% if(coupon.length>= 1) { %>
                         <form id="couponForm">
+                            
+                            <input type="hidden" id="cartTotalValue" value="<%= totalAmount %>">
+
                             <div class="space-y-4 mb-6">
 
                                 <% for (let i=0; i<coupon.length; i++) { %>
                                     <label class="block cursor-pointer">
-                                        <input type="radio" name="couponId" value="<%= coupon[i].couponId._id %>"
-                                            class="peer hidden" />
+                                        <input type="radio" 
+                                               name="couponId" 
+                                               value="<%= coupon[i].couponId._id %>"
+                                               data-min-purchase="<%= coupon[i].couponId.minimumPurchase %>"
+                                               class="peer hidden" />
+                                        
                                         <div
                                             class="coupon-card flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition">
                                             <div class="flex items-center gap-3">
@@ -59,10 +63,12 @@
                                     Apply Coupon
                                 </button>
 
+                                <% if (typeof appliedCoupon !== 'undefined' && appliedCoupon) { %>
                                 <a href="/checkout"
                                     class="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-black transition text-center">
                                     Remove Coupon
                                 </a>
+                                <% } %>
                             </div>
 
                         </form>
@@ -79,6 +85,7 @@
 
                                         const selectedCoupon = document.querySelector('input[name="couponId"]:checked');
 
+                                        // 1. Check if coupon is selected
                                         if (!selectedCoupon) {
                                             Swal.fire({
                                                 icon: "warning",
@@ -88,6 +95,22 @@
                                             return;
                                         }
 
+                                        // 2. Validate Minimum Purchase against totalAmount
+                                        const minPurchase = parseFloat(selectedCoupon.dataset.minPurchase) || 0;
+                                        const cartTotalStr = document.getElementById("cartTotalValue")?.value || "0";
+                                        const cartTotal = parseFloat(cartTotalStr.replace(/[₹,\s]/g, ""));
+
+                                        if (cartTotal < minPurchase) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Coupon Not Applicable",
+                                                text: `This coupon requires a total amount of at least ₹${minPurchase}. Your current total is ₹${cartTotal}.`,
+                                                confirmButtonColor: "#000"
+                                            });
+                                            return;
+                                        }
+
+                                        // 3. Proceed with API Call
                                         const couponId = selectedCoupon.value;
 
                                         try {
@@ -136,7 +159,6 @@
                                 </script>
                 </div>
 
-                <!-- Right: Address Section -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <h2 class="text-center font-semibold text-lg mb-6">CHOOSE DELIVERY POINT</h2>
 
@@ -214,10 +236,8 @@
 
                 </div>
             </div>
-            <!-- Payment & Product Summary -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <!-- Payment Methods -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-4">Payment Methods</h2>
                     <p class="text-sm text-gray-600 mb-6">Select any payment method</p>
@@ -236,32 +256,37 @@
                             <span class="ml-3 font-medium">Online Payment</span>
                         </label>
 
-                        <% const isLowBalance=walletBalance < totalAmount; %>
+                        <% 
+                            const userBalance = parseFloat(walletBalance) || 0;
+                            // Ensure we use the exact same totalAmount variable for consistency
+                            const finalTotal = parseFloat(totalAmount) || 0;
+                            const isLowBalance = userBalance < finalTotal; 
+                        %>
 
-                            <label
-                                class="flex items-center p-4 border rounded-xl transition mt-4 w-full 
-                        <%= isLowBalance ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer hover:bg-gray-50' %>">
-                                <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black"
-                                    <%=isLowBalance ? 'disabled' : '' %>>
+                        <label
+                            class="flex items-center p-4 border rounded-xl transition mt-4 w-full 
+                            <%= isLowBalance ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'cursor-pointer hover:bg-gray-50' %>">
+                            
+                            <input type="radio" name="paymentMethod" value="Wallet" class="w-5 h-5 text-black"
+                                <%= isLowBalance ? 'disabled' : '' %>>
 
-                                <div class="flex-1 flex justify-between items-center ml-3">
-                                    <span class="font-medium">Wallet</span>
-                                    <div class="flex items-center gap-3">
-                                        <span class="font-medium">₹<%= walletBalance %></span>
+                            <div class="flex-1 flex justify-between items-center ml-3">
+                                <span class="font-medium">Wallet</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-medium text-gray-700">Bal: ₹<%= userBalance.toFixed(2) %></span>
 
-                                        <% if (isLowBalance) { %>
-                                            <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">
-                                                Insufficient
-                                            </span>
-                                            <% } %>
-                                    </div>
+                                    <% if (isLowBalance) { %>
+                                        <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">
+                                            Insufficient
+                                        </span>
+                                    <% } %>
                                 </div>
-                            </label>
+                            </div>
+                        </label>
 
                     </div>
                 </div>
 
-                <!-- Order Details -->
                 <div class="bg-white rounded-3xl shadow-lg p-6">
 
                     <% for (let i=0; i<cart.length; i++) { %>
@@ -292,7 +317,6 @@
                         </div>
                         <% } %>
 
-                            <!-- Price Summary -->
                             <div class="space-y-3 mb-6">
 
                                 <div class="flex justify-between text-gray-700">
@@ -322,19 +346,16 @@
 
                             </div>
 
-                            <!-- Total Amount -->
                             <div class="flex justify-between text-lg font-semibold mb-6 pt-4 border-t">
                                 <span>Total Amount:</span>
                                 <span>₹ <%= totalAmount %></span>
                             </div>
 
-                            <!-- Place Order -->
                             <button id="placeOrderBtn"
                                 class="w-full bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-800 transition">
                                 Place Order
                             </button>
 
-                            <!-- Razorpay Script -->
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
                             <script>
@@ -401,16 +422,22 @@
 
                                         /* 5️⃣ DELIVERY + TOTAL */
                                         const deliveryFeeText = document.querySelector(
-                                            "div.flex.justify-between.text-gray-700 span.text-green-600 p"
-                                        )?.textContent.trim();
+                                            ".flex.justify-between.text-gray-700 .text-green-600"
+                                        )?.textContent?.trim() || "0";
 
-                                        const deliveryFee = deliveryFeeText === "Free" ? 0 :
-                                            parseFloat(deliveryFeeText.replace(/[₹,\s]/g, "")) || 0;
+                                        const deliveryFee = deliveryFeeText === "Free"
+                                            ? 0
+                                            : parseFloat(deliveryFeeText.replace(/[₹,\s]/g, "")) || 0;
 
-                                        const totalAmount = parseFloat(
-                                            document.querySelector("div.flex.justify-between.text-lg.font-semibold span:last-child")
-                                                .textContent.replace(/[₹,\s]/g, "")
+
+                                        const totalEl = document.querySelector(
+                                            ".flex.justify-between.text-lg.font-semibold span:last-child"
                                         );
+
+                                        const totalAmount = totalEl
+                                            ? parseFloat(totalEl.textContent.replace(/[₹,\s]/g, ""))
+                                            : 0;
+
 
                                         /* FINAL ORDER DATA */
                                         const orderData = {
@@ -421,6 +448,165 @@
                                             deliveryFee,
                                             couponId
                                         };
+                                        
+                                        if (paymentMethod === "COD") {
+                                            try {
+                                                placeOrderBtn.disabled = true;
+                                                placeOrderBtn.textContent = "Placing Order...";
+
+                                                const response = await fetch("/checkout/place-order", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify(orderData)
+                                                });
+
+                                                const result = await response.json();
+
+                                                if (result.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Order Placed!",
+                                                        confirmButtonColor: "#000"
+                                                    }).then(() => {
+                                                        window.location.href = `/order/summary/${result.received.orderId}`;
+                                                    });
+                                                } else {
+                                                    Swal.fire("Error", result.message, "error");
+                                                }
+
+                                            } catch (err) {
+                                                Swal.fire("Error", "Network error", "error");
+                                            }
+
+                                            placeOrderBtn.disabled = false;
+                                            placeOrderBtn.textContent = "Place Order";
+                                            return;
+                                        } else if (paymentMethod === 'Wallet') {
+                                            try {
+                                                placeOrderBtn.disabled = true;
+                                                placeOrderBtn.textContent = 'Placing Order...';
+                                                const response = await fetch('/checkout/place-order', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify(orderData)
+                                                });
+                                                const result = await response.json();
+                                                if (result.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Order Placed!",
+                                                        confirmButtonColor: '#000'
+                                                    }).then(() => {
+                                                        window.location.href = `/order/summary/${result.received.orderId}`;
+                                                    });
+                                                } else {
+                                                    Swal.fire("Out of balance!", result.message, "error");
+                                                }
+                                            } catch (error) {
+                                                Swal.fire("Error", "Network error", "error")
+                                            }
+                                            placeOrderBtn.disabled = false;
+                                            placeOrderBtn.textContent = "Place Order";
+                                            return;
+                                        }
+
+
+                                        /* ============================================================
+                                           7️⃣ ONLINE PAYMENT (RAZORPAY)
+                                        ============================================================ */
+
+                                        // A. Create Razorpay Order
+                                        const rzpOrderReq = await fetch("/checkout/create-order", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            credentials: "include",
+                                            body: JSON.stringify({ amount: totalAmount })
+                                        });
+
+                                        const rzpData = await rzpOrderReq.json();
+                                        if (!rzpData.success) {
+                                            return Swal.fire("Error", "Could not initiate payment", "error");
+                                        }
+
+
+                                        // B. Razorpay Popup
+                                        const options = {
+                                            key: "rzp_test_RhHusrM3lncUVO",
+                                            amount: rzpData.order.amount,
+                                            currency: "INR",
+                                            name: "clickNbuild",
+                                            description: "Order Payment",
+                                            image: "https://res.cloudinary.com/dmx7sia5q/image/upload/v1762177534/do7hdqd5snvtmeqmnoa7.jpg",
+                                            order_id: rzpData.order.id,
+
+                                            handler: async function (response) {
+
+                                                // C. Verify Payment
+                                                const verifyReq = await fetch("/checkout/verify-payment", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    credentials: "include",
+                                                    body: JSON.stringify(response)
+                                                });
+
+                                                const verifyRes = await verifyReq.json();
+                                                if (!verifyRes.success) {
+                                                    return Swal.fire("Payment Failed", "Verification error", "error");
+                                                }
+
+
+                                                /* ============================================================
+                                                   D. FETCH PAYMENT TRANSACTION DETAILS FROM BACKEND
+                                                ============================================================ */
+                                                const txnReq = await fetch("/checkout/get-transaction-details", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    credentials: "include",
+                                                    body: JSON.stringify({ paymentId: response.razorpay_payment_id })
+                                                });
+
+                                                const txnData = await txnReq.json();
+                                                if (!txnData.success) {
+                                                    return Swal.fire("Error", "Transaction fetch failed", "error");
+                                                }
+
+                                                const transaction = txnData.payment;
+
+
+                                                /* ============================================================
+                                                   E. SEND FINAL ORDER WITH TRANSACTION DATA
+                                                ============================================================ */
+                                                const finalOrder = await fetch("/checkout/place-order", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    credentials: "include",
+                                                    body: JSON.stringify({
+                                                        ...orderData,
+                                                        transaction
+                                                    })
+                                                });
+
+                                                const finalData = await finalOrder.json();
+
+                                                if (finalData.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Payment Successful",
+                                                        confirmButtonColor: "#000"
+                                                    }).then(() => {
+                                                        window.location.href = `/order/summary/${finalData.received.orderId}`;
+                                                    });
+                                                } else {
+                                                    Swal.fire("Error", "Order save failed", "error");
+                                                }
+                                            },
+
+                                            theme: { color: "#000" }
+                                        };
+
+                                        const rzp = new Razorpay(options);
+                                        rzp.open();
+
                                     });
                                 });
                             </script>
@@ -428,13 +614,11 @@
             </div>
         </div>
 
-        <!-- Floating Add Address Form -->
         <div id="addressFormOverlay"
             class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
 
             <div class="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-xl relative">
 
-                <!-- Close Button -->
                 <button id="closeAddressForm"
                     class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">✕</button>
 
@@ -445,7 +629,6 @@
 
                 <form id="addAddressForm" class="space-y-6">
 
-                    <!-- TWO COLUMN: Name + Phone -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div>
@@ -465,7 +648,6 @@
 
                     </div>
 
-                    <!-- ADDRESS -->
                     <div>
                         <label class="text-sm font-medium">Address</label>
                         <textarea name="address" placeholder="House Name , House Number, Locality"
@@ -473,7 +655,6 @@
                         <p class="text-red-500 text-xs mt-1 hidden" data-error="address"></p>
                     </div>
 
-                    <!-- DISTRICT + PINCODE -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="text-sm font-medium">District</label>
@@ -491,7 +672,6 @@
                         </div>
                     </div>
 
-                    <!-- CITY + STATE -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="text-sm font-medium">City</label>
@@ -508,14 +688,12 @@
                         </div>
                     </div>
 
-                    <!-- LANDMARK -->
                     <div>
                         <label class="text-sm font-medium">Landmark (optional)</label>
                         <input type="text" name="landmark"
                             class="w-full mt-1 px-4 py-3 border rounded-lg bg-gray-100 outline-none">
                     </div>
 
-                    <!-- BUTTONS -->
                     <div class="flex justify-end gap-4 mt-6">
                         <button type="button" id="closeAddressForm2"
                             class="px-6 py-3 bg-gray-300 text-black rounded-xl hover:bg-gray-400">Cancel</button>
@@ -565,16 +743,20 @@
                     .forEach(inp => inp.addEventListener("input", () => clearError(inp.name)));
 
                 /* VALIDATION RULES */
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                
                 const validators = {
                     fullName: v =>
                         v.trim() === ""
                             ? "Full name is required"
-                            : /[0-9]/.test(v)
-                                ? "Name should not contain numbers"
+                            : !nameRegex.test(v)
+                                ? "Name should contain only letters"
                                 : true,
 
                     phoneNumber: v =>
-                        /^\d{10}$/.test(v) ? true : "Phone number must be 10 digits",
+                        /^\d{10}$/.test(v) && v !== "0000000000"
+                        ? true 
+                        : "Enter a valid 10-digit phone number",
 
                     address: v =>
                         v.trim() !== "" || "Address is required",
@@ -582,22 +764,22 @@
                     district: v =>
                         v.trim() === ""
                             ? "District is required"
-                            : /\d/.test(v)
-                                ? "District cannot contain numbers"
+                            : !nameRegex.test(v)
+                                ? "District should contain only letters"
                                 : true,
 
                     city: v =>
                         v.trim() === ""
                             ? "City is required"
-                            : /\d/.test(v)
-                                ? "City cannot contain numbers"
+                            : !nameRegex.test(v)
+                                ? "City should contain only letters"
                                 : true,
 
                     state: v =>
                         v.trim() === ""
                             ? "State is required"
-                            : /\d/.test(v)
-                                ? "State cannot contain numbers"
+                            : !nameRegex.test(v)
+                                ? "State should contain only letters"
                                 : true,
 
                     pincode: v =>
@@ -650,7 +832,6 @@
             });
         </script>
 
-        <!-- Footer -->
         <%- include("../../views/partials/user/footer") %>
 </body>
 
