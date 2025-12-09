@@ -81,7 +81,7 @@ const addProduct = async (req, res) => {
         const onFlashSale = flashSale === true || flashSale === "true";
         const newProduct = new Product({ brand, model: productName, description, category, images, variants: validVariants, specification: validSpecs, isListed, isComponent, isPeripheral, isLimited, onFlashSale, rating: 0 });
         await newProduct.save();
-        return res.status(HttpStatus.Ok).json({ success: true, message: "Product added successfully." });
+        return res.status(HttpStatus.OK).json({ success: true, message: "Product added successfully." });
     } catch (error) {
         console.error("Add product error:", error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error." });

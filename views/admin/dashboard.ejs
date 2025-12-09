@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CB Dashboard</title>
-  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png" type="image/png">
-  
+  <link rel="icon" href="https://res.cloudinary.com/dmx7sia5q/image/upload/v1761540715/logo_dtmtfn.png"
+    type="image/png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,309 +15,338 @@
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-900">
-  
+
   <%- include("../../views/partials/admin/sidebar") %>
 
-  <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
-    
-    <header class="bg-white shadow-sm sticky top-0 z-30">
+    <div class="flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+
+      <header class="bg-white shadow-sm sticky top-0 z-30">
         <%- include("../../views/partials/admin/header") %>
-    </header>
+      </header>
 
-    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+      <main class="flex-1 p-4 sm:p-6 lg:p-8">
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
-          <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Orders</h4>
-          <p id="statOrders" class="text-2xl font-bold text-gray-800 mt-1">0</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
-          <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Sales</h4>
-          <p id="statSales" class="text-2xl font-bold text-blue-600 mt-1">₹0</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
-          <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Discount</h4>
-          <p id="statDiscount" class="text-2xl font-bold text-red-500 mt-1">₹0</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
-          <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Net Revenue</h4>
-          <p id="statNet" class="text-2xl font-bold text-green-600 mt-1">₹0</p>
-        </div>
-      </div>
-
-      <div class="mb-6 bg-white p-4 rounded-lg shadow flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-3 w-full xl:w-auto">
-          <select id="range" class="border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto">
-            <option value="daily">1 Day</option>
-            <option value="weekly">1 Week</option>
-            <option value="monthly" selected>1 Month</option>
-            <option value="yearly">1 Year</option>
-          </select>
-          <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <label class="text-sm text-gray-600 whitespace-nowrap">From:</label>
-              <input id="fromDate" type="date" class="border border-gray-300 px-3 py-2 rounded-md w-full sm:w-auto text-sm">
-            </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <label class="text-sm text-gray-600 whitespace-nowrap">To:</label>
-              <input id="toDate" type="date" class="border border-gray-300 px-3 py-2 rounded-md w-full sm:w-auto text-sm">
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
+            <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Orders</h4>
+            <p id="statOrders" class="text-2xl font-bold text-gray-800 mt-1">0</p>
           </div>
-          <button id="applyFilter" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition w-full md:w-auto mt-2 md:mt-0 shadow-sm">Apply</button>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end border-t xl:border-0 pt-3 xl:pt-0">
-          <span id="lastUpdated" class="text-xs text-gray-500 order-2 sm:order-1">Updated: —</span>
-          <div class="flex gap-2 order-1 sm:order-2 w-full sm:w-auto">
-              <a id="downloadPdf" class="flex-1 sm:flex-none text-center border px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm cursor-pointer shadow-sm"><i class="fas fa-file-pdf mr-1"></i> PDF</a>
-              <a id="downloadXlsx" class="flex-1 sm:flex-none text-center border px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white text-sm cursor-pointer shadow-sm"><i class="fas fa-file-excel mr-1"></i> Excel</a>
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
+            <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Sales</h4>
+            <p id="statSales" class="text-2xl font-bold text-blue-600 mt-1">₹0</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
+            <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Discount</h4>
+            <p id="statDiscount" class="text-2xl font-bold text-red-500 mt-1">₹0</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-100 text-center">
+            <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Net Revenue</h4>
+            <p id="statNet" class="text-2xl font-bold text-green-600 mt-1">₹0</p>
           </div>
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-          <h3 class="font-semibold text-gray-700 mb-4 border-b pb-2">Sales vs Discount</h3>
-          <div class="relative h-64 w-full flex justify-center">
+        <div
+          class="mb-6 bg-white p-4 rounded-lg shadow flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div class="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-3 w-full xl:w-auto">
+            <select id="range"
+              class="border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto">
+              <option value="daily">1 Day</option>
+              <option value="weekly">1 Week</option>
+              <option value="monthly" selected>1 Month</option>
+              <option value="yearly">1 Year</option>
+            </select>
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <label class="text-sm text-gray-600 whitespace-nowrap">From:</label>
+                <input id="fromDate" type="date"
+                  class="border border-gray-300 px-3 py-2 rounded-md w-full sm:w-auto text-sm">
+              </div>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <label class="text-sm text-gray-600 whitespace-nowrap">To:</label>
+                <input id="toDate" type="date"
+                  class="border border-gray-300 px-3 py-2 rounded-md w-full sm:w-auto text-sm">
+              </div>
+            </div>
+            <button id="applyFilter"
+              class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition w-full md:w-auto mt-2 md:mt-0 shadow-sm">Apply</button>
+          </div>
+
+          <div
+            class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end border-t xl:border-0 pt-3 xl:pt-0">
+            <span id="lastUpdated" class="text-xs text-gray-500 order-2 sm:order-1">Updated: —</span>
+            <div class="flex gap-2 order-1 sm:order-2 w-full sm:w-auto">
+              <a id="downloadPdf"
+                class="flex-1 sm:flex-none text-center border px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm cursor-pointer shadow-sm"><i
+                  class="fas fa-file-pdf mr-1"></i> PDF</a>
+              <a id="downloadXlsx"
+                class="flex-1 sm:flex-none text-center border px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white text-sm cursor-pointer shadow-sm"><i
+                  class="fas fa-file-excel mr-1"></i> Excel</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h3 class="font-semibold text-gray-700 mb-4 border-b pb-2">Sales vs Discount</h3>
+            <div class="relative h-64 w-full flex justify-center">
               <canvas id="donutChart"></canvas>
+            </div>
           </div>
-        </div>
-        <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-lg shadow">
-          <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="font-semibold text-gray-700">Monthly Activity</h3>
-          </div>
-          <div class="relative h-64 w-full">
+          <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+              <h3 class="font-semibold text-gray-700">Monthly Activity</h3>
+            </div>
+            <div class="relative h-64 w-full">
               <canvas id="barChart"></canvas>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
-        <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
-          <div class="flex items-center justify-between mb-4 pb-2 border-b">
-            <h3 class="font-semibold text-gray-700">Best Selling Products</h3>
-            <span class="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded">Top 10</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+          <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b">
+              <h3 class="font-semibold text-gray-700">Best Selling Products</h3>
+              <span class="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded">Top 10</span>
+            </div>
+            <ul id="bestSellingProducts" class="divide-y divide-gray-100 flex-1">
+              <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
+            </ul>
           </div>
-          <ul id="bestSellingProducts" class="divide-y divide-gray-100 flex-1">
-             <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
-          </ul>
-        </div>
 
-        <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
-          <div class="flex items-center justify-between mb-4 pb-2 border-b">
-            <h3 class="font-semibold text-gray-700">Best Categories</h3>
-            <span class="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Top 10</span>
+          <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b">
+              <h3 class="font-semibold text-gray-700">Best Categories</h3>
+              <span class="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Top 10</span>
+            </div>
+            <ul id="bestSellingCategories" class="divide-y divide-gray-100 flex-1">
+              <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
+            </ul>
           </div>
-          <ul id="bestSellingCategories" class="divide-y divide-gray-100 flex-1">
-             <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
-          </ul>
-        </div>
 
-        <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
-          <div class="flex items-center justify-between mb-4 pb-2 border-b">
-            <h3 class="font-semibold text-gray-700">Best Brands</h3>
-            <span class="text-xs font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded">Top 10</span>
+          <div class="bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-100 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b">
+              <h3 class="font-semibold text-gray-700">Best Brands</h3>
+              <span class="text-xs font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded">Top 10</span>
+            </div>
+            <ul id="bestSellingBrands" class="divide-y divide-gray-100 flex-1">
+              <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
+            </ul>
           </div>
-          <ul id="bestSellingBrands" class="divide-y divide-gray-100 flex-1">
-            <li class="py-4 text-center text-gray-400 text-sm">Loading data...</li>
-          </ul>
+
+        </div>
+        <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
+          <h3 class="font-semibold text-gray-700 mb-4">Sales Report</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm whitespace-nowrap">
+              <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
+                <tr class="border-b">
+                  <th class="py-3 px-2 text-left">Order ID</th>
+                  <th class="py-3 px-2 text-left">Date</th>
+                  <th class="py-3 px-2 text-left">Subtotal</th>
+                  <th class="py-3 px-2 text-left">Discount</th>
+                  <th class="py-3 px-2 text-left">Coupon</th>
+                  <th class="py-3 px-2 text-left">Total</th>
+                </tr>
+              </thead>
+              <tbody id="reportTable" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
         </div>
 
-      </div>
-      <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h3 class="font-semibold text-gray-700 mb-4">Sales Report</h3>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm whitespace-nowrap">
-            <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
-              <tr class="border-b">
-                <th class="py-3 px-2 text-left">Order ID</th>
-                <th class="py-3 px-2 text-left">Date</th>
-                <th class="py-3 px-2 text-left">Subtotal</th>
-                <th class="py-3 px-2 text-left">Discount</th>
-                <th class="py-3 px-2 text-left">Coupon</th>
-                <th class="py-3 px-2 text-left">Total</th>
-              </tr>
-            </thead>
-            <tbody id="reportTable" class="divide-y divide-gray-100"></tbody>
-          </table>
-        </div>
-      </div>
+      </main>
+    </div>
 
-    </main>
-  </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        loadReport();
+      });
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      loadReport();
-    });
+      let donutChart, barChart;
 
-    let donutChart, barChart;
-
-    function updateDownloadLinks(range, from, to) {
-      let base = `/admin/report/download`;
-      if (from && to) range = "custom";
-      document.getElementById("downloadPdf").href = `${base}.pdf?range=${range}&from=${from}&to=${to}`;
-      document.getElementById("downloadXlsx").href = `${base}.xlsx?range=${range}&from=${from}&to=${to}`;
-    }
-
-    async function loadReport() {
-      const range = document.getElementById("range").value;
-      const from = document.getElementById("fromDate").value;
-      const to = document.getElementById("toDate").value;
-
-      let url = `/admin/report?range=${range}`;
-
-      if (from && to) {
-        if (new Date(from) > new Date(to)) {
-          return Swal.fire("Invalid", "From date cannot be after To date", "error");
-        }
-        url = `/admin/report?range=custom&from=${from}&to=${to}`;
+      function updateDownloadLinks(range, from, to) {
+        let base = `/admin/report/download`;
+        if (from && to) range = "custom";
+        document.getElementById("downloadPdf").href = `${base}.pdf?range=${range}&from=${from}&to=${to}`;
+        document.getElementById("downloadXlsx").href = `${base}.xlsx?range=${range}&from=${from}&to=${to}`;
       }
 
-      try {
-        const response = await fetch(url, { headers: { "Accept": "application/json" } });
-        const data = await response.json();
+      async function loadReport() {
+        const range = document.getElementById("range").value;
+        const from = document.getElementById("fromDate").value;
+        const to = document.getElementById("toDate").value;
 
-        if (!data.success) return;
+        let url = `/admin/report?range=${range}`;
 
-        updateStats(data.summary);
-        updateDonutChart(data.summary);
-        updateBarChart(data.orders);
-        renderTable(data.orders);
-        
-        // Check if backend provides best selling data
-        if(data.bestSelling) {
+        if (from && to) {
+          if (new Date(from) > new Date(to)) {
+            return Swal.fire("Invalid", "From date cannot be after To date", "error");
+          }
+          url = `/admin/report?range=custom&from=${from}&to=${to}`;
+        }
+
+        try {
+          const response = await fetch(url, { headers: { "Accept": "application/json" } });
+          const data = await response.json();
+
+          if (!data.success) return;
+
+          updateStats(data.summary);
+          updateDonutChart(data.summary);
+          updateBarChart(data.orders);
+          renderTable(data.orders);
+
+          // Check if backend provides best selling data
+          if (data.bestSelling) {
             updateBestSelling(data.bestSelling);
-        } else {
+          } else {
             // Handle case where data is missing (clear loaders)
-             document.getElementById('bestSellingProducts').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
-             document.getElementById('bestSellingCategories').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
-             document.getElementById('bestSellingBrands').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
+            document.getElementById('bestSellingProducts').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
+            document.getElementById('bestSellingCategories').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
+            document.getElementById('bestSellingBrands').innerHTML = '<li class="py-2 text-xs text-center text-gray-500">No data</li>';
+          }
+
+          updateDownloadLinks(range, from, to);
+
+          document.getElementById("lastUpdated").innerText = "Updated: " + new Date().toLocaleTimeString();
+        } catch (error) {
+          console.error("Error loading report:", error);
         }
-
-        updateDownloadLinks(range, from, to);
-
-        document.getElementById("lastUpdated").innerText = "Updated: " + new Date().toLocaleTimeString();
-      } catch (error) {
-        console.error("Error loading report:", error);
       }
-    }
 
-    function updateStats(summary) {
-      document.getElementById("statOrders").innerText = summary.orderCount;
-      document.getElementById("statSales").innerText = "₹" + summary.totalSales.toLocaleString('en-IN');
-      document.getElementById("statDiscount").innerText = "₹" + summary.totalDiscount.toLocaleString('en-IN');
-      document.getElementById("statNet").innerText = "₹" + (summary.totalSales - summary.totalDiscount).toLocaleString('en-IN');
-    }
+      function updateStats(summary) {
+        const grossSales = summary.totalSales + summary.totalDiscount;
 
-    // New function to handle best selling section
-    function updateBestSelling(bestSelling) {
+        document.getElementById("statOrders").innerText = summary.orderCount;
+
+        // ✅ Gross Sales
+        document.getElementById("statSales").innerText =
+          "₹" + grossSales.toLocaleString('en-IN');
+
+        // ✅ Discount
+        document.getElementById("statDiscount").innerText =
+          "₹" + summary.totalDiscount.toLocaleString('en-IN');
+
+        // ✅ Net Revenue (already correct from backend)
+        document.getElementById("statNet").innerText =
+          "₹" + summary.totalSales.toLocaleString('en-IN');
+      }
+
+
+      // New function to handle best selling section
+      function updateBestSelling(bestSelling) {
         const renderList = (elementId, items) => {
-            const listContainer = document.getElementById(elementId);
-            listContainer.innerHTML = ''; // Clear loading state
+          const listContainer = document.getElementById(elementId);
+          listContainer.innerHTML = ''; // Clear loading state
 
-            if (!items || items.length === 0) {
-                listContainer.innerHTML = '<li class="py-4 text-center text-gray-500 text-sm">No records found</li>';
-                return;
-            }
+          if (!items || items.length === 0) {
+            listContainer.innerHTML = '<li class="py-4 text-center text-gray-500 text-sm">No records found</li>';
+            return;
+          }
 
-            items.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = "py-3 flex justify-between items-center text-sm";
-                li.innerHTML = `
+          items.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = "py-3 flex justify-between items-center text-sm";
+            li.innerHTML = `
                     <div class="flex items-center gap-3 truncate w-3/4">
                          <span class="text-gray-400 font-mono text-xs">#${index + 1}</span>
                          <span class="text-gray-700 truncate font-medium" title="${item.name}">${item.name}</span>
                     </div>
                 `;
-                listContainer.appendChild(li);
-            });
+            listContainer.appendChild(li);
+          });
         };
 
         renderList('bestSellingProducts', bestSelling.products);
         renderList('bestSellingCategories', bestSelling.categories);
         renderList('bestSellingBrands', bestSelling.brands);
-    }
+      }
 
-    function updateDonutChart(summary) {
-      const ctx = document.getElementById("donutChart");
-      if (donutChart) donutChart.destroy();
+      function updateDonutChart(summary) {
+        const ctx = document.getElementById("donutChart");
+        if (donutChart) donutChart.destroy();
 
-      donutChart = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-          labels: ["Sales", "Discount"],
-          datasets: [{
-            data: [summary.totalSales, summary.totalDiscount],
-            backgroundColor: ["#3b82f6", "#ef4444"],
-            borderWidth: 0
-          }]
-        },
-        options: {
+        donutChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Sales", "Discount"],
+            datasets: [{
+              data: [summary.totalSales, summary.totalDiscount],
+              backgroundColor: ["#3b82f6", "#ef4444"],
+              borderWidth: 0
+            }]
+          },
+          options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom' }
+              legend: { position: 'bottom' }
             }
-        }
-      });
-    }
+          }
+        });
+      }
 
-    function updateBarChart(orders) {
-      const ctx = document.getElementById("barChart");
-      const months = Array(12).fill(0);
+      function updateBarChart(orders) {
+        const ctx = document.getElementById("barChart");
+        const months = Array(12).fill(0);
 
-      orders.forEach(o => {
-        const monthIndex = new Date(o.createdAt).getMonth();
-        months[monthIndex] += o.totalAmount || 0;
-      });
+        orders.forEach(o => {
+          const monthIndex = new Date(o.createdAt).getMonth();
 
-      if (barChart) barChart.destroy();
+          // ✅ Only delivered net revenue
+          const netAmount = o.items.reduce((sum, i) => {
+            return sum + (i.salePrice * i.quantity);
+          }, 0);
 
-      barChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          datasets: [{
-            label: "Sales",
-            data: months,
-            backgroundColor: "#3b82f6",
-            borderRadius: 4
-          }]
-        },
-        options: {
+          months[monthIndex] += netAmount;
+        });
+
+        if (barChart) barChart.destroy();
+
+        barChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            datasets: [{
+              label: "Net Revenue",
+              data: months,
+              backgroundColor: "#3b82f6",
+              borderRadius: 4
+            }]
+          },
+          options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, grid: { display: false } },
-                x: { grid: { display: false } }
+              y: { beginAtZero: true, grid: { display: false } },
+              x: { grid: { display: false } }
             }
-        }
-      });
-    }
-
-    function renderTable(orders) {
-      const tbody = document.getElementById("reportTable");
-      tbody.innerHTML = "";
-
-      if(orders.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">No records found</td></tr>`;
-          return;
+          }
+        });
       }
 
-      orders.forEach(o => {
-        let subTotal = 0;
-        let discount = 0;
 
-        o.items.forEach(i => {
-          const itemPrice = i.price || 0;
-          const salePrice = i.salePrice || itemPrice;
-          subTotal += itemPrice * i.quantity;
-          discount += (itemPrice - salePrice) * i.quantity;
-        });
+      function renderTable(orders) {
+        const tbody = document.getElementById("reportTable");
+        tbody.innerHTML = "";
 
-        tbody.innerHTML += `
+        if (orders.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">No records found</td></tr>`;
+          return;
+        }
+
+        orders.forEach(o => {
+          let subTotal = 0;
+          let discount = 0;
+
+          o.items.forEach(i => {
+            const itemPrice = i.price || 0;
+            const salePrice = i.salePrice || itemPrice;
+            subTotal += itemPrice * i.quantity;
+            discount += (itemPrice - salePrice) * i.quantity;
+          });
+
+          tbody.innerHTML += `
         <tr class="hover:bg-gray-50 transition">
           <td class="py-3 px-2 font-medium text-gray-700">#${o.orderId}</td>
           <td class="py-3 px-2 text-gray-600">${new Date(o.createdAt).toLocaleDateString()}</td>
@@ -327,10 +357,11 @@
           </td>
           <td class="py-3 px-2 font-bold text-gray-800">₹${o.totalAmount}</td>
         </tr>`;
-      });
-    }
+        });
+      }
 
-    document.getElementById("applyFilter").addEventListener("click", loadReport);
-  </script>
+      document.getElementById("applyFilter").addEventListener("click", loadReport);
+    </script>
 </body>
+
 </html>

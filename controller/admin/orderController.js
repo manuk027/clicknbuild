@@ -97,10 +97,4 @@ const changeStatus = async (req, res) => {
 
 
 
-
-
-
-
-
 export default { loadOrders, changeStatus, };
-
