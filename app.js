@@ -11,7 +11,7 @@ import cors from 'cors';
 import { errorHandler } from "./middleware/errorHandler.js";
 import router from './routes/index.js';
 import { customLogger } from "./middleware/logger.js";
-
+import rateLimit from "express-rate-limit";
 
 
 dotenv.config();
@@ -57,17 +57,20 @@ app.set("views", [
   path.join(__dirname, 'views/admin/coupons'),
 ]);
 
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+})
 
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(customLogger);
 app.use('/', router);
-// 404 Handler - must come after all routes
 app.use((req, res) => {
-    res.status(404).render("errorPage", {
-        statusCode: 404,
-        message: "Page Not Found"
-    });
+  res.status(404).render("errorPage", {
+    statusCode: 404,
+    message: "Page Not Found"
+  });
 });
 
 

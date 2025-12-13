@@ -11,6 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.1.18",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -26,10 +27,11 @@
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
-    "mongodb": "^6.20.0",
+    "mongodb": "^6.21.0",
     "mongoose": "^8.20.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
@@ -43,16 +45,16 @@
     "razorpay": "^2.9.6",
     "sharp": "^0.34.4",
     "socket.io": "^4.8.1",
+    "tailwindcss": "^4.1.18",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "autoprefixer": "^10.4.21",
+    "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.5.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17"
+    "postcss": "^8.5.6"
   },
   "repository": {
     "type": "git",
