@@ -10,7 +10,7 @@ export const router = express.Router();
 
 router.get('/', userController.loadHomepage);
 router.get('/pageNotFound', userController.loadErrorPage);
-router.get('/signin', nocache(), userController.loadSignin);
+// router.get('/signin', nocache(), userController.loadSignin);
 router.get('/signup', nocache(), userController.loadSignup);
 router.post('/signup', userController.signup);
 router.post('/verifyEmailOTP', nocache(), userController.verifyEmailOtp);
@@ -23,15 +23,20 @@ router.get('/auth/google/callback', nocache(), (req, res, next) => {
     passport.authenticate('google', async (err, user, info) => {
         if (err) {
             console.error("Passport error:", err);
-            return res.render('signup', { message: "Something went wrong. Please try again." });
+            return res.render('login', { message: "Something went wrong. Please try again." });
         }
         if (!user) {
-            return res.render('login', { message: info?.message || "User is blocked by the admin." });
+            req.logout(() => {
+                req.session.destroy(() => {
+                    return res.render('login', { message: info?.message || "User is blocked by the admin." });
+                });
+            });
+            return;
         }
         req.logIn(user, (err) => {
             if (err) {
                 console.error("Login error:", err);
-                return res.render('signup', { message: "Login failed. Try again." });
+                return res.render('login', { message: "Login failed. Try again." });
             }
             return res.redirect('/');
         });

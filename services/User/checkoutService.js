@@ -31,6 +31,7 @@ export const loadCheckoutService = async (req, res, next) => {
         let addressDoc = await Address.findOne({ userId });
         const address = addressDoc ? addressDoc.address : [];
         const cart = await Cart.findOne({ userId }).populate({ path: "items.productId", populate: [{ path: "brand", select: "name isListed" }, { path: "category", select: "name maxOffer isListed" }] }).lean();
+        if (!cart) return res.redirect("/cart");
         let unUsedCoupons = await CouponUsage.find({ userId, used: false }).populate("couponId");
         let checkoutItems = [];
         let totalOriginalPrice = 0;

@@ -74,7 +74,7 @@ const loadSignup = async (req, res, next) => {
             return res.redirect('/')
         }
         const referralCode = req.query.refToken || '';
-        return res.render("signup", { message: null, referralCode, });
+        return res.render("signup", { message: null, referralCode : referralCode? referralCode: null, });
     } catch (error) {
         console.error("Error loading the signup page");
         next(error);
@@ -83,17 +83,17 @@ const loadSignup = async (req, res, next) => {
 
 
 
-const loadSignin = async (req, res, next) => {
-    try {
-        if (req.user?._id || req.session?.user) {
-            return res.redirect('/')
-        }
-        return res.render("signin");
-    } catch (error) {
-        console.error(err);
-        next(error);
-    }
-};
+// const loadSignin = async (req, res, next) => {
+//     try {
+//         if (req.user?._id || req.session?.user) {
+//             return res.redirect('/')
+//         }
+//         return res.render("signin");
+//     } catch (error) {
+//         console.error(err);
+//         next(error);
+//     }
+// };
 
 
 
@@ -208,15 +208,16 @@ const resendOTP = async (req, res, next) => {
 
 const loadLogin = async (req, res, next) => {
     try {
-        if (req.user?._id || req.session?.user) {
-            return res.redirect('/')
+        if (req.user && !req.user.isBlocked) {
+            return res.redirect('/');
         }
         return res.render('login', { message: null });
     } catch (error) {
-        res.redirect("pageNotFound");
-        next(error);
+        console.error(error);
+        return res.redirect('/pageNotFound');
     }
 };
+
 
 
 
@@ -1071,4 +1072,4 @@ export const addToCart = async (req, res) => {
 
 
 
-export default { loadHomepage, loadErrorPage, loadSignup, loadSignin, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, addToCart, };
+export default { loadHomepage, loadErrorPage, loadSignup, signup, verifyEmailOtp, resendOTP, loadLogin, login, logout, loadPeripheral, loadComponent, loadAllProducts, loadProductDetails, loadLimitedEditions, loadSearchedProducts, loadForgotPassword, sendOtp, verify, loadUpdatePassword, updatePassword, loadProfilePage, loadEditProfile, updateProfile, loadEditPassword, editPassword, loadAdresses, loadAddAdresses, addAddress, loadEditAddress, editAddress, deleteAddress, addToCart, };
